@@ -7,6 +7,16 @@ info:
 servers:
   - url: http://localhost:3000
 
+tags:
+  - name: login
+    description: Login process
+  - name: user
+    description: Everything about the user
+  - name: relationship
+    description: Create relationships with other users
+  - name: userPost
+    description: Everything about the userPost
+
 components:
 
   securitySchemes:
@@ -46,8 +56,7 @@ components:
   schemas: 
     Username:
       description: user unique name
-      type: string 
-      example: "Aldo"
+      type: string
       minLength: 2
       maxLength: 15
     
@@ -80,7 +89,6 @@ components:
             It can be movie quotes, description of the user, a sequence of numbers, anything.
             It is displayed to other users underneath the profile picture.
           type: string
-          example: "Simplicity is the key to happiness"
           minLength: 0
           maxLength: 150
         profilePic:
@@ -101,19 +109,16 @@ components:
         nPhotos:
           description: number of uploaded photos
           type: integer
-          example: 55
           minimum: 0
           maximum: 999
         nFollowers:
           description: number of followers
           type: integer
-          example: 120
           minimum: 0
           maximum: 999
         nFollowing:
           description: number of following
           type: integer
-          example: 110
           minimum: 0
           maximum: 999
     
@@ -130,30 +135,30 @@ components:
           description: date in which the post was created
           type: string
           format: date-time
-          example: 2017-07-21T17:32:28Z
+          minLength: 0
+          maxLength: 20
         caption:
           description: |-
             Short 150 character summary of whatever the user wants.
             It can be movie quotes, description of the photo, a sequence of numbers, anything.
             It is displayed to other users underneath the photo.
           type: string
-          example: "I love this place"
           minLength: 0
           maxLength: 150
         photo:
           description: Photo content of the user post
           type: string
           format: binary
+          minLength: 0
+          maxLength: 1000
         nLikes:
           description: number of likes
           type: integer
-          example: 12
           minimum: 0
           maximum: 999
         nComments:
           description: number of comments
           type: integer
-          example: 3
           minimum: 0
           maximum: 99
     
@@ -187,6 +192,8 @@ components:
           description: date of creation of the comment
           type: string
           format: date-time
+          minLength: 0
+          maxLength: 20
         content:
           description: content of the comment
           type: string
@@ -259,7 +266,7 @@ paths:
             application/json: 
               schema: { $ref: "#/components/schemas/UserProfile" }
   
-  /users/{user-id}/userposts/:
+  /users/{user-id}/userposts:
     parameters:
       - $ref: "#/components/parameters/UserID"
     
@@ -303,6 +310,7 @@ paths:
           content:
             application/json:
               schema:
+                description: array of user post
                 type: array
                 items: { $ref: "#/components/schemas/UserPost" }
                 minItems: 0
@@ -326,6 +334,7 @@ paths:
           content:
             application/json: 
               schema:
+                description: array of short profiles
                 type: array
                 items: { $ref: "#/components/schemas/ShortProfile" }
                 minItems: 0
@@ -349,6 +358,7 @@ paths:
           content:
             application/json:
               schema:
+                description: array of short profiles
                 type: array
                 items: { $ref: "#/components/schemas/ShortProfile" }
                 minItems: 0
@@ -388,6 +398,7 @@ paths:
           content:
             application/json:
               schema:
+                description: array of short profiles
                 type: array
                 items: { $ref: "#/components/schemas/ShortProfile" }
                 minItems: 0
@@ -395,7 +406,6 @@ paths:
   
   /users/{user-id}/following/:
     parameters:
-      - $ref: "#/components/parameters/UserName"
       - $ref: "#/components/parameters/UserID"
     
     get:
@@ -412,6 +422,7 @@ paths:
           content:
             application/json:
               schema:
+                description: array of short profiles
                 type: array
                 items: { $ref: "#/components/schemas/ShortProfile" }
                 minItems: 0
@@ -435,12 +446,13 @@ paths:
           content:
             application/json:
               schema:
+                description: array of short profiles
                 type: array
                 items: { $ref: "#/components/schemas/ShortProfile" }
                 minItems: 0
                 maxItems: 999
   
-  /users/{user-id}/following/{user-name}/:
+  /users/{user-id}/following/{user-name}:
     parameters:
       - $ref: "#/components/parameters/UserName"
       - $ref: "#/components/parameters/UserID"
@@ -489,6 +501,7 @@ paths:
           content:
             application/json:
               schema:
+                description: array of short profiles
                 type: array
                 items: { $ref: "#/components/schemas/ShortProfile" }
                 minItems: 0
@@ -538,6 +551,7 @@ paths:
           content:
             application/json:
               schema:
+                description: array of comments
                 type: array
                 items: { $ref: "#/components/schemas/Comment" }
                 minItems: 0
