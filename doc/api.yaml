@@ -227,7 +227,7 @@ paths:
               application/json: 
                 schema: { $ref: "#/components/schemas/UserID" }
   
-  /users/{user-id}/:
+  /users/{user-id}:
     parameters:
       - $ref: "#/components/parameters/UserID"
 
@@ -266,7 +266,7 @@ paths:
             application/json: 
               schema: { $ref: "#/components/schemas/UserProfile" }
   
-  /users/{user-id}/userposts:
+  /users/{user-id}/userposts/:
     parameters:
       - $ref: "#/components/parameters/UserID"
     
