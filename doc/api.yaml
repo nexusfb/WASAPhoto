@@ -1,4 +1,5 @@
 openapi: 3.0.0 
+
 info:
   title: WASAPhoto
   description: Multi user photo-sharing application
@@ -11,67 +12,73 @@ tags:
   - name: login
     description: Login process
   - name: user
-    description: Everything about the user
+    description: Everything about a user
   - name: relationship
-    description: Create relationships with other users
+    description: Everything about relationships with other users
   - name: userPost
-    description: Everything about the userPost
+    description: Everything about a user post
 
 components:
 
   securitySchemes:
+  
     bearerAuthentication: 
       type: http
       scheme: bearer
 
   parameters:
+  
     UserID:
-      description: user identifier
+      description: Immutable public user identifier
       schema: { $ref: "#/components/schemas/UserID" }
       name: user-id
       in: path
       required: true
     
-    UserName:
-      description: user unique name
-      schema: { $ref: "#/components/schemas/Username" }
-      name: user-name
-      in: path
-      required: true
-    
     UserPostID:
-      description: user identifier
+      description: User post identifier
       schema: { $ref: "#/components/schemas/UserpostID" }
       name: userpost-id
       in: path
       required: true
     
     CommentID:
-      description: comment identifier
+      description: Comment identifier
       schema: { $ref: "#/components/schemas/CommentID" }
       name: comment-id
       in: path
       required: true
     
-  schemas: 
+    RelationUser:
+      description: Immutable public user identifier used when creating/destroying relationships between users
+      schema: { $ref: "#/components/schemas/UserID" }
+      name: id
+      in: path
+      required: true
+    
+  schemas:
+  
     Username:
-      description: user unique name
+      description: Public changeable user-defined identifier
       type: string
-      minLength: 2
-      maxLength: 15
+      pattern: ^(?=[a-zA-Z0-9._]{5,20}$)(?!.*[_.]{2})[^_.].*[^_.]$
+      minLength: 5
+      maxLength: 20
+
     
     UserID:
-      description: user identifier
-      type: integer
-      format: int64
+      description: Public immutable server-defined identifier
+      type: string
+      pattern: ^[a-zA-Z0-9]+$
+      readOnly: true
     
     UserpostID:
-      description: user identifier
+      description: User post identifier
       type: integer
       format: int64
     
     CommentID:
-      description: comment identifier
+      description: Comment identifier
       type: integer
       format: int64
     
@@ -83,36 +90,32 @@ components:
       properties:
         id: { $ref: "#/components/schemas/UserID" }
         username: { $ref: "#/components/schemas/Username" }
-        bio: 
+        bio:
           description: |-
             Short 150 character summary of whatever the user wants.
             It can be movie quotes, description of the user, a sequence of numbers, anything.
             It is displayed to other users underneath the profile picture.
           type: string
+          pattern: ^.*$
           minLength: 0
           maxLength: 150
         profilePic:
-          description: profile picture
-          type: object
-          properties:
-            url:
-              description: url of the photo
-              type: string
-              minLength: 0
-              maxLength: 100
+          description: Photo that is displayed next to username, bio and counts in the user profile
+          type: string
+          format: binary
         userPosts:
-          description: user’s photos in reverse chronological order
-          type: array
-          items: {$ref: '#/components/schemas/UserPost'}
+          description: URL to the path of userposts of the user
+          type: string
+          pattern: https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)
           minItems: 0
-          maxItems: 999
+          maxItems: 2048
         nPhotos:
-          description: number of uploaded photos
+          description: Number of posts uploaded by the user
           type: integer
           minimum: 0
           maximum: 999
         nFollowers:
-          description: number of followers
+          description: Number of followers
           type: integer
           minimum: 0
           maximum: 999
@@ -132,32 +135,29 @@ components:
         authorID: { $ref: "#/components/schemas/UserID" }
         author: { $ref: "#/components/schemas/Username" }
         date:
-          description: date in which the post was created
+          description: Date in which the post was created
           type: string
           format: date-time
-          minLength: 0
-          maxLength: 20
         caption:
           description: |-
             Short 150 character summary of whatever the user wants.
             It can be movie quotes, description of the photo, a sequence of numbers, anything.
             It is displayed to other users underneath the photo.
           type: string
+          pattern: ^.*$
           minLength: 0
           maxLength: 150
         photo:
           description: Photo content of the user post
           type: string
           format: binary
-          minLength: 0
-          maxLength: 1000
         nLikes:
-          description: number of likes
+          description: Number of likes
           type: integer
           minimum: 0
           maximum: 999
         nComments:
-          description: number of comments
+          description: Number of comments
           type: integer
           minimum: 0
           maximum: 99
@@ -169,52 +169,47 @@ components:
         The profile has a username and a profile picture.
       type: object
       properties:
+        id: { $ref: "#/components/schemas/UserID" }
         username: { $ref: "#/components/schemas/Username" }
         profilePic:
-          description: profile picture
-          type: object
-          properties:
-            url:
-              description: url of the photo
-              type: string
-              minLength: 0
-              maxLength: 100
+          description: URL to profile picture of the user
+          type: string
+          pattern: https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)
+              
     Comment:
       description: |-
         This object represents a comment to a photo.
-        A comment has an authorID, author, date, content.
+        A comment has an id, author, authorID, date, content.
       type: object
       properties:
         id: { $ref: "#/components/schemas/CommentID" }
         author: { $ref: "#/components/schemas/Username" }
         authorID: { $ref: "#/components/schemas/UserID" }
         date:
-          description: date of creation of the comment
+          description: Date of creation of the comment
           type: string
           format: date-time
-          minLength: 0
-          maxLength: 20
         content:
-          description: content of the comment
+          description: Content of the comment
           type: string
+          pattern: ^.*$
           minLength: 0
           maxLength: 150
-    
-    
-    
-
+          
 paths:
+
   /session:
+    # This is the login path
     post:
       tags: ["login"]
       operationId: doLogin
-      summary: Logs in the user 
+      summary: Log in the user 
       description: |-
         If the user does not exist, it will be created,
         and an identifier is returned.
         If the user exists, the user identifier is returned.
       requestBody:
-        description: username of the user
+        description: Username of the user who wants to login
         content:
           application/json: 
               schema: { $ref: "#/components/schemas/Username" }
@@ -228,6 +223,8 @@ paths:
                 schema: { $ref: "#/components/schemas/UserID" }
   
   /users/{user-id}:
+    # This is the user profile path
+    
     parameters:
       - $ref: "#/components/parameters/UserID"
 
@@ -251,10 +248,10 @@ paths:
       - bearerAuthentication: []
       tags: ["user"]
       operationId: setMyUserName
-      summary: Change profile of the specified user
+      summary: Modify the profile of the specified user
       description: |-
         Modifies username or/and bio or/and profile pic of the specified user with the username/bio/profile pic specified in the body of the request.
-      requestBody: 
+      requestBody:
         content:
           application/json:
             schema: { $ref: "#/components/schemas/UserProfile" }
@@ -267,6 +264,7 @@ paths:
               schema: { $ref: "#/components/schemas/UserProfile" }
   
   /users/{user-id}/userposts/:
+    # In this path each user has the collection of ID of their user posts
     parameters:
       - $ref: "#/components/parameters/UserID"
     
@@ -275,11 +273,11 @@ paths:
       - bearerAuthentication: []
       tags: ["user"]
       operationId: uploadPhoto
-      summary: Create new user post
+      summary: Add user post ID to the collection
       description: |-
-        Create a new user post using the content in the request body.
-        The server will create a new unique ID, the client can find it
-        in the response.
+        Add user post in the request body to the public collection of user posts.
+        Then add the user post ID to the private collection of userpostsID.
+        The server will create a new unique ID, the client can find it in the response.
       requestBody: 
         content:
           application/json:
@@ -293,6 +291,7 @@ paths:
               schema: { $ref: "#/components/schemas/UserpostID" }
   
   /users/{user-id}/stream/:
+    # In this path each user has the collection of ID of userpost of users they follow
     parameters:
       - $ref: "#/components/parameters/UserID"
     
@@ -301,22 +300,25 @@ paths:
       - bearerAuthentication: []
       tags: ["user"]
       operationId: getMyStream
-      summary: Get the list of user posts recently uploaded by followed users
-      description: Return the list of the followed user's posts
+      summary: Get the collection of user posts recently uploaded by followed users
+      description: |-
+        The stream has the ID of userpost of users followed.
+        It should return the collection of the followed user's posts.
       
       responses:
         "200":
-          description: List of followed users has been successfully returned
+          description: List of user posts of followed users
           content:
             application/json:
               schema:
-                description: array of user post
+                description: Array of followed users posts
                 type: array
                 items: { $ref: "#/components/schemas/UserPost" }
                 minItems: 0
                 maxItems: 999
   
-  /users/{user-id}/bans/:
+  /users/{user-id}/banned/:
+    # In this path each user has the collection of user IDs they have banned
     parameters:
     - $ref: "#/components/parameters/UserID"
     
@@ -325,62 +327,69 @@ paths:
       - bearerAuthentication: []
       tags: ["user"]
       operationId: getBannedUsers
-      summary: Get the list of banned users
-      description: Return the list of the users that have been banned by the authenticated user.
+      summary: Get the collection of banned users
+      description: |-
+        The banned collection is a collection of user IDs.
+        It should return the collection of the users short profiles that have been banned by the user in the path.
       
       responses: 
         "200":
-          description: List of banned users returned successfully 
+          description: Collection of banned users returned successfully 
           content:
             application/json: 
               schema:
-                description: array of short profiles
+                description: Array of banned user's short profiles
                 type: array
                 items: { $ref: "#/components/schemas/ShortProfile" }
                 minItems: 0
                 maxItems: 999
     
-    post:
+    
+  
+  /users/{user-id}/banned/{id}:
+    # This is the path to a specific user ID which belongs to the collection of banned users
+    parameters:
+      - $ref: "#/components/parameters/RelationUser"
+      - $ref: "#/components/parameters/UserID"
+
+    put:
       security:
       - bearerAuthentication: []
       tags: ["relationship"]
       operationId: banUser
-      summary: Ban a user
-      description: Add a username to the bans collection.
+      summary: Add user ID to banned collection
+      description: Add a user ID to the collection of banned user IDs.
+
       requestBody:
         content:
           application/json:
             schema: { $ref: "#/components/schemas/Username" }
-      
+
       responses:
-        "200":
+        "201":
           description: User has been banned successfully 
           content:
             application/json:
               schema:
-                description: array of short profiles
+                description: array of banned user's short profiles
                 type: array
                 items: { $ref: "#/components/schemas/ShortProfile" }
                 minItems: 0
                 maxItems: 999
-  
-  /users/{user-id}/bans/{user-name}:
-    parameters:
-      - $ref: "#/components/parameters/UserName"
-      - $ref: "#/components/parameters/UserID"
-    
+                
     delete:
       security:
       - bearerAuthentication: []
       tags: ["relationship"]
       operationId: unbanUser
-      summary: unban user
-      description: Delete username from bans collection.
-      
+      summary: Remove user ID from banned collection
+      description: Delete userID from the collection of banned users IDs.
+  
       responses:
         "204": { description: User has been unbanned successfully }
   
   /users/{user-id}/followers/:
+    # This is the path to the collection of IDs of the user's followers
     parameters:
       - $ref: "#/components/parameters/UserID"
     
@@ -389,22 +398,25 @@ paths:
       - bearerAuthentication: []
       tags: ["user"]
       operationId: getFollowers
-      summary: Get the list of followers
-      description: Return the list of the user's followers
+      summary: Get the collection of followers
+      description: |-
+        The followers collection is a collection of user IDs.
+        It should return the collection of the users' short profiles that belong to the collection of followers IDs.
       
       responses:
         "200":
-          description: List of followers returned successfully
+          description: Collection of followers returned successfully
           content:
             application/json:
               schema:
-                description: array of short profiles
+                description: array of followers' short profiles
                 type: array
                 items: { $ref: "#/components/schemas/ShortProfile" }
                 minItems: 0
                 maxItems: 999
   
-  /users/{user-id}/following/:
+  /users/{user-id}/followings/:
+    # This is the path to the collection of IDs of the users that are followed by the user.
     parameters:
       - $ref: "#/components/parameters/UserID"
     
@@ -413,8 +425,10 @@ paths:
       - bearerAuthentication: []
       tags: ["user"]
       operationId: getFollowing
-      summary: Get the list of users followed by the user
-      description: Return the list of the user's following
+      summary: Get the collection of following users
+      description: |-
+        The followings collection is a collection of user IDs.
+        It should return the collection of the users' short profiles that belong to the collection of users that are followed by the user
       
       responses:
         "200":
@@ -428,47 +442,50 @@ paths:
                 minItems: 0
                 maxItems: 999
     
-    post:
+  
+  /users/{user-id}/followings/{id}:
+    # This is the path to a specific user ID which belongs to the collection of followings
+    parameters:
+      - $ref: "#/components/parameters/RelationUser"
+      - $ref: "#/components/parameters/UserID"
+    
+    put:
       security:
       - bearerAuthentication: []
       tags: ["relationship"]
       operationId: followUser
-      summary: Follow a user
-      description: Add a username to the following collection.
+      summary: Add user ID to followings collection
+      description: Add a user ID to followings collection.
       requestBody:
         content:
           application/json:
             schema: { $ref: "#/components/schemas/Username" }
       
       responses:
-        "200":
+        "201":
           description: User has been followed successfully
           content:
             application/json:
               schema:
-                description: array of short profiles
+                description: Array of following users' short profiles
                 type: array
                 items: { $ref: "#/components/schemas/ShortProfile" }
                 minItems: 0
                 maxItems: 999
-  
-  /users/{user-id}/following/{user-name}:
-    parameters:
-      - $ref: "#/components/parameters/UserName"
-      - $ref: "#/components/parameters/UserID"
-    
+                
     delete:
       security:
       - bearerAuthentication: []
       tags: ["relationship"]
       operationId: unfollowUser
-      summary: Stop following this user
+      summary: Remove user ID from followings collection
       description: Delete username from following collection.
       
       responses:
         "204": {description: User has been unfollowed successfully }
   
   /usersposts/{userpost-id}:
+    # This is the path to a specific user post
     parameters:
       - $ref: "#/components/parameters/UserPostID"
     
@@ -484,6 +501,7 @@ paths:
         "204": { description: Photo has been successfully deleted }
 
   /usersposts/{userpost-id}/likes/:
+    # this is the path to the collection of likes of the specified user post
     parameters:
       - $ref: "#/components/parameters/UserPostID"
     
@@ -492,32 +510,41 @@ paths:
       - bearerAuthentication: []
       tags: ["userPost"]
       operationId: getLikes
-      summary: Get the likes of the user post
-      description: Return the list of likes of the user post.
+      summary: Get the collection of likes of the user post
+      description: Return the collection of likes of the user post.
       
       responses:
         "200":
-          description: List of likes returned successfully
+          description: Collection of likes returned successfully
           content:
             application/json:
               schema:
-                description: array of short profiles
+                description: Array of short profiles of users in the likes collection
                 type: array
                 items: { $ref: "#/components/schemas/ShortProfile" }
                 minItems: 0
                 maxItems: 999
-              
-    post:
+  
+  /usersposts/{userpost-id}/likes/{id}:
+    # this is the path to a specfic user that liked the user post
+    parameters:
+      - $ref: "#/components/parameters/UserPostID"  
+      - $ref: "#/components/parameters/RelationUser"
+    
+    put:
+      
       security:
       - bearerAuthentication: []
-      tags: ["user"]
+      tags: ["userPost"]
       operationId: likePhoto
-      summary: like a user post
-      description: Add a username to likes collection
+      summary: Add a like to the collection of likes
+      description: |-
+        Add a user ID to likes collection.
+        Notice that this can be done only if the user ID does not match to the author ID of the user Post.
       
       responses:
-        "200":
-          description: Like addedd successfully
+        "201":
+          description: User's like addedd successfully
           content:
             application/json:
               schema: { $ref: "#/components/schemas/UserPost" }
@@ -525,15 +552,18 @@ paths:
     delete:
       security:
       - bearerAuthentication: []
-      tags: ["user"]
+      tags: ["userPost"]
       operationId: unlikePhoto
-      summary: Remove like of logged user from user post
-      description: Delete username of logged user from likes collection.
+      summary: Remove like from the collection of likes
+      description: |- 
+        Remove a user ID from the likes collections.
+        Notice this can be done only if the user ID corresponds to the id of the logged user.
       
       responses:
         "204": { description: like has been successfully removed }
   
   /usersposts/{userpost-id}/comments/:
+    # this is the path to the collection of comments ID of the specified user post
     parameters:
       - $ref: "#/components/parameters/UserPostID"
     
@@ -543,15 +573,15 @@ paths:
       tags: ["userPost"]
       operationId: getComments
       summary: Get the comments of the user post
-      description: Return the list of comments of the user post.
+      description: Return the collection of comments of the user post.
       
       responses:
         "200":
-          description: List of comments returned successfully
+          description: Collection of comments returned successfully
           content:
             application/json:
               schema:
-                description: array of comments
+                description: Array of comments
                 type: array
                 items: { $ref: "#/components/schemas/Comment" }
                 minItems: 0
@@ -560,11 +590,12 @@ paths:
     post:
       security:
       - bearerAuthentication: []
-      tags: ["user"]
+      tags: ["userPost"]
       operationId: commentPhoto
-      summary: Create a comment to a user post
+      summary: Add a comment to the comments collection
       description: |-
-        Create a comment using the content in the request body.
+        Add comment in the request body to the public collection of comments.
+        Then add the comment ID to the private collection of comments.
         The server will create a new unique ID, the client can find it in the response.
       requestBody:
         content:
@@ -577,17 +608,19 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/CommentID" }
+    
   
   /comments/{comment-id}:
+    # This is the path to a specific comment
     parameters:
       - $ref: "#/components/parameters/CommentID"
-    
+
     delete:
       security:
       - bearerAuthentication: []
-      tags: ["user"]
+      tags: ["userPost"]
       operationId: uncommentPhoto
-      summary: Remove comment from user post
+      summary: Remove comment from the comments collection
       description: |-
         Remove comment from the system.
         A comment can be removed only if it belongs to the logged user.
