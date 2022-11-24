@@ -21,7 +21,7 @@ tags:
 components:
 
   securitySchemes:
-  
+
     bearerAuthentication: 
       type: http
       scheme: bearer
@@ -70,6 +70,8 @@ components:
       description: Public immutable server-defined identifier
       type: string
       pattern: ^[a-zA-Z0-9]+$
+      minLength: 9
+      maxLength: 11
       readOnly: true
     
     UserpostID:
@@ -88,7 +90,7 @@ components:
         The profile has a username, bio, profile picture, photos, number of photos, number of followers and number of following.
       type: object
       properties:
-        id: { $ref: "#/components/schemas/UserID" }
+        UserID: { $ref: "#/components/schemas/UserID" }
         username: { $ref: "#/components/schemas/Username" }
         bio:
           description: |-
@@ -103,12 +105,14 @@ components:
           description: Photo that is displayed next to username, bio and counts in the user profile
           type: string
           format: binary
+          minLength: 0
+          maxLength: 2147483647
         userPosts:
           description: URL to the path of userposts of the user
           type: string
           pattern: https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)
-          minItems: 0
-          maxItems: 2048
+          minLength: 0
+          maxLength: 2048
         nPhotos:
           description: Number of posts uploaded by the user
           type: integer
@@ -131,13 +135,15 @@ components:
         The post has an UserPostID, authorID, author username, date, caption, photo.
       type: object
       properties:
-        id: { $ref: "#/components/schemas/UserpostID" }
+        UserpostID: { $ref: "#/components/schemas/UserpostID" }
         authorID: { $ref: "#/components/schemas/UserID" }
         author: { $ref: "#/components/schemas/Username" }
         date:
           description: Date in which the post was created
           type: string
           format: date-time
+          minLength: 0
+          maxLength: 20
         caption:
           description: |-
             Short 150 character summary of whatever the user wants.
@@ -151,6 +157,8 @@ components:
           description: Photo content of the user post
           type: string
           format: binary
+          minLength: 0
+          maxLength: 2147483647
         nLikes:
           description: Number of likes
           type: integer
@@ -169,12 +177,14 @@ components:
         The profile has a username and a profile picture.
       type: object
       properties:
-        id: { $ref: "#/components/schemas/UserID" }
+        UserID: { $ref: "#/components/schemas/UserID" }
         username: { $ref: "#/components/schemas/Username" }
         profilePic:
           description: URL to profile picture of the user
           type: string
           pattern: https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)
+          minLength: 0
+          maxLength: 2048
               
     Comment:
       description: |-
@@ -182,13 +192,15 @@ components:
         A comment has an id, author, authorID, date, content.
       type: object
       properties:
-        id: { $ref: "#/components/schemas/CommentID" }
+        CommentID: { $ref: "#/components/schemas/CommentID" }
         author: { $ref: "#/components/schemas/Username" }
         authorID: { $ref: "#/components/schemas/UserID" }
         date:
           description: Date of creation of the comment
           type: string
           format: date-time
+          minLength: 0
+          maxLength: 20
         content:
           description: Content of the comment
           type: string
@@ -200,6 +212,7 @@ paths:
 
   /session:
     # This is the login path
+    
     post:
       tags: ["login"]
       operationId: doLogin
@@ -268,6 +281,28 @@ paths:
     parameters:
       - $ref: "#/components/parameters/UserID"
     
+    get:
+      security:
+      - bearerAuthentication: []
+      tags: ["user"]
+      operationId: getUserPosts
+      summary: Get the collection of user posts of a user 
+      description: |-
+        The userposts has the ID of userpost of user.
+        It should return the collection of the related userposts in reverse cronological order.
+        
+      responses:
+        "200":
+          description: Collection of user posts of the user returned successfully
+          content:
+            application/json:
+              schema:
+                description: Collection of user's posts
+                type: array
+                items: { $ref: "#/components/schemas/UserPost" }
+                minItems: 0
+                maxItems: 999
+
     post:
       security:
       - bearerAuthentication: []
@@ -303,11 +338,11 @@ paths:
       summary: Get the collection of user posts recently uploaded by followed users
       description: |-
         The stream has the ID of userpost of users followed.
-        It should return the collection of the followed user's posts.
-      
+        It should return the collection of the followed user's posts in reverse cronological order.
+  
       responses:
         "200":
-          description: List of user posts of followed users
+          description: Collection of user posts of followed users returned successfully
           content:
             application/json:
               schema:
@@ -359,7 +394,6 @@ paths:
       operationId: banUser
       summary: Add user ID to banned collection
       description: Add a user ID to the collection of banned user IDs.
-
       requestBody:
         content:
           application/json:
@@ -488,7 +522,7 @@ paths:
     # This is the path to a specific user post
     parameters:
       - $ref: "#/components/parameters/UserPostID"
-    
+
     delete:
       security:
       - bearerAuthentication: []
@@ -532,7 +566,6 @@ paths:
       - $ref: "#/components/parameters/RelationUser"
     
     put:
-      
       security:
       - bearerAuthentication: []
       tags: ["userPost"]
