@@ -421,3 +421,313 @@ paths:
     parameters:
       - $ref: "#/components/parameters/RelationUser"
       - $ref: "#/components/parameters/UserID"
+
+    put:
+      security:
+      - bearerAuthentication: []
+      tags: ["relationship"]
+      operationId: banUser
+      summary: Add user ID to banned collection
+      description: Add a user ID to the collection of banned user IDs.
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/Username" }
+
+      responses:
+        "201":
+          description: User has been banned successfully 
+          content:
+            application/json:
+              schema:
+                description: array of banned user's short profiles
+                type: array
+                items: { $ref: "#/components/schemas/ShortProfile" }
+                minItems: 0
+                maxItems: 999
+        
+        "400": { $ref: "#/components/responses/BadRequest" }
+        '403': {$ref : '#/components/responses/UnAuthorized'}
+        "500": { $ref: "#/components/responses/InternalServerError" }
+                
+    delete:
+      security:
+      - bearerAuthentication: []
+      tags: ["relationship"]
+      operationId: unbanUser
+      summary: Remove user ID from banned collection
+      description: Delete userID from the collection of banned users IDs.
+  
+      responses:
+        "204": { description: User has been unbanned successfully }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "404": { description: Banned user not found }
+        "500": { $ref: "#/components/responses/InternalServerError" }
+  
+  /users/{user-id}/followers/:
+    # This is the path to the collection of IDs of the user's followers
+    parameters:
+      - $ref: "#/components/parameters/UserID"
+    
+    get:
+      security:
+      - bearerAuthentication: []
+      tags: ["user"]
+      operationId: getFollowers
+      summary: Get the collection of followers
+      description: |-
+        The followers collection is a collection of user IDs.
+        It should return the collection of the users' short profiles that belong to the collection of followers IDs.
+      
+      responses:
+        "200":
+          description: Collection of followers returned successfully
+          content:
+            application/json:
+              schema:
+                description: array of followers' short profiles
+                type: array
+                items: { $ref: "#/components/schemas/ShortProfile" }
+                minItems: 0
+                maxItems: 999
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/InternalServerError" }  
+  
+  /users/{user-id}/followings/:
+    # This is the path to the collection of IDs of the users that are followed by the user.
+    parameters:
+      - $ref: "#/components/parameters/UserID"
+    
+    get:
+      security:
+      - bearerAuthentication: []
+      tags: ["user"]
+      operationId: getFollowing
+      summary: Get the collection of following users
+      description: |-
+        The followings collection is a collection of user IDs.
+        It should return the collection of the users' short profiles that belong to the collection of users that are followed by the user
+      
+      responses:
+        "200":
+          description: List of following returned successfully
+          content:
+            application/json:
+              schema:
+                description: array of short profiles
+                type: array
+                items: { $ref: "#/components/schemas/ShortProfile" }
+                minItems: 0
+                maxItems: 999
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/InternalServerError" }
+    
+  
+  /users/{user-id}/followings/{id}:
+    # This is the path to a specific user ID which belongs to the collection of followings
+    parameters:
+      - $ref: "#/components/parameters/RelationUser"
+      - $ref: "#/components/parameters/UserID"
+    
+    put:
+      security:
+      - bearerAuthentication: []
+      tags: ["relationship"]
+      operationId: followUser
+      summary: Add user ID to followings collection
+      description: Add a user ID to followings collection.
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/Username" }
+      
+      responses:
+        "201":
+          description: User has been followed successfully
+          content:
+            application/json:
+              schema:
+                description: Array of following users' short profiles
+                type: array
+                items: { $ref: "#/components/schemas/ShortProfile" }
+                minItems: 0
+                maxItems: 999
+        "400": { $ref: "#/components/responses/BadRequest" }        
+        '403': {$ref : '#/components/responses/UnAuthorized'}        
+        "500": { $ref: "#/components/responses/InternalServerError" }
+                
+    delete:
+      security:
+      - bearerAuthentication: []
+      tags: ["relationship"]
+      operationId: unfollowUser
+      summary: Remove user ID from followings collection
+      description: Delete username from following collection.
+      
+      responses:
+        "204": {description: User has been unfollowed successfully }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "404": { description: Folloed user not found }
+        "500": { $ref: "#/components/responses/InternalServerError" }
+  
+  /usersposts/{userpost-id}:
+    # This is the path to a specific user post
+    parameters:
+      - $ref: "#/components/parameters/UserPostID"
+
+    delete:
+      security:
+      - bearerAuthentication: []
+      tags: ["userPost"]
+      operationId: deletePhoto
+      summary: delete user post
+      description: Delete user post from users posts collection.
+      
+      responses:
+        "204": { description: Photo has been successfully deleted }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "404": { description: User post not found }
+        "500": { $ref: "#/components/responses/InternalServerError" }
+
+  /usersposts/{userpost-id}/likes/:
+    # this is the path to the collection of likes of the specified user post
+    parameters:
+      - $ref: "#/components/parameters/UserPostID"
+    
+    get:
+      security:
+      - bearerAuthentication: []
+      tags: ["userPost"]
+      operationId: getLikes
+      summary: Get the collection of likes of the user post
+      description: Return the collection of likes of the user post.
+      
+      responses:
+        "200":
+          description: Collection of likes returned successfully
+          content:
+            application/json:
+              schema:
+                description: Array of short profiles of users in the likes collection
+                type: array
+                items: { $ref: "#/components/schemas/ShortProfile" }
+                minItems: 0
+                maxItems: 999
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/InternalServerError" }
+  
+  /usersposts/{userpost-id}/likes/{id}:
+    # this is the path to a specfic user that liked the user post
+    parameters:
+      - $ref: "#/components/parameters/UserPostID"  
+      - $ref: "#/components/parameters/RelationUser"
+    
+    put:
+      security:
+      - bearerAuthentication: []
+      tags: ["userPost"]
+      operationId: likePhoto
+      summary: Add a like to the collection of likes
+      description: |-
+        Add a user ID to likes collection.
+        Notice that this can be done only if the user ID does not match to the author ID of the user Post.
+      
+      responses:
+        "201":
+          description: User's like addedd successfully
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/UserPost" }
+        "400": { $ref: "#/components/responses/BadRequest" }        
+        '403': {$ref : '#/components/responses/UnAuthorized'}        
+        "500": { $ref: "#/components/responses/InternalServerError" }
+    
+    delete:
+      security:
+      - bearerAuthentication: []
+      tags: ["userPost"]
+      operationId: unlikePhoto
+      summary: Remove like from the collection of likes
+      description: |- 
+        Remove a user ID from the likes collections.
+        Notice this can be done only if the user ID corresponds to the id of the logged user.
+      
+      responses:
+        "204": { description: like has been successfully removed }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "404": { description: Your like was not found }
+        "500": { $ref: "#/components/responses/InternalServerError" }
+  
+  /usersposts/{userpost-id}/comments/:
+    # this is the path to the collection of comments ID of the specified user post
+    parameters:
+      - $ref: "#/components/parameters/UserPostID"
+    
+    get:
+      security:
+      - bearerAuthentication: []
+      tags: ["userPost"]
+      operationId: getComments
+      summary: Get the comments of the user post
+      description: Return the collection of comments of the user post.
+      
+      responses:
+        "200":
+          description: Collection of comments returned successfully
+          content:
+            application/json:
+              schema:
+                description: Array of comments
+                type: array
+                items: { $ref: "#/components/schemas/Comment" }
+                minItems: 0
+                maxItems: 99
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "500": { $ref: "#/components/responses/InternalServerError" }
+    
+    post:
+      security:
+      - bearerAuthentication: []
+      tags: ["userPost"]
+      operationId: commentPhoto
+      summary: Add a comment to the comments collection
+      description: |-
+        Add comment in the request body to the public collection of comments.
+        Then add the comment ID to the private collection of comments.
+        The server will create a new unique ID, the client can find it in the response.
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/Comment" }
+      
+      responses:
+        "201":
+          description: Comment created successfully.
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CommentID" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        '403': {$ref : '#/components/responses/UnAuthorized'}
+        "500": { $ref: "#/components/responses/InternalServerError" }
+    
+  
+  /comments/{comment-id}:
+    # This is the path to a specific comment
+    parameters:
+      - $ref: "#/components/parameters/CommentID"
+
+    delete:
+      security:
+      - bearerAuthentication: []
+      tags: ["userPost"]
+      operationId: uncommentPhoto
+      summary: Remove comment from the comments collection
+      description: |-
+        Remove comment from the system.
+        A comment can be removed only if it belongs to the logged user.
+      
+      responses:
+        "204": { description: Comment has been successfully deleted }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "404": { description: Comment not found }
+        "500": { $ref: "#/components/responses/InternalServerError" }
