@@ -63,9 +63,6 @@ components:
       
     InternalServerError:
       description: The server encountered an Internal Error.
-
-    NoContent:
-      description: No content, No requested object is present on WASAPhoto.
       
     BadRequest: 
       description: The request was not compliant with the documentation.
