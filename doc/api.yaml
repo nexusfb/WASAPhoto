@@ -120,7 +120,7 @@ components:
           pattern: ^(https?:\/\/.*\.(?:png|jpg|jpeg))$
           minLength: 0
           maxLength: 200
-        nPhotos:
+        nMedia:
           description: Number of media uploaded by the user
           type: integer
         nFollowers:
