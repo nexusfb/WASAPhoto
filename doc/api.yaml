@@ -231,8 +231,6 @@ paths:
                 schema: { $ref: "#/components/schemas/UserID" }
   
   /users/:
-    parameters:
-      - $ref: "#/components/parameters/UserID"
 
     get:
       security:
