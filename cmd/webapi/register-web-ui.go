@@ -4,7 +4,7 @@ package main
 
 import (
 	"fmt"
-	"git.sapienzaapps.it/gamificationlab/wasa-homework-enroll/webui"
+	"github.com/nexusfb/WASAPhoto/webui"
 	"io/fs"
 	"net/http"
 	"strings"
