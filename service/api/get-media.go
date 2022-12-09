@@ -34,7 +34,7 @@ func (rt *_router) getMedia(w http.ResponseWriter, r *http.Request, ps httproute
 
 	// 3 - map returned mediaDB into media struct
 	var media structs.Media
-	media.FromDatabase(mediaDB)
+	media.FromDatabase(mediaDB, rt.db)
 
 	// 4 - return the mapped media struct
 	w.Header().Set("Content-Type", "application/json")

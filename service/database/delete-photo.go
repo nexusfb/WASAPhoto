@@ -5,18 +5,23 @@ import (
 )
 
 // TODO: cacella relativi likes e comments
+// Delete media instance from database with mediaID
 func (db *appdbimpl) DeletePhoto(mediaid string) error {
+	// 1 - execute delete query
 	res, err := db.c.Exec(`DELETE FROM media WHERE mediaid=?`, mediaid)
 	if err != nil {
+		// exec returned error -> return error
 		return fmt.Errorf("error encountered while executing a delete query: %w", err)
 	}
 
+	// 2 - check if row has been deleted successfully
 	affected, err := res.RowsAffected()
 	if err != nil {
-		return err
+		// rowsAffected returned error -> return error
+		return fmt.Errorf("error encountered while checking if row has been deleted: %w", err)
 	} else if affected == 0 {
-		// If we didn't delete any row, then the fountain didn't exist
-		return ErrUserProfileDoesNotExists
+		// no row has been deleted which means no media has that input mediaid -> return error
+		return ErrMediaDoesNotExists
 	}
 	return nil
 }

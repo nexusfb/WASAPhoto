@@ -39,31 +39,31 @@ type MediaDB struct {
 }
 
 type AppDatabase interface {
-	// 1) take username -> create user profile -> return userID
+	// takes username -> creates user profile -> returns userID
 	DoLogin(username string) (string, error)
 
-	// 2) take username -> return user profile
+	// takes username -> returns user profile
 	GetUserProfile(username string) (UserProfileDB, error)
 
-	// 3) take new user profile -> update user profile -> return new user profile
+	// takes new user profile -> updates user profile -> returns new user profile
 	UpdateUserProfile(profile UserProfileDB) (UserProfileDB, error)
 
-	// 5) take userID -> delete user profile -> return //
+	// takes userID -> deletes user profile -> returns //
 	DeleteUserProfile(userid string) error
 
-	// 6) take userID -> return username
+	// takes userID -> returns username
 	GetUserName(userid string) (string, error)
 
-	// 7) take userID -> create media -> return mediaID
+	// takes userID -> creates media -> returns mediaID
 	UploadPhoto(userid string, media MediaDB) (string, error)
 
-	// 8) take mediaID -> delete media -> return //
+	// takes mediaID -> deletes media -> returns //
 	DeletePhoto(mediaid string) error
 
-	// 9) take mediaID -> reuturn media
+	// takes mediaID -> reuturns media
 	GetMedia(mediaid string) (MediaDB, error)
 
-	// 10) take userID -> return array of media
+	// takes userID -> returns array of media
 	GetUserMedia(userid string) ([]MediaDB, error)
 
 	// default

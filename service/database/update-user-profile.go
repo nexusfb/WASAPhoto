@@ -4,32 +4,20 @@ import (
 	"fmt"
 )
 
-func (db *appdbimpl) UpdateUserProfile(p UserProfileDB) (UserProfileDB, error) {
+// Update user profile with profile in the request body
+func (db *appdbimpl) UpdateUserProfile(newProfile UserProfileDB) (UserProfileDB, error) {
+	// 1 - take old profile
+	oldName, err := db.GetUserName(newProfile.UserID)
+	oldProfile, err := db.GetUserProfile(oldName)
 
-	// prendere profilo vecchio
-	// 1 - id vecchio (uguale a nuovo)
-	id := p.UserID
-	// 2- get con userID
-	const query = `
-	SELECT username, bio, profilepic, nmedia, nfollows, nfollowing
-	FROM users
-	WHERE uid = ?`
-	var old UserProfileDB
-	user, _ := db.c.Query(query, id)
-	defer func() { _ = user.Close() }()
-	err := user.Scan(&old.Username, &old.Bio, &old.ProfilePic, &old.NMedia, &old.NFollowers, &old.NFollowing)
-	if err != nil {
-		return UserProfileDB{}, fmt.Errorf("error encountered while scanning user profile: %w", err)
-	}
-	// a questo punto il profilo vecchio sta dentro old
-
-	// update profilo
+	// 2 - execute query
 	_, err = db.c.Exec(`UPDATE users SET username=?, bio=?, profilepic=?, WHERE uid=?`,
-		p.Username, p.Bio, p.ProfilePic, p.UserID)
+		newProfile.Username, newProfile.Bio, newProfile.ProfilePic, newProfile.UserID)
 	if err != nil {
-		return old, err
+		// exec returned error -> return error
+		return oldProfile, fmt.Errorf("error encountered while executing update query: %w", err)
 	}
 
-	// se no errori e cambiato -> ritorna nuovo
-	return p, nil
+	// 3 - return new profile
+	return newProfile, nil
 }

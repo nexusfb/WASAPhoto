@@ -3,40 +3,38 @@ package database
 import (
 	"fmt"
 
-	"github.com/segmentio/ksuid"
+	"github.com/gofrs/uuid"
 )
 
+// If username does not exist create new user profile, if it exists login
 func (db *appdbimpl) DoLogin(username string) (string, error) {
-	// crea profilo con username
-	// dubbio 1: si puo creare profilo con solo quello?? in teoria no perchè userID è not null
-	// risposta 1? -> generatore user ID
-	// dubbio 2: generare id prima o dopo insert? direi prima perche credo non si possa fare dopo ma se poi lui ci da username che abbiamo gia come si fa??
-	// plan:
-	// 1- check se esiste
-	// 2- se esiste errore -> user already exists
-	// 2- se non esiste creare id -> provare a creare profilo
-
-	// 1) check se user già esiste
-	// a) usa metodo per prendere profilo
-	p, err := db.GetUserProfile(username)
-	// b) se non ci sono errori -> allora esiste
+	// 1 - check if user exists by trying to get userprofile
+	profile, err := db.GetUserProfile(username)
 	if err == nil {
-		// siamo nel caso che l'utente gia esiste, facciamo login con questo utente
-		return p.UserID, nil
+		// user profile already exists, return userID
+		return profile.UserID, nil
 	} else if err != ErrUserProfileDoesNotExists {
-		// se errore diverso da non esiste (che invece è quello che cerchiamo)
+		// get user profile database function returned error during execution -> return error
 		return "00000000", fmt.Errorf("error encountered while checking if profile exists: %w", err)
 	}
 
-	//posso evitare un altro if -> la funzione GetProfile ha solo 3 tipi di err return -> nil, err, ErrrUserDoesNotExists
-	// se sono qui significa che user non esiste
-	// posso quindi creare id
-	rawUid := ksuid.New()
-	uid := rawUid.String()
-	_, err = db.c.Exec(`INSERT INTO users (userid, username) VALUES (?,?)`,
-		uid, username)
+	// here only if get user profile database function returner error user profile does not exist
+
+	// 2 - create new userID
+	rawUid, err := uuid.NewV4()
 	if err != nil {
+		// newV4 returned error -> return error
+		return "00000000", fmt.Errorf("error encountered while creating new userID: %w", err)
+	}
+	uid := rawUid.String()
+
+	// 3 - execute query
+	_, err = db.c.Exec(`INSERT INTO users (userid, username) VALUES (?,?)`, uid, username)
+	if err != nil {
+		// exec returned error -> return error
 		return "00000000", fmt.Errorf("error when creating new user profile: %w", err)
 	}
+
+	// 4 - return new userID
 	return uid, nil
 }

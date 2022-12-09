@@ -13,19 +13,22 @@ var (
 
 // Media struct represents a Photo with unique ID, authorID, date of creation, caption, url of the photo
 type Media struct {
-	MediaID   string `json:"mediaid"`
-	AuthorID  string `json:"authorid"`
-	Date      string `json:"date,omitempty"`
-	Caption   string `json:"caption,omitempty"`
-	Photo     string `json:"photo,omitempty"`
-	NLikes    uint32 `json:"nlikes,omitempty"`
-	NComments uint32 `json:"ncomments,omitempty"`
+	MediaID  string `json:"mediaid"`
+	AuthorID string `json:"authorid"`
+	// notice that author name was not stored in the database struct of media but it is needed here for the frontend
+	AuthorName string `json:"authorname"`
+	Date       string `json:"date,omitempty"`
+	Caption    string `json:"caption,omitempty"`
+	Photo      string `json:"photo,omitempty"`
+	NLikes     uint32 `json:"nlikes,omitempty"`
+	NComments  uint32 `json:"ncomments,omitempty"`
 }
 
 // Function to map a database media to the media struct
-func (m *Media) FromDatabase(media database.MediaDB) {
+func (m *Media) FromDatabase(media database.MediaDB, db database.AppDatabase) {
 	m.MediaID = media.MediaID
 	m.AuthorID = media.AuthorID
+	m.AuthorName, _ = db.GetUserName(m.AuthorID)
 	m.Date = media.Date
 	m.Caption = media.Caption
 	m.Photo = media.Photo

@@ -11,8 +11,8 @@ import (
 	"github.com/nexusfb/WASAPhoto/service/api/structs"
 )
 
-// Get all media of a user with userid in the path
-func (rt *_router) getUserMedia(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
+// Get username of a user with userid in the path
+func (rt *_router) getUserName(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	// 1 - take userid from path
 	userID := ps.ByName("userid")
 	userID = strings.TrimPrefix(userID, ":userid=")
