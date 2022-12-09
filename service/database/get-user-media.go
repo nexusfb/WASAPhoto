@@ -5,7 +5,7 @@ func (db *appdbimpl) GetUserMedia(userid string) ([]MediaDB, error) {
 	const query = `
 	SELECT *
 	FROM media
-	WHERE userid = ?`
+	WHERE authorid = ?`
 
 	var ret []MediaDB
 	rawMedia, err := db.c.Query(query, userid)

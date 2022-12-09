@@ -16,6 +16,8 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.DELETE("/media/:mediaid", rt.wrap(rt.deletePhoto))
 	rt.router.GET("/media/mediaid", rt.wrap(rt.getUserProfile))
 
+	rt.router.GET("/users/:userid/media/", rt.wrap(rt.getUserProfile))
+
 	// Special routes
 	rt.router.GET("/liveness", rt.liveness)
 
