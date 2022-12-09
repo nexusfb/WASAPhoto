@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -10,41 +11,43 @@ import (
 	"github.com/nexusfb/WASAPhoto/service/api/structs"
 )
 
+// Post a new media with userid in the path
 func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-
-	// 1 - get userid from path
-	mediaID := ps.ByName("media")
-	mediaID = strings.TrimPrefix(mediaID, ":mediaid=")
-	if mediaID == "" {
+	// 1 - take userid from path
+	userID := ps.ByName("userid")
+	userID = strings.TrimPrefix(userID, ":userid=")
+	if len(userID) == 0 {
+		// userid is empty -> return error
+		fmt.Println("Error: userID is empty")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	// 2 - get media from RB
+	// 2 - get media from request body
 	var media structs.Media
 	err := json.NewDecoder(r.Body).Decode(&media)
 	if err != nil {
-		// The body was not a parseable JSON, reject it
+		// media is not a parseable JSON -> return error
+		fmt.Println("Error: media is not a parseable JSON")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	} else if !media.IsValid() {
-		// Here we validated the fountain structure content (e.g., location coordinates in correct range, etc.), and we
-		// discovered that the fountain data are not valid.
-		// Note: the IsValid() function skips the ID check (see below).
+		// media is not valid -> return error
+		fmt.Println("Error: new media is invalid")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	// 3 - chiamare metodo DB
-	newMediaID, err := rt.db.UploadPhoto(mediaID, media.ToDatabase())
+	// 3 - call upload photo database function with userID and converted media struct to database media
+	newMediaID, err := rt.db.UploadPhoto(userID, media.ToDatabase())
 	if err != nil {
-		// In this case, we have an error on our side. Log the error (so we can be notified) and send a 500 to the user
-		// Note: we are using the "logger" inside the "ctx" (context) because the scope of this issue is the request.
-		ctx.Logger.WithError(err).Error("can't log you in")
+		// upload photo database function returned error -> return error
+		ctx.Logger.WithError(err).Error("can't uplad photo")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
+	// 4 - return new media ID
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(newMediaID)
 }

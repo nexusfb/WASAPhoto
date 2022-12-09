@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-func (db *appdbimpl) UpdateUserProfile(p ProfileDB) (ProfileDB, error) {
+func (db *appdbimpl) UpdateUserProfile(p UserProfileDB) (UserProfileDB, error) {
 
 	// prendere profilo vecchio
 	// 1 - id vecchio (uguale a nuovo)
@@ -14,12 +14,12 @@ func (db *appdbimpl) UpdateUserProfile(p ProfileDB) (ProfileDB, error) {
 	SELECT username, bio, profilepic, nmedia, nfollows, nfollowing
 	FROM users
 	WHERE uid = ?`
-	var old ProfileDB
+	var old UserProfileDB
 	user, _ := db.c.Query(query, id)
 	defer func() { _ = user.Close() }()
 	err := user.Scan(&old.Username, &old.Bio, &old.ProfilePic, &old.NMedia, &old.NFollowers, &old.NFollowing)
 	if err != nil {
-		return ProfileDB{}, fmt.Errorf("error encountered while scanning user profile: %w", err)
+		return UserProfileDB{}, fmt.Errorf("error encountered while scanning user profile: %w", err)
 	}
 	// a questo punto il profilo vecchio sta dentro old
 

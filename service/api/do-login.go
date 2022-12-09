@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
@@ -9,34 +10,33 @@ import (
 	"github.com/nexusfb/WASAPhoto/service/api/structs"
 )
 
+// User login with username in request body
 func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-
-	var user structs.Username
-	err := json.NewDecoder(r.Body).Decode(&user)
-
+	// 1 - take username from request body
+	var username structs.Username
+	err := json.NewDecoder(r.Body).Decode(&username.Name)
 	if err != nil {
-		// The body was not a parseable JSON, reject it
+		// the body was not a parseable JSON -> return error
+		fmt.Println("Error: username is not a parseable JSON")
 		w.WriteHeader(http.StatusBadRequest)
 		return
-	} else if !user.IsValid() {
-		// Here we validated the fountain structure content (e.g., location coordinates in correct range, etc.), and we
-		// discovered that the fountain data are not valid.
-		// Note: the IsValid() function skips the ID check (see below).
+	} else if !username.IsValid() {
+		// the username is invalid -> return error
+		fmt.Println("Error: username is invalid")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	// Create the fountain in the database. Note that this function will return a new instance of the fountain with the
-	// same information, plus the ID.
-	newUid, err := rt.db.DoLogin(user.Name)
+	// 2 - call dologin database function
+	newUserID, err := rt.db.DoLogin(username.Name)
 	if err != nil {
-		// In this case, we have an error on our side. Log the error (so we can be notified) and send a 500 to the user
-		// Note: we are using the "logger" inside the "ctx" (context) because the scope of this issue is the request.
+		// dologin database function returned error -> return error
 		ctx.Logger.WithError(err).Error("can't log you in")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
+	// 3- return new userID
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(newUid)
+	_ = json.NewEncoder(w).Encode(newUserID)
 }

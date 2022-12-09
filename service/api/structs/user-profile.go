@@ -7,12 +7,16 @@ import (
 )
 
 var (
-	UsernameRx   = regexp.MustCompile(`^[a-zA-Z0-9._]{5,20}$`)
+	// Username regex is a case-sensitive alfanumeric string + (._)
+	UsernameRx = regexp.MustCompile(`^[a-zA-Z0-9._]{5,20}$`)
+	// ProfilePic regex is a url pattern for a png/jpg/jpeg image
 	ProfilePicRx = regexp.MustCompile(`^(https?:\/\/.*\.(?:png|jpg|jpeg))$`)
-	BioRx        = regexp.MustCompile("^.*$")
+	// Bio regex is a general string pattern
+	BioRx = regexp.MustCompile("^.*$")
 )
 
-type Profile struct {
+// Profile struct represents a Profile with unique user ID, username, bio, url of the profile image
+type UserProfile struct {
 	UserID     string `json:"userid"`
 	Username   string `json:"username"`
 	Bio        string `json:"bio,omitempty"`
@@ -22,15 +26,8 @@ type Profile struct {
 	NFollowing uint32 `json:"nfollowing,omitempty"`
 }
 
-type Username struct {
-	Name string `json:"username"`
-}
-
-func (u Username) IsValid() bool {
-	return len(u.Name) >= 5 && len(u.Name) <= 20 && UsernameRx.MatchString(u.Name)
-}
-
-func (p *Profile) FromDatabase(profile database.ProfileDB) {
+// Function to map a database profile to the struct profile
+func (p *UserProfile) FromDatabase(profile database.UserProfileDB) {
 	p.UserID = profile.UserID
 	p.Username = profile.Username
 	p.Bio = profile.Bio
@@ -40,8 +37,9 @@ func (p *Profile) FromDatabase(profile database.ProfileDB) {
 	p.NFollowing = profile.NFollowing
 }
 
-func (profile *Profile) ToDatabase() database.ProfileDB {
-	return database.ProfileDB{
+// Function to map the struct profile to a database profile
+func (profile *UserProfile) ToDatabase() database.UserProfileDB {
+	return database.UserProfileDB{
 		UserID:     profile.UserID,
 		Username:   profile.Username,
 		Bio:        profile.Bio,
@@ -52,13 +50,20 @@ func (profile *Profile) ToDatabase() database.ProfileDB {
 	}
 }
 
-func (p *Profile) IsValid() bool {
-	return len(p.UserID) >= 5 && len(p.UserID) <= 20 && UsernameRx.MatchString(p.UserID) &&
+// Function to check if a media struct is valid
+func (p *UserProfile) IsValid() bool {
+	return len(p.UserID) == 27 &&
 		len(p.Username) >= 5 && len(p.Username) <= 20 && UsernameRx.MatchString(p.Username) &&
-		p.NMedia >= 0 &&
-		p.NFollowers >= 0 &&
-		p.NFollowing >= 0 &&
 		len(p.ProfilePic) >= 0 && len(p.ProfilePic) <= 200 && ProfilePicRx.MatchString(p.ProfilePic) &&
 		len(p.Bio) >= 0 && len(p.Bio) <= 150 && BioRx.MatchString(p.Bio)
+}
 
+// Username structs represents a username
+type Username struct {
+	Name string `json:"username"`
+}
+
+// Function to check if a username is valid
+func (u Username) IsValid() bool {
+	return len(u.Name) >= 5 && len(u.Name) <= 20 && UsernameRx.MatchString(u.Name)
 }

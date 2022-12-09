@@ -2,6 +2,7 @@ package api
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"strings"
@@ -11,28 +12,31 @@ import (
 	"github.com/nexusfb/WASAPhoto/service/database"
 )
 
+// Delete media with mediaid in the path
 func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-
-	media := ps.ByName("media")
-	media = strings.TrimPrefix(media, ":mediaid=")
-	if media == "" {
+	// 1 - take mediaid from the path
+	mediaID := ps.ByName("media")
+	mediaID = strings.TrimPrefix(mediaID, ":mediaid=")
+	if len(mediaID) == 0 {
+		// mediaid is empty -> return error
+		fmt.Println("Error: mediaid is empty")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	err := rt.db.DeletePhoto(media)
+	// 2 - call delete photo database function
+	err := rt.db.DeletePhoto(mediaID)
 	if errors.Is(err, database.ErrMediaDoesNotExists) {
+		// database function returned no media exists -> return
 		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if err != nil {
-		// In this case, we have an error on our side. Log the error (so we can be notified) and send a 500 to the user
-		// Note: we are using the "logger" inside the "ctx" (context) because the scope of this issue is the request.
-		// Note (2): we are adding the error and an additional field (`id`) to the log entry, so that we will receive
-		// the identifier of the fountain that triggered the error.
-		ctx.Logger.WithError(err).WithField("userid", media).Error("can't delete media")
+		// database function returned error while deleting -> return error
+		ctx.Logger.WithError(err).WithField("mediaID", mediaID).Error("can't delete media")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
+	// 3 - return success (no content)
 	w.WriteHeader(http.StatusNoContent)
 }

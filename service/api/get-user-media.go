@@ -2,44 +2,45 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/nexusfb/WASAPhoto/service/api/reqcontext"
 	"github.com/nexusfb/WASAPhoto/service/api/structs"
-	"github.com/nexusfb/WASAPhoto/service/database"
 )
 
+// Get all media of a user with userid in the path
 func (rt *_router) getUserMedia(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-	// 1 - prendere userid dal path
-	userid := ps.ByName("userid")
-	userid = strings.TrimPrefix(userid, ":userid=")
-	if userid == "" {
+	// 1 - take userid from path
+	userID := ps.ByName("userid")
+	userID = strings.TrimPrefix(userID, ":userid=")
+	if len(userID) == 0 {
+		// userid is empty -> return error
+		fmt.Println("Error: userID is empty")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	// 2 - chiamare funzione che con userid ti ritorna foto
-	var media []database.MediaDB
-	var m []structs.Media
-
-	media, err := rt.db.GetUserMedia(userid)
-
+	// 2 - call get user media database function
+	mediaDBArray, err := rt.db.GetUserMedia(userID)
 	if err != nil {
-		// In this case, we have an error on our side. Log the error (so we can be notified) and send a 500 to the user
-		// Note: we are using the "logger" inside the "ctx" (context) because the scope of this issue is the request.
-		ctx.Logger.WithError(err).Error("Can't provide user profile")
+		/// get user media database function returned error -> return error
+		ctx.Logger.WithError(err).Error("Can't provide user media")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	for _, element := range media {
-		var s structs.Media
-		s.FromDatabase(element)
-		m = append(m, s)
+
+	// 3 - map the result mediaDB array into media struct array
+	var mediaArray []structs.Media
+	for _, mediaDB := range mediaDBArray {
+		var media structs.Media
+		media.FromDatabase(mediaDB)
+		mediaArray = append(mediaArray, media)
 	}
 
-	// Send the user profile to the user
+	// 4 - return array of media structs
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(m)
+	_ = json.NewEncoder(w).Encode(mediaArray)
 }

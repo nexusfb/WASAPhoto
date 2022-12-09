@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"strings"
@@ -13,39 +14,48 @@ import (
 	"github.com/nexusfb/WASAPhoto/service/database"
 )
 
+// Update user profile with userid in the path
 func (rt *_router) updateUserProfile(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-
-	user := ps.ByName("userid")
-	user = strings.TrimPrefix(user, ":userid=")
-	if user == "" {
+	// 1 - take userid from path
+	userID := ps.ByName("userid")
+	userID = strings.TrimPrefix(userID, ":userid=")
+	if len(userID) == 0 {
+		// userid is empty -> return error
+		fmt.Println("Error: userID is empty")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	var p structs.Profile
-	p.UserID = user
-	if err := json.NewDecoder(r.Body).Decode(&p); err != nil {
-		// The body was not a parseable JSON object, reject it
+	// 2 - take new profile from requesy body
+	var newProfile structs.UserProfile
+	newProfile.UserID = userID
+	if err := json.NewDecoder(r.Body).Decode(&newProfile); err != nil {
+		// new profile is not a parseable JSON -> return error
+		fmt.Println("Error: new profile is not a parseable JSON")
 		w.WriteHeader(http.StatusBadRequest)
 		return
-	} else if !p.IsValid() {
-		// Profile data is invalid
+	} else if !newProfile.IsValid() {
+		// new profile is not valid -> return error
+		fmt.Println("Error: new profile is invalid")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	// The client is not supposed to send us the ID in the body, as the fountain ID is already specified in the path,
-	// and it's immutable. So, here we overwrite the ID in the JSON with the `id` variable (that comes from the URL).
-	_, err := rt.db.UpdateUserProfile(p.ToDatabase())
 
+	// 3 - call update user profile database function
+	_, err := rt.db.UpdateUserProfile(newProfile.ToDatabase())
 	if errors.Is(err, database.ErrUserProfileDoesNotExists) {
+		// database function returns user profile does not exist -> return error
+		fmt.Println("Error: cannot updaqte user profile because user profile does not exist")
 		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if err != nil {
-		ctx.Logger.WithError(err).WithField("userid", user).Error("Can't update user profile")
+		// database function returns an error -> return error
+		ctx.Logger.WithError(err).WithField("userid", userID).Error("Can't update user profile")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
+	// 4 - return updated user profile
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(p)
+	_ = json.NewEncoder(w).Encode(newProfile)
 }
