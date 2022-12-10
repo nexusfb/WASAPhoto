@@ -20,9 +20,10 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 	// 1 - take userid from path
 	userID := ps.ByName("userid")
 	userID = strings.TrimPrefix(userID, ":userid=")
+	fmt.Println(strings.TrimPrefix(userID, ":userid="))
 	if len(userID) == 0 {
 		// userid is empty -> return error
-		fmt.Println("Error: userID is empty")
+		ctx.Logger.Error("error: userID is empty")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -31,12 +32,12 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 	var newUsernameJson structs.Username
 	if err := json.NewDecoder(r.Body).Decode(&newUsernameJson); err != nil {
 		// username is not a parseable JSON -> return error
-		fmt.Println("Error: username is not a parseable JSON")
+		ctx.Logger.WithError(err).WithField("username", newUsernameJson).Error("error: username is not a parseable JSON")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	} else if !newUsernameJson.IsValid() {
 		// userid is not valid -> return error
-		fmt.Println("Error: username is invalid")
+		ctx.Logger.WithError(err).WithField("username", newUsernameJson).Error("error: username is not valid")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -60,7 +61,7 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 	patch, err := jsonpatch.DecodePatch(patchByte)
 	if err != nil {
 		// decode patch returned error -> return error
-		fmt.Println("Error: could not decode patch")
+		ctx.Logger.WithError(err).WithField("patch", patch).Error("error: could not decode patch")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
@@ -69,19 +70,19 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 	newProfileByte, err := patch.Apply(oldProfileByte)
 	if err != nil {
 		// apply returned error -> return error
-		fmt.Println("Error: could not apply patch")
+		ctx.Logger.WithError(err).WithField("newProfile", newProfileByte).Error("error: could not apply patch")
 		return
 	}
 
 	// 9 - conver new profile from array of byte to json and put it into a new profile struct
 	var newProfileJson structs.UserProfile
+	newProfileJson.UserID = userID
 	err = json.Unmarshal(newProfileByte, &newProfileJson)
-
 	// 10 - call update user profile with the new profile translated to database profile
 	_, err = rt.db.UpdateUserProfile(newProfileJson.ToDatabase())
 	if errors.Is(err, database.ErrUserProfileDoesNotExists) {
 		// user profile does not exist -> return error
-		fmt.Println("Error: cannot change username because user profile does not exist")
+		ctx.Logger.WithError(err).WithField("username", newProfileJson.Username).Error("error: cannot change username because user profile does not exist")
 		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if err != nil {

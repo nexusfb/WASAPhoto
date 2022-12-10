@@ -53,9 +53,8 @@ func (profile *UserProfile) ToDatabase() database.UserProfileDB {
 // Function to check if a media struct is valid
 func (p *UserProfile) IsValid() bool {
 	return len(p.UserID) == 27 &&
-		len(p.Username) >= 5 && len(p.Username) <= 20 && UsernameRx.MatchString(p.Username) &&
-		len(p.ProfilePic) >= 0 && len(p.ProfilePic) <= 200 && ProfilePicRx.MatchString(p.ProfilePic) &&
-		len(p.Bio) >= 0 && len(p.Bio) <= 150 && BioRx.MatchString(p.Bio)
+		len(p.Username) >= 5 && len(p.Username) <= 20 && UsernameRx.MatchString(p.Username) && len(p.ProfilePic) <= 200 && ProfilePicRx.MatchString(p.ProfilePic) &&
+		len(p.Bio) <= 150 && BioRx.MatchString(p.Bio)
 }
 
 // Username structs represents a username

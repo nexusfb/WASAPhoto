@@ -10,7 +10,7 @@ import (
 // Create new media with userid in path and media DB in request body
 func (db *appdbimpl) UploadPhoto(userid string, media MediaDB) (string, error) {
 	// 1 - create new mediaID
-	rawMid, err := uuid.NewV4()
+	rawMid, err := uuid.NewV1()
 	if err != nil {
 		// newV4 returned error -> return error
 		return "00000000", fmt.Errorf("error encountered while creating new mediaID: %w", err)

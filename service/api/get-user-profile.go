@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
@@ -15,7 +14,7 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 	// 1 - take username from query
 	if !r.URL.Query().Has("username") {
 		// no username in query -> return error
-		fmt.Println("Error: username not given")
+		ctx.Logger.Error("error: username not given")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}

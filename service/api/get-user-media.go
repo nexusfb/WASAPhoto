@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -18,7 +17,7 @@ func (rt *_router) getUserMedia(w http.ResponseWriter, r *http.Request, ps httpr
 	userID = strings.TrimPrefix(userID, ":userid=")
 	if len(userID) == 0 {
 		// userid is empty -> return error
-		fmt.Println("Error: userID is empty")
+		ctx.Logger.Error("error: userid is empty")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -27,7 +26,7 @@ func (rt *_router) getUserMedia(w http.ResponseWriter, r *http.Request, ps httpr
 	mediaDBArray, err := rt.db.GetUserMedia(userID)
 	if err != nil {
 		/// get user media database function returned error -> return error
-		ctx.Logger.WithError(err).Error("Can't provide user media")
+		ctx.Logger.WithError(err).WithField("userID", userID).Error("error: can't get user media from database")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

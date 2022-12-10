@@ -36,11 +36,11 @@ func (rt *_router) Handler() http.Handler {
 	// curl -X DELETE "http://localhost:3001/users/:mediaid=""
 
 	// 8 - get media
-	rt.router.GET("/media/mediaid", rt.wrap(rt.getUserProfile))
+	rt.router.GET("/media/mediaid", rt.wrap(rt.getMedia))
 	// curl "http://localhost:3000/media/:mediaid="
 
 	// 9 - get user media
-	rt.router.GET("/users/:userid/media/", rt.wrap(rt.getUserProfile))
+	rt.router.GET("/users/:userid/media/", rt.wrap(rt.getUserMedia))
 	// curl "http://localhost:3000/users/:user_id=2IdzR
 
 	// Special routes

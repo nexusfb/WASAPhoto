@@ -52,7 +52,7 @@ func (media *Media) ToDatabase() database.MediaDB {
 // Function to check the validity of a Media struct
 func (m *Media) IsValid() bool {
 	return len(m.MediaID) == 27 && len(m.AuthorID) == 27 &&
-		PhotoRx.MatchString(m.Photo) && len(m.Photo) >= 0 && len(m.Photo) <= 200 &&
-		CaptionRx.MatchString(m.Caption) && len(m.Caption) >= 0 && len(m.Caption) <= 150
+		PhotoRx.MatchString(m.Photo) && len(m.Photo) <= 200 &&
+		CaptionRx.MatchString(m.Caption) && len(m.Caption) <= 150
 
 }

@@ -1,6 +1,7 @@
 package database
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/gofrs/uuid"
@@ -13,7 +14,7 @@ func (db *appdbimpl) DoLogin(username string) (string, error) {
 	if err == nil {
 		// user profile already exists, return userID
 		return profile.UserID, nil
-	} else if err != ErrUserProfileDoesNotExists {
+	} else if !errors.Is(err, ErrUserProfileDoesNotExists) {
 		// get user profile database function returned error during execution -> return error
 		return "00000000", fmt.Errorf("error encountered while checking if profile exists: %w", err)
 	}

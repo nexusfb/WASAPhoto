@@ -2,7 +2,6 @@ package api
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 
 	"strings"
@@ -19,7 +18,7 @@ func (rt *_router) deleteUserProfile(w http.ResponseWriter, r *http.Request, ps 
 	user = strings.TrimPrefix(user, ":userid=")
 	if len(user) == 0 {
 		// userid is empty -> return error
-		fmt.Println("Error: userid is empty")
+		ctx.Logger.Error("error: userid is empty")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -28,6 +27,7 @@ func (rt *_router) deleteUserProfile(w http.ResponseWriter, r *http.Request, ps 
 	err := rt.db.DeleteUserProfile(user)
 	if errors.Is(err, database.ErrUserProfileDoesNotExists) {
 		// database function returned no user profile exists -> return
+		ctx.Logger.WithError(err).WithField("username", user)
 		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if err != nil {

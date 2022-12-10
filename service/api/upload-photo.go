@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -18,7 +17,7 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	userID = strings.TrimPrefix(userID, ":userid=")
 	if len(userID) == 0 {
 		// userid is empty -> return error
-		fmt.Println("Error: userID is empty")
+		ctx.Logger.Error("error: userID is empty")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -28,12 +27,12 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	err := json.NewDecoder(r.Body).Decode(&media)
 	if err != nil {
 		// media is not a parseable JSON -> return error
-		fmt.Println("Error: media is not a parseable JSON")
+		ctx.Logger.WithError(err).WithField("media", media).Error("error: media is not a parseable JSON")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	} else if !media.IsValid() {
 		// media is not valid -> return error
-		fmt.Println("Error: new media is invalid")
+		ctx.Logger.Error("error: new media is not valid")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}

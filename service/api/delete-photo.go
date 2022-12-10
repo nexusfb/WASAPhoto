@@ -2,7 +2,6 @@ package api
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 
 	"strings"
@@ -19,7 +18,7 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	mediaID = strings.TrimPrefix(mediaID, ":mediaid=")
 	if len(mediaID) == 0 {
 		// mediaid is empty -> return error
-		fmt.Println("Error: mediaid is empty")
+		ctx.Logger.Error("error: mediaid is empty")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -28,6 +27,7 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	err := rt.db.DeletePhoto(mediaID)
 	if errors.Is(err, database.ErrMediaDoesNotExists) {
 		// database function returned no media exists -> return
+		ctx.Logger.WithError(err).WithField("mediaID", mediaID)
 		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if err != nil {

@@ -80,9 +80,9 @@ func New(db *sql.DB) (AppDatabase, error) {
 		return nil, errors.New("database is required when building a AppDatabase")
 	}
 
-	//DROP
-	//f, _ := db.Exec(`DROP TABLE users IF EXISTS `)
-	//fmt.Println(f)
+	// DROP
+	// f, _ := db.Exec(`DROP TABLE users IF EXISTS `)
+	// fmt.Println(f)
 
 	// 1 - table users
 	var tableName string = "users"

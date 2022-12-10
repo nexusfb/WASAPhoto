@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/julienschmidt/httprouter"
@@ -14,15 +13,15 @@ import (
 func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	// 1 - take username from request body
 	var username structs.Username
-	err := json.NewDecoder(r.Body).Decode(&username.Name)
+	err := json.NewDecoder(r.Body).Decode(&username)
 	if err != nil {
 		// the body was not a parseable JSON -> return error
-		fmt.Println("Error: username is not a parseable JSON")
+		ctx.Logger.WithError(err).WithField("username", username).Error("error: username is not a parseable JSON")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	} else if !username.IsValid() {
 		// the username is invalid -> return error
-		fmt.Println("Error: username is invalid")
+		ctx.Logger.WithError(err).WithField("username", username).Error("error: username is not valid")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -31,12 +30,12 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 	newUserID, err := rt.db.DoLogin(username.Name)
 	if err != nil {
 		// dologin database function returned error -> return error
-		ctx.Logger.WithError(err).Error("can't log you in")
+		ctx.Logger.WithError(err).WithField("username", username.Name).Error("error: can't log you in")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	// 3- return new userID
+	// 3 - return new userID
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(newUserID)
 }

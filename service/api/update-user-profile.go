@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 
 	"strings"
@@ -21,7 +20,7 @@ func (rt *_router) updateUserProfile(w http.ResponseWriter, r *http.Request, ps 
 	userID = strings.TrimPrefix(userID, ":userid=")
 	if len(userID) == 0 {
 		// userid is empty -> return error
-		fmt.Println("Error: userID is empty")
+		ctx.Logger.Error("error: userID is empty")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -31,12 +30,12 @@ func (rt *_router) updateUserProfile(w http.ResponseWriter, r *http.Request, ps 
 	newProfile.UserID = userID
 	if err := json.NewDecoder(r.Body).Decode(&newProfile); err != nil {
 		// new profile is not a parseable JSON -> return error
-		fmt.Println("Error: new profile is not a parseable JSON")
+		ctx.Logger.WithError(err).WithField("newProfile", newProfile).Error("error: new profile is not a parseable JSON")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	} else if !newProfile.IsValid() {
 		// new profile is not valid -> return error
-		fmt.Println("Error: new profile is invalid")
+		ctx.Logger.WithError(err).WithField("newProfile", newProfile).Error("error: new profile is not valid")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
@@ -45,7 +44,7 @@ func (rt *_router) updateUserProfile(w http.ResponseWriter, r *http.Request, ps 
 	_, err := rt.db.UpdateUserProfile(newProfile.ToDatabase())
 	if errors.Is(err, database.ErrUserProfileDoesNotExists) {
 		// database function returns user profile does not exist -> return error
-		fmt.Println("Error: cannot updaqte user profile because user profile does not exist")
+		ctx.Logger.WithError(err).WithField("username", newProfile.Username).Error("error: cannot update user profile because user profile does not exist")
 		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if err != nil {
