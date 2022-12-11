@@ -31,9 +31,9 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 
 	// 3 - map returned user profile database to profile struct
 	var userProfile structs.UserProfile
-	userProfile.FromDatabase(userProfileDB)
-
+	userProfile.FromDatabase(userProfileDB, rt.db)
 	// 4 - return user profile struct
+	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(userProfile)
 }

@@ -23,8 +23,23 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	// 2 - call delete photo database function
-	err := rt.db.DeletePhoto(mediaID)
+	// 2 - check if media belongs to logged user
+	token := r.Header.Get("authenticatedUserID")
+	media, err := rt.db.GetMedia(mediaID)
+	if err != nil {
+		ctx.Logger.Error("error: mediaid is empty")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	mediaAuthor := media.AuthorID
+	if !(authentication(token, mediaAuthor)) {
+		ctx.Logger.Error("error: only the author of the meia can delete the media")
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	// 3 - call delete photo database function
+	err = rt.db.DeletePhoto(mediaID)
 	if errors.Is(err, database.ErrMediaDoesNotExists) {
 		// database function returned no media exists -> return
 		ctx.Logger.WithError(err).WithField("mediaID", mediaID)
@@ -37,6 +52,6 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	// 3 - return success (no content)
+	// 4 - return success (no content)
 	w.WriteHeader(http.StatusNoContent)
 }

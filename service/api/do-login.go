@@ -36,6 +36,7 @@ func (rt *_router) doLogin(w http.ResponseWriter, r *http.Request, ps httprouter
 	}
 
 	// 3 - return new userID
+	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(newUserID)
 }

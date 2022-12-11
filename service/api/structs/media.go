@@ -25,15 +25,20 @@ type Media struct {
 }
 
 // Function to map a database media to the media struct
-func (m *Media) FromDatabase(media database.MediaDB, db database.AppDatabase) {
+func (m *Media) FromDatabase(media database.MediaDB, db database.AppDatabase) error {
+	var err error
 	m.MediaID = media.MediaID
 	m.AuthorID = media.AuthorID
-	m.AuthorName, _ = db.GetUserName(m.AuthorID)
+	m.AuthorName, err = db.GetUserName(m.AuthorID)
+	if err != nil {
+		return err
+	}
 	m.Date = media.Date
 	m.Caption = media.Caption
 	m.Photo = media.Photo
 	m.NLikes = media.NLikes
 	m.NComments = media.NComments
+	return nil
 }
 
 // Function to map a Media struct to a database media

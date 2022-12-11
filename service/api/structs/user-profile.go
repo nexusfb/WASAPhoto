@@ -27,14 +27,14 @@ type UserProfile struct {
 }
 
 // Function to map a database profile to the struct profile
-func (p *UserProfile) FromDatabase(profile database.UserProfileDB) {
+func (p *UserProfile) FromDatabase(profile database.UserProfileDB, db database.AppDatabase) {
 	p.UserID = profile.UserID
 	p.Username = profile.Username
 	p.Bio = profile.Bio
 	p.ProfilePic = profile.ProfilePic
-	p.NMedia = profile.NMedia
-	p.NFollowers = profile.NFollowers
-	p.NFollowing = profile.NFollowing
+	p.NMedia = db.CountRows("media", "authorid", p.UserID)
+	p.NFollowers = db.CountRows("follow", "followedid", p.UserID)
+	p.NFollowing = db.CountRows("follow", "followerid", p.UserID)
 }
 
 // Function to map the struct profile to a database profile
@@ -44,9 +44,6 @@ func (profile *UserProfile) ToDatabase() database.UserProfileDB {
 		Username:   profile.Username,
 		Bio:        profile.Bio,
 		ProfilePic: profile.ProfilePic,
-		NMedia:     profile.NMedia,
-		NFollowers: profile.NFollowers,
-		NFollowing: profile.NFollowing,
 	}
 }
 
