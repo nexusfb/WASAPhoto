@@ -2,10 +2,20 @@ package database
 
 import "fmt"
 
-// Get user array media with userid in path
-func (db *appdbimpl) GetUserMedia(userid string) ([]MediaDB, error) {
+// Get array of media of users followed by user with a specific userid
+func (db *appdbimpl) GetMyStream(userid string) ([]MediaDB, error) {
 	// 1 - execute query
-	rawMedia, err := db.c.Query(`SELECT * FROM media WHERE authorid = ?`, userid)
+	query := `CREATE VIEW followers
+	AS
+    SELECT followedid as id
+	FROM follow
+	WHERE followerid = ? ;
+	SELECT *
+	FROM media,followers 
+	WHERE media.authorid = followers.id
+	ORDER BY date DESC;`
+
+	rawMedia, err := db.c.Query(query, userid)
 	if err != nil {
 		// query returned errror -> return error
 		return nil, fmt.Errorf("error encountered while executing a select query: %w", err)

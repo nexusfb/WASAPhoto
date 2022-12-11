@@ -16,7 +16,7 @@ func (db *appdbimpl) DoLogin(username string) (string, error) {
 		return profile.UserID, nil
 	} else if !errors.Is(err, ErrUserProfileDoesNotExists) {
 		// get user profile database function returned error during execution -> return error
-		return "00000000", fmt.Errorf("error encountered while checking if profile exists: %w", err)
+		return "", fmt.Errorf("error encountered while checking if profile exists: %w", err)
 	}
 
 	// here only if get user profile database function returner error user profile does not exist
@@ -25,15 +25,15 @@ func (db *appdbimpl) DoLogin(username string) (string, error) {
 	rawUid, err := uuid.NewV4()
 	if err != nil {
 		// newV4 returned error -> return error
-		return "00000000", fmt.Errorf("error encountered while creating new userID: %w", err)
+		return "", fmt.Errorf("error encountered while creating new userID: %w", err)
 	}
 	uid := rawUid.String()
 
 	// 3 - execute query
-	_, err = db.c.Exec(`INSERT INTO users (userid, username) VALUES (?,?)`, uid, username)
+	_, err = db.c.Exec(`INSERT INTO user (userid, username) VALUES (?,?)`, uid, username)
 	if err != nil {
 		// exec returned error -> return error
-		return "00000000", fmt.Errorf("error when creating new user profile: %w", err)
+		return "", fmt.Errorf("error when creating new user profile: %w", err)
 	}
 
 	// 4 - return new userID

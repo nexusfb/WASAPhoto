@@ -1,102 +1,94 @@
 package database
 
+// IMPORTS
 import (
 	"database/sql"
 	"errors"
 	"fmt"
-
-	"github.com/nexusfb/WASAPhoto/service/database/databaseStructs"
 )
 
+// ERRORS
 var (
 	// errors of userprofile struct
-	ErrUserProfileAlreadyExists = errors.New("user already exists")
-	ErrUserProfileDoesNotExists = errors.New("user does not exists")
+	ErrUserProfileAlreadyExists = errors.New("error: user already exists")
+	ErrUserProfileDoesNotExists = errors.New("error: user does not exists")
+
+	// errors of media struct
+	ErrMediaDoesNotExists = errors.New("error: media does not exists")
+
+	// error of follow
+	ErrUserAlreadyFollowed = errors.New("error: user already followed")
+	ErrUserNotFollowed     = errors.New("error: user not followed")
+
+	// error of ban
+	ErrUserAlreadyBanned = errors.New("error: user already banned")
+	ErrUserNotBanned     = errors.New("error: user not banned")
+
+	// error of like
+	ErrUserLikeDoesNotExist = errors.New("error: user like does not exist")
 )
 
-/*
-// 3 - database struct for follow
-type FollowDB struct {
-	FollowerID string
-	FollowedID string
+// STRUCTS
+// database struct for user profile
+type UserProfileDB struct {
+	UserID     string // identifier of the owner of the profile
+	Username   string // username chosen by the owner of the profile
+	Bio        string // biography chosen by the owner of the profile (i.e a short description)
+	ProfilePic string // url of the profile picture
 }
 
-// 4 - database struct for likes
-type LikeDB struct {
-	MediaID  string
-	AuthorID string
+// database struct of a media
+type MediaDB struct {
+	MediaID  string // media identifier
+	AuthorID string // identifier of the user that published the media
+	Date     string // date of publication
+	Caption  string // caption of the media (i.e a short description of the media)
+	Photo    string // url of the photo of the media
 }
-*/
 
-/*
-// 6 - database struct for bans
-type BanDB struct {
-	BannerID string
-	BannedID string
+// database struct of a comment
+type CommentDB struct {
+	CommentID string // identifier of the comment
+	MediaID   string // identifier of the media where the comment was created
+	AuthorID  string // identifier of the author of the comment
+	Date      string // date of creation of the comment
+	Content   string // content of the comment (i.e short text content)
 }
-*/
 
+// HIGH LEVEL INTERFACE OF THE DATABASE
 type AppDatabase interface {
-	// takes username -> creates user profile -> returns userID
-	DoLogin(username string) (string, error)
+	// USER PROFILE
+	DoLogin(username string) (string, error)                        // takes username -> creates user profile -> returns userID
+	GetUserProfile(username string) (UserProfileDB, error)          // takes username -> returns user profile
+	UpdateUserProfile(profile UserProfileDB) (UserProfileDB, error) // takes new user profile -> updates user profile -> returns new user profile
+	DeleteUserProfile(userid string) error                          // takes userID -> deletes user profile -> returns
+	FollowUser(userid string, followid string) error                // takes userID -> adds user to following list -> returns error
+	UnfollowUser(userid string, followedid string) error            // takes userID -> deletes user from following list -> returns error
+	GetUserFollowers(userid string) ([]string, error)               // takes userID -> returns array of followers
+	GetUserFollowings(userid string) ([]string, error)              // takes userID -> returns array of followings
+	BanUser(bannerID string, bannedID string) error                 // takes bannerID and bannedID -> creates ban -> returns error
+	UnbanUser(bannerID string, bannedID string) error               // takes bannerID and bannedID -> deletes ban -> returns error
+	GetBannedUsers(bannerID string) ([]string, error)               // takes userID -> returns list of banned users by this userID
+	GetMyStream(userID string) ([]MediaDB, error)                   // takes userID -> returns collection of media of followed users
 
-	// takes username -> returns user profile
-	GetUserProfile(username string) (databaseStructs.UserProfileDB, error)
+	// UTILITY
+	GetUserName(userid string) (string, error)                  // takes userID -> returns username
+	GetUserID(username string) (string, error)                  // takes username -> returns userID
+	CountRows(table string, column string, event string) uint32 // takes table, column, event -> returns the number of rows in the table for which column==event
 
-	// takes new user profile -> updates user profile -> returns new user profile
-	UpdateUserProfile(profile UserProfileDB) (UserProfileDB, error)
+	// MEDIA
+	UploadPhoto(userid string, media MediaDB) (string, error)                      // takes userID -> creates media -> returns mediaID
+	DeletePhoto(mediaid string) error                                              // takes mediaID -> deletes media -> returns
+	GetMedia(mediaid string) (MediaDB, error)                                      // takes mediaID -> reuturns media
+	GetUserMedia(userid string) ([]MediaDB, error)                                 // takes userID -> returns array of media
+	LikePhoto(mediaid string, userid string) error                                 // takes userID and mediaID -> creates like -> reuturns error
+	UnlikePhoto(mediaid string, userid string) error                               // takes userID and mediaID -> deletes like -> reuturns error
+	GetMediaLikes(mediaid string) []string                                         // takes mediaID -> returns array of users who liked that media
+	CommentPhoto(userid string, mediaid string, comment CommentDB) (string, error) // takes comment, mediaID and userID -> creates comment -> reuturns commentID and error
+	UncommentPhoto(commentid string) error                                         // takes mediaID and userID -> deletes comment -> reuturns error
+	GetMediaComments(mediaid string) ([]CommentDB, error)                          // takes mediaID -> returns array of comments to that media
 
-	// takes userID -> deletes user profile -> returns //
-	DeleteUserProfile(userid string) error
-
-	// takes userID -> returns username
-	GetUserName(userid string) (string, error)
-
-	// takes username -> returns userID
-	GetUserID(username string) (string, error)
-
-	// takes userID -> creates media -> returns mediaID
-	UploadPhoto(userid string, media MediaDB) (string, error)
-
-	// takes mediaID -> deletes media -> returns //
-	DeletePhoto(mediaid string) error
-
-	// takes mediaID -> reuturns media
-	GetMedia(mediaid string) (MediaDB, error)
-
-	// takes userID -> returns array of media
-	GetUserMedia(userid string) ([]MediaDB, error)
-
-	// takes userID -> adds user to following list -> returns error
-	FollowUser(userid string, followid string) error
-
-	// takes userID -> deletes user from following list -> returns error
-	UnfollowUser(userid string, followedid string) error
-
-	// takes userID -> returns array of followers
-	GetUserFollowers(userid string) ([]string, error)
-
-	// takes userID -> returns array of followings
-	GetUserFollowings(userid string) ([]string, error)
-
-	// takes table, column, event -> returns the number of rows in the table for which column==event
-	CountRows(table string, column string, event string) uint32
-
-	LikePhoto(mediaid string, userid string) error
-	UnlikePhoto(mediaid string, userid string) error
-	GetMediaLikes(mediaid string) []string
-
-	CommentPhoto(mediaid string, userid string) (string, error)
-	UncommentPhoto(mediaid string, userid string) error
-	GetMediaComments(mediaid string) ([]CommentDB, error)
-
-	BanUser(bannerID string, bannedID string) error
-	UnbanUser(bannerID string, bannedID string) error
-	GetBannedUsers(bannerID string) ([]string, error)
-
-	GetMyStream(userID string) ([]MediaDB, error)
-
-	// default
+	// DEFAULT
 	Ping() error
 }
 
@@ -112,57 +104,98 @@ func New(db *sql.DB) (AppDatabase, error) {
 
 	// DROP
 	//f, _ := db.Exec(`DROP TABLE users IF EXISTS `)
-	//f, _ = db.Exec(`DROP TABLE media IF EXISTS `)
 	//fmt.Println(f)
 
-	// 1 - table users
-	var tableName string = "users"
-	sqlStmt := `CREATE TABLE users (
+	// 1 - define user table
+	tableName := "users"
+	sqlStmt := `CREATE TABLE user (
 		userid TEXT NOT NULL PRIMARY KEY,
 		username TEXT NOT NULL,
-		bio TEXT DEFAULT "" NOT NULL,
-		profilepic TEXT DEFAULT "" NOT NULL,
-		nmedia INTEGER DEFAULT 0 NOT NULL,
-		nfollowers INTEGER DEFAULT 0 NOT NULL,
-		nfollowing INTEGER DEFAULT 0 NOT NULL);`
+		bio TEXT DEFAULT "" ,
+		profilepic TEXT DEFAULT "");`
 
-	// 2 - create table users
+	// 2 - create user table
 	err := createTables(tableName, sqlStmt, db)
 	if err != nil {
-		return nil, fmt.Errorf("error creating database structure: %w", err)
+		return nil, fmt.Errorf("error creating user table: %w", err)
 	}
 
-	// 3 - table media
+	// 3 - define follow table
+	tableName = "follow"
+	sqlStmt = `CREATE TABLE follow (
+		followerid TEXT NOT NULL,
+		followedid TEXT NOT NULL,
+		FOREIGN KEY (followerid) REFERENCES user(userid),
+		FOREIGN KEY (followerid) REFERENCES user(userid),
+		PRIMARY KEY (followerid, followingid));`
+
+	// 4 - create follow table
+	err = createTables(tableName, sqlStmt, db)
+	if err != nil {
+		return nil, fmt.Errorf("error creating follow table: %w", err)
+	}
+
+	// 5 - define ban table
+	tableName = "ban"
+	sqlStmt = `CREATE TABLE ban (
+		bannerid TEXT NOT NULL,
+		bannedid TEXT NOT NULL,
+		FOREIGN KEY (bannerid) REFERENCES user(userid),
+		FOREIGN KEY (bannedid) REFERENCES user(userid),
+		PRIMARY KEY (bannerid, bannedid));`
+
+	// 6 - create ban table
+	err = createTables(tableName, sqlStmt, db)
+	if err != nil {
+		return nil, fmt.Errorf("error creating ban table: %w", err)
+	}
+
+	// 7 - define media table
 	tableName = "media"
 	sqlStmt = `CREATE TABLE media (
 		mediaid INTEGER NOT NULL PRIMARY KEY,
 		authorid TEXT NOT NULL,
-		date TEXT DEFAULT "" NOT NULL,
-		caption TEXT DEFAULT "" NOT NULL,
-		photo TEXT DEFAULT "" NOT NULL,
-		nlikes INTEGER DEFAULT 0 NOT NULL,
-		ncomments INTEGER DEFAULT 0 NOT NULL,
-		FOREIGN KEY (authorid) REFERENCES users(userid));`
+		date TEXT DEFAULT "",
+		caption TEXT DEFAULT "",
+		photo TEXT DEFAULT "",
+		FOREIGN KEY (authorid) REFERENCES user(userid));`
 
-	// 4 - create table media
+	// 8 - create media table
 	err = createTables(tableName, sqlStmt, db)
 	if err != nil {
-		return nil, fmt.Errorf("error creating database structure: %w", err)
+		return nil, fmt.Errorf("error creating media table: %w", err)
 	}
 
-	// 5 - table media
-	tableName = "follow"
-	sqlStmt = `CREATE TABLE follow (
-		followerid INTEGER NOT NULL,
-		followedid TEXT NOT NULL,
-		FOREIGN KEY (followerid) REFERENCES users(userid),
-		FOREIGN KEY (followerid) REFERENCES users(userid),
-		PRIMARY KEY (followerid,followingid));`
+	// 9 - define like table
+	tableName = "like"
+	sqlStmt = `CREATE TABLE like (
+			userid TEXT NOT NULL,
+			mediaid TEXT NOT NULL,
+			FOREIGN KEY (userid) REFERENCES user(userid),
+			FOREIGN KEY (mediaid) REFERENCES media(mediaid),
+			PRIMARY KEY (userid, mediaid));`
 
-	// 6 - create table media
+	// 10 - create like table
 	err = createTables(tableName, sqlStmt, db)
 	if err != nil {
-		return nil, fmt.Errorf("error creating database structure: %w", err)
+		return nil, fmt.Errorf("error creating like table: %w", err)
+	}
+
+	// 11 - define comment table
+	tableName = "comment"
+	sqlStmt = `CREATE TABLE comment (
+			commentid TEXT NOT NULL PRIMARY KEY,
+			userid TEXT NOT NULL,
+			mediaid TEXT NOT NULL,
+			date TEXT DEFAULT "",
+			content TEXT DEFAULT "",
+			FOREIGN KEY (userid) REFERENCES user(userid),
+			FOREIGN KEY (mediaid) REFERENCES media(mediaid));`
+
+	// 12 - create comment table
+	err = createTables(tableName, sqlStmt, db)
+	if err != nil {
+		return nil, fmt.Errorf("error creating comment table: %w", err)
 	}
 
 	return &appdbimpl{
@@ -170,15 +203,14 @@ func New(db *sql.DB) (AppDatabase, error) {
 	}, nil
 }
 
-// function that given a table name -> creates table
+// function that given a table name and sql statement -> creates table
 func createTables(tableName string, sqlStmt string, db *sql.DB) error {
 	var table string
 	err := db.QueryRow(`SELECT name FROM sqlite_master WHERE type='table' AND name='` + tableName + `';`).Scan(&table)
-	fmt.Println(err)
 	if errors.Is(err, sql.ErrNoRows) {
 		_, err = db.Exec(sqlStmt)
 		if err != nil {
-			return fmt.Errorf("error creating database: %w", err)
+			return fmt.Errorf("error creating table: %w", err)
 		}
 	}
 	return err
