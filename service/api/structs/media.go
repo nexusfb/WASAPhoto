@@ -9,17 +9,16 @@ var (
 	CaptionRx = BioRx        // Caption regex is a general string pattern
 )
 
-// Media struct represents a Photo with unique ID, authorID, date of creation, caption, url of the photo
+// Media struct
 type Media struct {
-	MediaID  string `json:"mediaid"`
-	AuthorID string `json:"authorid"`
-	// notice that author name was not stored in the database struct of media but it is needed here in order to display it
-	AuthorName string `json:"authorname"`
-	Date       string `json:"date,omitempty"`
+	MediaID    string
+	AuthorID   string
+	AuthorName string // notice that author name was not stored in the database struct of media but it is needed here in order to display it
+	Date       string
 	Caption    string `json:"caption,omitempty"`
 	Photo      string `json:"photo,omitempty"`
-	NLikes     uint32 `json:"nlikes,omitempty"`
-	NComments  uint32 `json:"ncomments,omitempty"`
+	NLikes     uint32
+	NComments  uint32
 	liked      bool
 }
 
@@ -44,17 +43,14 @@ func (m *Media) FromDatabase(media database.MediaDB, db database.AppDatabase, to
 // Function to map a Media struct to a database media
 func (media *Media) ToDatabase() database.MediaDB {
 	return database.MediaDB{
-		MediaID:  media.MediaID,
-		AuthorID: media.AuthorID,
-		Caption:  media.Caption,
-		Photo:    media.Photo,
+		Caption: media.Caption,
+		Photo:   media.Photo,
 	}
 }
 
 // Function to check the validity of a Media struct
 func (m *Media) IsValid() bool {
-	return len(m.MediaID) == 27 && len(m.AuthorID) == 27 &&
-		PhotoRx.MatchString(m.Photo) && len(m.Photo) <= 200 &&
+	return PhotoRx.MatchString(m.Photo) && len(m.Photo) <= 200 &&
 		CaptionRx.MatchString(m.Caption) && len(m.Caption) <= 150
 
 }

@@ -21,11 +21,18 @@ func (rt *_router) getMedia(w http.ResponseWriter, r *http.Request, ps httproute
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+	// 2 - check if media exists
+	if !rt.db.ExistenceCheck(mediaID, "media") {
+		// media does not exist
+		ctx.Logger.Error("error: media does not exist")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
-	// 2 - get logged user
+	// 3 - get logged user
 	token := r.Header.Get("Authorization")
 
-	// 3 - take media
+	// 4 - take media
 	mediaDB, err := rt.db.GetMedia(mediaID)
 	if err != nil {
 		// get media database function returned error -> return error
@@ -34,7 +41,7 @@ func (rt *_router) getMedia(w http.ResponseWriter, r *http.Request, ps httproute
 		return
 	}
 
-	// 4 - check if logged user has been banned from the author of the media
+	// 5 - check if logged user has been banned from the author of the media
 	res := rt.db.Check("ban", "bannerid", "bannedid", mediaDB.AuthorID, token)
 	if res {
 		ctx.Logger.Error("error: could not get user profile because you are not authorized ")
@@ -42,11 +49,11 @@ func (rt *_router) getMedia(w http.ResponseWriter, r *http.Request, ps httproute
 		return
 	}
 
-	// 5 - map returned mediaDB into media struct
+	// 6 - map returned mediaDB into media struct
 	var media structs.Media
 	media.FromDatabase(mediaDB, rt.db, token)
 
-	// 6 - return the mapped media struct
+	// 7 - return the mapped media struct
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(media)
