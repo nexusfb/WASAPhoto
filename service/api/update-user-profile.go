@@ -25,7 +25,21 @@ func (rt *_router) updateUserProfile(w http.ResponseWriter, r *http.Request, ps 
 		return
 	}
 
-	// 2 - take new profile from requesy body
+	// 2 - get logged user
+	token := r.Header.Get("Authorization")
+
+	// 3 - logged user can change only his own profile, check if it is his profile
+	if token != userID {
+		ctx.Logger.Error("error: could not change username because you are not authorized ")
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+	// notice that in this case I don't check if the requested user exists because the only case in which he updates
+	// the profile is if it correspond to the logged user which I take as an assumption to exist
+
+	// here only if logged user is trying to change his profile
+
+	// 4 - take new profile from requesy body
 	var newProfile structs.UserProfile
 	newProfile.UserID = userID
 	if err := json.NewDecoder(r.Body).Decode(&newProfile); err != nil {
@@ -40,7 +54,7 @@ func (rt *_router) updateUserProfile(w http.ResponseWriter, r *http.Request, ps 
 		return
 	}
 
-	// 3 - call update user profile database function
+	// 5 - call update user profile database function
 	_, err := rt.db.UpdateUserProfile(newProfile.ToDatabase())
 	if errors.Is(err, database.ErrUserProfileDoesNotExists) {
 		// database function returns user profile does not exist -> return error
@@ -54,7 +68,8 @@ func (rt *_router) updateUserProfile(w http.ResponseWriter, r *http.Request, ps 
 		return
 	}
 
-	// 4 - return updated user profile
+	// 6 - return updated user profile
+	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(newProfile)
 }

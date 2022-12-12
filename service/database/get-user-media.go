@@ -5,7 +5,7 @@ import "fmt"
 // Get user array media with userid in path
 func (db *appdbimpl) GetUserMedia(userid string) ([]MediaDB, error) {
 	// 1 - execute query
-	rawMedia, err := db.c.Query(`SELECT * FROM media WHERE authorid = ?`, userid)
+	rawMedia, err := db.c.Query(`SELECT * FROM media WHERE authorid = ? ORDER BY date DESC`, userid)
 	if err != nil {
 		// query returned errror -> return error
 		return nil, fmt.Errorf("error encountered while executing a select query: %w", err)

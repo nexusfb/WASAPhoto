@@ -14,14 +14,7 @@ func (db *appdbimpl) GetUserProfile(username string) (UserProfileDB, error) {
 	}
 	defer func() { _ = user.Close() }()
 
-	// 2 - retrieve rows
-	result := user.Next()
-	if !result {
-		// next() returned error which means there is no row (user profile does not exist) -> return error
-		return UserProfileDB{}, ErrUserProfileDoesNotExists
-	}
-
-	// 3 - create result user profile
+	// 2 - create result user profile
 	var ret UserProfileDB
 	err = user.Scan(&ret.UserID, &ret.Username, &ret.Bio, &ret.ProfilePic)
 	if err != nil {
@@ -29,7 +22,7 @@ func (db *appdbimpl) GetUserProfile(username string) (UserProfileDB, error) {
 		return UserProfileDB{}, fmt.Errorf("error encountered while scanning user profile: %w", err)
 	}
 
-	// 4 - return result user profile
+	// 3 - return result user profile
 	return ret, nil
 
 }

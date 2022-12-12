@@ -22,7 +22,28 @@ func (rt *_router) getUserFollowers(w http.ResponseWriter, r *http.Request, ps h
 		return
 	}
 
-	// 2 - call get user followers database function
+	// 2 - check if user is valid
+	if !rt.db.ExistenceCheck(userID, "user") {
+		// user does not exist
+		ctx.Logger.Error("error: user does not exist")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	// 3 - get logged user
+	token := r.Header.Get("Authorization")
+
+	// 4 - check if logged user has been banned by requested user profile
+	res := rt.db.Check("ban", "bannerid", "bannedid", userID, token)
+	if res {
+		ctx.Logger.Error("error: could not get user profile because you are not authorized ")
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	// here only if logged user has not been banned by user profile's owner
+
+	// 5 - call get user followers database function
 	followers, err := rt.db.GetUserFollowers(userID)
 	if err != nil {
 		/// get user followers database function returned error -> return error
@@ -31,7 +52,7 @@ func (rt *_router) getUserFollowers(w http.ResponseWriter, r *http.Request, ps h
 		return
 	}
 
-	// 3 - map the result followers array into short profile struct array
+	// 6 - map the result followers array into short profile struct array
 	var shortProfileArray []structs.ShortProfile
 	for _, f := range followers {
 		var sp structs.ShortProfile
@@ -39,7 +60,8 @@ func (rt *_router) getUserFollowers(w http.ResponseWriter, r *http.Request, ps h
 		shortProfileArray = append(shortProfileArray, sp)
 	}
 
-	// 4 - return array of followers
+	// 7 - return array of followers
+	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(shortProfileArray)
 }

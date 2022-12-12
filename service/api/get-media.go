@@ -22,7 +22,10 @@ func (rt *_router) getMedia(w http.ResponseWriter, r *http.Request, ps httproute
 		return
 	}
 
-	// 2 - call get media database function
+	// 2 - get logged user
+	token := r.Header.Get("Authorization")
+
+	// 3 - take media
 	mediaDB, err := rt.db.GetMedia(mediaID)
 	if err != nil {
 		// get media database function returned error -> return error
@@ -31,11 +34,20 @@ func (rt *_router) getMedia(w http.ResponseWriter, r *http.Request, ps httproute
 		return
 	}
 
-	// 3 - map returned mediaDB into media struct
-	var media structs.Media
-	media.FromDatabase(mediaDB, rt.db)
+	// 4 - check if logged user has been banned from the author of the media
+	res := rt.db.Check("ban", "bannerid", "bannedid", mediaDB.AuthorID, token)
+	if res {
+		ctx.Logger.Error("error: could not get user profile because you are not authorized ")
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
 
-	// 4 - return the mapped media struct
+	// 5 - map returned mediaDB into media struct
+	var media structs.Media
+	media.FromDatabase(mediaDB, rt.db, token)
+
+	// 6 - return the mapped media struct
+	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(media)
 }

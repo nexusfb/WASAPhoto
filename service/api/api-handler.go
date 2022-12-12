@@ -5,43 +5,32 @@ import (
 )
 
 func (rt *_router) Handler() http.Handler {
-	// WASAPhoto routes
+	// WASAPhoto routes for user profile
+	rt.router.POST("/session/", rt.wrap(rt.doLogin))                                     // user login
+	rt.router.GET("/users/", rt.wrap(rt.getUserProfile))                                 // get user profile
+	rt.router.PATCH("/users/:userid", rt.wrap(rt.setMyUserName))                         // change username
+	rt.router.PUT("/users/:userid", rt.wrap(rt.updateUserProfile))                       // change user profile
+	rt.router.DELETE("/users/:userid", rt.wrap(rt.deleteUserProfile))                    // delete user profile
+	rt.router.PUT("/users/:userid/followings/:followingid", rt.wrap(rt.followUser))      // follow user
+	rt.router.DELETE("/users/:userid/followings/:followingid", rt.wrap(rt.UnfollowUser)) // unfollow user
+	rt.router.GET("/users/:userid/followers/", rt.wrap(rt.getUserFollowers))             // get followers
+	rt.router.GET("/users/:userid/followings/", rt.wrap(rt.getUserFollowings))           // get following
+	rt.router.PUT("/users/:userid/banned/:bannedid", rt.wrap(rt.banUser))                // ban user
+	rt.router.DELETE("/users/:userid/banned/:bannedid", rt.wrap(rt.unbanUser))           // unban user
+	rt.router.GET("/users/:userid/banned/", rt.wrap(rt.getBannedUsers))                  // get banned users
+	rt.router.GET("/users/:userid/stream/", rt.wrap(rt.getMyStream))                     // get logged user stream
 
-	// 1 - user login
-	rt.router.POST("/session/", rt.wrap(rt.doLogin))
-	// curl -X POST "http://localhost:3000/session/" -H 'Content-Type: application/json' -d '{"username":"Aldo"}'
-
-	// 2 - change username
-	rt.router.PATCH("/users/:userid", rt.wrap(rt.setMyUserName))
-	// curl -X PATCH http://localhost:3000/users/:user_id=2IeFY94UsNvbeRIC9KFXoeABais/ -H 'Content-Type: application/json' -H 'Accept: application/json' -d '{"username":"paola"}'
-
-	// 3 - change user profile
-	rt.router.PUT("/users/:userid", rt.wrap(rt.updateUserProfile))
-	// curl -X PUT -H http://localhost:3000/users/:user_id=2IeFY94UsNvbeRIC9KFXoeABais/ "Content-Type: application/json" -H 'Accept: application/json' -d '{"username":"paola"}'
-
-	// 4 - delete user profile
-	rt.router.DELETE("/users/:userid", rt.wrap(rt.deleteUserProfile))
-	// curl -X DELETE -H http://localhost:3000/users/:user_id=2IeFY94UsNvbeRIC9KFXoeABais/""
-
-	// 5 - get user profile
-	rt.router.GET("/users/", rt.wrap(rt.getUserProfile))
-	// curl "http://localhost:3000/users/?username=alessandro"
-
-	// 6 - upload media
-	rt.router.POST("/media/", rt.wrap(rt.uploadPhoto))
-	// curl -X POST "http://localhost:3001/users/:user_id=2IdzRfVifWvS1US33tMpnPZUWun/photos/" -H 'Content-Type: application/json' -d '{"caption":"Vodka may not be the answer but it's worth a shot", "image":"http://lab.it/logo.png"}'
-
-	// 7 - delete media
-	rt.router.DELETE("/media/:mediaid", rt.wrap(rt.deletePhoto))
-	// curl -X DELETE "http://localhost:3001/users/:mediaid=""
-
-	// 8 - get media
-	rt.router.GET("/media/mediaid", rt.wrap(rt.getMedia))
-	// curl "http://localhost:3000/media/:mediaid="
-
-	// 9 - get user media
-	rt.router.GET("/users/:userid/media/", rt.wrap(rt.getUserMedia))
-	// curl "http://localhost:3000/users/:user_id=2IdzR
+	// WASAPhoto routes for media
+	rt.router.POST("/media/", rt.wrap(rt.uploadPhoto))                       // upload media
+	rt.router.DELETE("/media/:mediaid", rt.wrap(rt.deletePhoto))             // delete media
+	rt.router.GET("/media/mediaid", rt.wrap(rt.getMedia))                    // get media
+	rt.router.GET("/users/:userid/media/", rt.wrap(rt.getUserMedia))         //  get user media
+	rt.router.PUT("/media/:mediaid/likes/", rt.wrap(rt.likePhoto))           // like a medi
+	rt.router.DELETE("/media/:mediaid/likes/", rt.wrap(rt.unlikePhoto))      // unlike a media
+	rt.router.GET("/media/:mediaid/likes/", rt.wrap(rt.getMediaLikes))       // get media likes
+	rt.router.POST("/media/:mediaid/comments/", rt.wrap(rt.commentPhoto))    // comment a media
+	rt.router.DELETE("/comments/:commentid", rt.wrap(rt.uncommentPhoto))     // uncomment a media
+	rt.router.GET("/media/:mediaid/comments/", rt.wrap(rt.getMediaComments)) // get media comments
 
 	// Special routes
 	rt.router.GET("/liveness", rt.liveness)

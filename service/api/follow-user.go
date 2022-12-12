@@ -24,24 +24,56 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	// 2 - get followedID from path
+
+	// 2 - get logged user
+	token := r.Header.Get("Authorization")
+
+	// 3 - logged user can follow only from his own profile, check if it is his profile
+	if token != followerID {
+		ctx.Logger.Error("error: could not change username because you are not authorized ")
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	// notice that in this case I don't check if the requested user exists because the only case in which it follows another profile
+	// is if it correspond to the logged user which I take as an assumption to exist
+
+	// here only if logged user is trying to follow another user
+
+	// 4 - get followedID from path
 	followedID := ps.ByName("followingid")
 	followedID = strings.TrimPrefix(followedID, ":followingid=")
 	if len(followedID) == 0 {
 		// followedID is empty -> return error
-		ctx.Logger.Error("error: mediaid is empty")
+		ctx.Logger.Error("error: followedID is empty")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	// 3 - check validity of the follow
+	// 5 - check if user is valid
+	if !rt.db.ExistenceCheck(followedID, "user") {
+		// user does not exist
+		ctx.Logger.Error("error: user does not exist")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	// 6 - check if logged user has been banned by requested user profile
+	res := rt.db.Check("ban", "bannerid", "bannedid", followedID, token)
+	if res {
+		ctx.Logger.Error("error: could not get user profile because you are not authorized")
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	// 7 - check validity of the follow
 	if followerID == followedID {
 		ctx.Logger.Error("error: you cannot follow yourself")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	// 4 - call follow user database function
+	// 8 - call follow user database function
 	err := rt.db.FollowUser(followerID, followedID)
 	if err != nil {
 		// folloe user database function returned error -> return error
@@ -50,6 +82,6 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 		return
 	}
 
-	// 5 - return success (no content)
+	// 9 - return success (no content)
 	w.WriteHeader(http.StatusCreated)
 }

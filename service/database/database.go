@@ -26,6 +26,9 @@ var (
 
 	// error of like
 	ErrUserLikeDoesNotExist = errors.New("error: user like does not exist")
+
+	// error of comment
+	ErrCommentDoesNotExist = errors.New("error: comment does not exist")
 )
 
 // STRUCTS
@@ -83,11 +86,12 @@ type AppDatabase interface {
 	GetUserMedia(userid string) ([]MediaDB, error)                                 // takes userID -> returns array of media
 	LikePhoto(mediaid string, userid string) error                                 // takes userID and mediaID -> creates like -> reuturns error
 	UnlikePhoto(mediaid string, userid string) error                               // takes userID and mediaID -> deletes like -> reuturns error
-	GetMediaLikes(mediaid string) []string                                         // takes mediaID -> returns array of users who liked that media
+	GetMediaLikes(mediaid string) ([]string, error)                                // takes mediaID -> returns array of users who liked that media
 	CommentPhoto(userid string, mediaid string, comment CommentDB) (string, error) // takes comment, mediaID and userID -> creates comment -> reuturns commentID and error
 	UncommentPhoto(commentid string) error                                         // takes mediaID and userID -> deletes comment -> reuturns error
 	GetMediaComments(mediaid string) ([]CommentDB, error)                          // takes mediaID -> returns array of comments to that media
-
+	Check(table string, column1 string, v1 string, column2 string, v2 string) bool // takes table, 2 columns and 2 values -> returns true if occurrence exists, false otherwise
+	ExistenceCheck(id string, what string) bool                                    // takes userid -> returns true if user exists, false otherwise
 	// DEFAULT
 	Ping() error
 }

@@ -19,7 +19,7 @@ func (db *appdbimpl) UncommentPhoto(commentID string) error {
 		return fmt.Errorf("error encountered while checking if row has been deleted: %w", err)
 	} else if affected == 0 {
 		// no row has been deleted -> return error
-		return fmt.Errorf("error: no row has been deleted which means no corresponding row was found: %w", err)
+		return ErrCommentDoesNotExist
 	}
 
 	// 3 - return success

@@ -14,7 +14,7 @@ import (
 // Delete media with mediaid in the path
 func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	// 1 - take mediaid from the path
-	mediaID := ps.ByName("media")
+	mediaID := ps.ByName("mediaid")
 	mediaID = strings.TrimPrefix(mediaID, ":mediaid=")
 	if len(mediaID) == 0 {
 		// mediaid is empty -> return error
@@ -24,22 +24,17 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 
 	// 2 - check if media belongs to logged user
-	token := r.Header.Get("authenticatedUserID")
-	media, err := rt.db.GetMedia(mediaID)
-	if err != nil {
-		ctx.Logger.Error("error: mediaid is empty")
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}
-	mediaAuthor := media.AuthorID
-	if !(authentication(token, mediaAuthor)) {
-		ctx.Logger.Error("error: only the author of the meia can delete the media")
+	token := r.Header.Get("Authorization")
+	if rt.db.Check("media", "mediaid", "authorid", mediaID, token) {
+		ctx.Logger.Error("error: only the author of the media can delete the media")
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
 
+	// here if the logged user is the owner of the media
+
 	// 3 - call delete photo database function
-	err = rt.db.DeletePhoto(mediaID)
+	err := rt.db.DeletePhoto(mediaID)
 	if errors.Is(err, database.ErrMediaDoesNotExists) {
 		// database function returned no media exists -> return
 		ctx.Logger.WithError(err).WithField("mediaID", mediaID)

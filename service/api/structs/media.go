@@ -5,27 +5,26 @@ import (
 )
 
 var (
-	// Photo regex is a url pattern for a png/jpg/jpeg image
-	PhotoRx = ProfilePicRx
-	// Caption regex is a general string pattern
-	CaptionRx = BioRx
+	PhotoRx   = ProfilePicRx // Photo regex is a url pattern for a png/jpg/jpeg image
+	CaptionRx = BioRx        // Caption regex is a general string pattern
 )
 
 // Media struct represents a Photo with unique ID, authorID, date of creation, caption, url of the photo
 type Media struct {
 	MediaID  string `json:"mediaid"`
 	AuthorID string `json:"authorid"`
-	// notice that author name was not stored in the database struct of media but it is needed here for the frontend
+	// notice that author name was not stored in the database struct of media but it is needed here in order to display it
 	AuthorName string `json:"authorname"`
 	Date       string `json:"date,omitempty"`
 	Caption    string `json:"caption,omitempty"`
 	Photo      string `json:"photo,omitempty"`
 	NLikes     uint32 `json:"nlikes,omitempty"`
 	NComments  uint32 `json:"ncomments,omitempty"`
+	liked      bool
 }
 
 // Function to map a database media to the media struct
-func (m *Media) FromDatabase(media database.MediaDB, db database.AppDatabase) error {
+func (m *Media) FromDatabase(media database.MediaDB, db database.AppDatabase, token string) error {
 	var err error
 	m.MediaID = media.MediaID
 	m.AuthorID = media.AuthorID
@@ -36,21 +35,19 @@ func (m *Media) FromDatabase(media database.MediaDB, db database.AppDatabase) er
 	m.Date = media.Date
 	m.Caption = media.Caption
 	m.Photo = media.Photo
-	m.NLikes = media.NLikes
-	m.NComments = media.NComments
+	m.NLikes = db.CountRows("like", "mediaid", m.MediaID)
+	m.NComments = db.CountRows("comment", "mediaid", m.MediaID)
+	m.liked = db.Check("like", "mediaid", "userid", m.MediaID, token)
 	return nil
 }
 
 // Function to map a Media struct to a database media
 func (media *Media) ToDatabase() database.MediaDB {
 	return database.MediaDB{
-		MediaID:   media.MediaID,
-		AuthorID:  media.AuthorID,
-		Date:      media.Date,
-		Caption:   media.Caption,
-		Photo:     media.Photo,
-		NLikes:    media.NLikes,
-		NComments: media.NComments,
+		MediaID:  media.MediaID,
+		AuthorID: media.AuthorID,
+		Caption:  media.Caption,
+		Photo:    media.Photo,
 	}
 }
 

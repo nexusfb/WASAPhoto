@@ -27,8 +27,22 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+	// 2 - get logged user
+	token := r.Header.Get("Authorization")
 
-	// 2 - take json from request body
+	// 4 - logged user can change username only of his own profile, check if it is his profile
+	if token != userID {
+		ctx.Logger.Error("error: could not change username because you are not authorized ")
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	// notice that in this case I don't check if the requested user exists because the only case in which he updates
+	// the username is if it correspond to the logged user which I take as an assumption to exist
+
+	// here only if logged user is trying to change his username
+
+	// 5 - take json from request body
 	var newUsernameJson structs.Username
 	if err := json.NewDecoder(r.Body).Decode(&newUsernameJson); err != nil {
 		// username is not a parseable JSON -> return error
@@ -42,22 +56,22 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 		return
 	}
 
-	// 3 - take old username using userID
+	// 6 - take old username using userID
 	oldName, _ := rt.db.GetUserName(userID)
 
-	// 4 - take old profile using old username
+	// 7 - take old profile using old username
 	oldProfile, _ := rt.db.GetUserProfile(oldName)
 
-	// 5 - convert old profile to array of byte
+	// 8 - convert old profile to array of byte
 	oldProfileByte, err := json.Marshal(&oldProfile)
 
-	// 6 - create patch
+	// 9 - create patch
 	patchJson := `[{"op": "replace", "path": "/username", "value": "` + newUsernameJson.Name + `"}]`
 
-	// 7 - convert patch to array of byte
+	// 10 - convert patch to array of byte
 	patchByte := []byte(patchJson)
 
-	// 7 - decode patch
+	// 11 - decode patch
 	patch, err := jsonpatch.DecodePatch(patchByte)
 	if err != nil {
 		// decode patch returned error -> return error
@@ -66,15 +80,16 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 		return
 	}
 
-	// 8 - apply patch
+	// 12- apply patch
 	newProfileByte, err := patch.Apply(oldProfileByte)
 	if err != nil {
 		// apply returned error -> return error
 		ctx.Logger.WithError(err).WithField("newProfile", newProfileByte).Error("error: could not apply patch")
+		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	// 9 - conver new profile from array of byte to json and put it into a new profile struct
+	// 13 - conver new profile from array of byte to json and put it into a new profile struct
 	var newProfileJson structs.UserProfile
 	newProfileJson.UserID = userID
 	err = json.Unmarshal(newProfileByte, &newProfileJson)
@@ -91,7 +106,8 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 		return
 	}
 
-	// 11 - return updated profile
+	// 14 - return updated profile
+	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(newProfileJson)
 }
