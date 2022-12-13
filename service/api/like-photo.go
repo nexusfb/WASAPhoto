@@ -50,7 +50,7 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 
 	// here only if logged user has not been banned by media owner
 
-	// 6 - check validity of the follow
+	// 6 - check validity of the like
 	if mediaDB.AuthorID == token {
 		ctx.Logger.Error("error: you cannot like your own media")
 		w.WriteHeader(http.StatusBadRequest)

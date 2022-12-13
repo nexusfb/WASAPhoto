@@ -5,17 +5,15 @@ import (
 )
 
 var (
-	ContentRx = BioRx      // Content regex is a general string pattern
-	AuthorRx  = UsernameRx // Author regex is a case-sensitive alfanumeric string + (._)
+	ContentRx = BioRx // Content regex is a general string pattern
 )
 
 // Comment struct
 type Comment struct {
-	CommentID string `json:"commentid"`
+	CommentID string
 	// notice that author name was not stored in the database struct of media but it is needed here in order to display it
-	MediaID    string `json:"mediaid"`
-	AuthorName string `json:"authorname"`
-	Date       string `json:"date,omitempty"`
+	AuthorName string
+	Date       string
 	Content    string `json:"content,omitempty"`
 }
 
@@ -34,21 +32,13 @@ func (c *Comment) FromDatabase(comment database.CommentDB, db database.AppDataba
 
 // Function to map a comment api struct to a database comment struct
 func (c *Comment) ToDatabase(db database.AppDatabase) database.CommentDB {
-	id, err := db.GetUserID(c.AuthorName)
-	if err != nil {
-		return database.CommentDB{}
-	}
 	return database.CommentDB{
-		MediaID:  c.MediaID,
-		AuthorID: id,
-		Content:  c.Content,
+		Content: c.Content,
 	}
 }
 
 // Function to check the validity of a comment api struct
 func (c *Comment) IsValid() bool {
-	return len(c.CommentID) == 27 && len(c.AuthorName) >= 5 && len(c.AuthorName) <= 20 &&
-		AuthorRx.MatchString(c.AuthorName) && len(c.Content) <= 150 &&
-		ContentRx.MatchString(c.Content)
+	return len(c.Content) <= 150 && ContentRx.MatchString(c.Content)
 
 }

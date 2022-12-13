@@ -21,6 +21,7 @@ func (rt *_router) getMedia(w http.ResponseWriter, r *http.Request, ps httproute
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
 	// 2 - check if media exists
 	if !rt.db.ExistenceCheck(mediaID, "media") {
 		// media does not exist

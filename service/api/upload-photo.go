@@ -25,9 +25,9 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	// 2 - get logged user
 	token := r.Header.Get("Authorization")
 
-	// 3 - logged user can change username only of his own profile, check if it is his profile
+	// 3 - logged user can upload photos only in his own profile, check if it is his profile
 	if token != userID {
-		ctx.Logger.Error("error: could not change username because you are not authorized ")
+		ctx.Logger.Error("error: could not upload photo because you are not authorized ")
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -53,7 +53,7 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 
 	// 5 - call upload photo database function with userID and converted media struct to database media
-	newMediaID, err := rt.db.UploadPhoto(userID, media.ToDatabase())
+	newMediaID, err := rt.db.UploadPhoto(token, media.ToDatabase())
 	if err != nil {
 		// upload photo database function returned error -> return error
 		ctx.Logger.WithError(err).Error("can't uplad photo")

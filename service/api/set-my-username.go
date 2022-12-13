@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 
 	"strings"
@@ -20,7 +19,6 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 	// 1 - take userid from path
 	userID := ps.ByName("userid")
 	userID = strings.TrimPrefix(userID, ":userid=")
-	fmt.Println(strings.TrimPrefix(userID, ":userid="))
 	if len(userID) == 0 {
 		// userid is empty -> return error
 		ctx.Logger.Error("error: userID is empty")

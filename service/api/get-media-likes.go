@@ -67,7 +67,7 @@ func (rt *_router) getMediaLikes(w http.ResponseWriter, r *http.Request, ps http
 		shortProfileArray = append(shortProfileArray, sp)
 	}
 
-	// 7 - return array of followers
+	// 7 - return array of likes
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(shortProfileArray)

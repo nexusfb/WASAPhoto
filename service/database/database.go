@@ -80,10 +80,12 @@ type AppDatabase interface {
 	CountRows(table string, column string, event string) uint32 // takes table, column, event -> returns the number of rows in the table for which column==event
 
 	// MEDIA
-	UploadPhoto(userid string, media MediaDB) (string, error)                      // takes userID -> creates media -> returns mediaID
-	DeletePhoto(mediaid string) error                                              // takes mediaID -> deletes media -> returns
-	GetMedia(mediaid string) (MediaDB, error)                                      // takes mediaID -> reuturns media
-	GetUserMedia(userid string) ([]MediaDB, error)                                 // takes userID -> returns array of media
+	UploadPhoto(userid string, media MediaDB) (string, error) // takes userID -> creates media -> returns mediaID
+	DeletePhoto(mediaid string) error                         // takes mediaID -> deletes media -> returns
+	GetMedia(mediaid string) (MediaDB, error)                 // takes mediaID -> reuturns media
+	GetUserMedia(userid string) ([]MediaDB, error)            // takes userID -> returns array of media
+
+	// LIKES
 	LikePhoto(mediaid string, userid string) error                                 // takes userID and mediaID -> creates like -> reuturns error
 	UnlikePhoto(mediaid string, userid string) error                               // takes userID and mediaID -> deletes like -> reuturns error
 	GetMediaLikes(mediaid string) ([]string, error)                                // takes mediaID -> returns array of users who liked that media
@@ -107,11 +109,16 @@ func New(db *sql.DB) (AppDatabase, error) {
 	}
 
 	// DROP
-	//f, _ := db.Exec(`DROP TABLE users IF EXISTS `)
+	//f, _ := db.Exec(`DROP TABLE user IF EXISTS `)
+	//f, _ = db.Exec(`DROP TABLE media IF EXISTS `)
+	//f, _ = db.Exec(`DROP TABLE follow IF EXISTS `)
+	//f, _ = db.Exec(`DROP TABLE ban IF EXISTS `)
+	//f, _ = db.Exec(`DROP TABLE like IF EXISTS `)
+	//f, _ = db.Exec(`DROP TABLE comment IF EXISTS `)
 	//fmt.Println(f)
 
 	// 1 - define user table
-	tableName := "users"
+	tableName := "user"
 	sqlStmt := `CREATE TABLE user (
 		userid TEXT NOT NULL PRIMARY KEY,
 		username TEXT NOT NULL,
@@ -131,7 +138,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 		followedid TEXT NOT NULL,
 		FOREIGN KEY (followerid) REFERENCES user(userid),
 		FOREIGN KEY (followerid) REFERENCES user(userid),
-		PRIMARY KEY (followerid, followingid));`
+		PRIMARY KEY (followerid, followedid));`
 
 	// 4 - create follow table
 	err = createTables(tableName, sqlStmt, db)

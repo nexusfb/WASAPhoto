@@ -18,11 +18,11 @@ func (db *appdbimpl) UploadPhoto(userid string, media MediaDB) (string, error) {
 	Mid := rawMid.String()
 
 	// 2 - create timestamp
-	media.Date = time.Now().Format(time.RFC3339)
+	now := time.Now().Format(time.RFC3339)
 
 	// 3 - execute query
 	_, err = db.c.Exec(`INSERT INTO media (mediaid, authorid, date, caption, photo) VALUES (?,?,?,?,?,?,?)`,
-		Mid, userid, media.Date, media.Caption, media.Photo)
+		Mid, userid, now, media.Caption, media.Photo)
 	if err != nil {
 		// exec returned error -> return error
 		return "", fmt.Errorf("error when creating new media: %w", err)

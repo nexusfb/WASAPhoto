@@ -8,8 +8,8 @@ import (
 func (db *appdbimpl) DeletePhoto(mediaid string) error {
 	// 1 - create query array
 	queryArray := []string{
-		`DELETE FROM like WHERE mediaid=?`,    // delete likes
-		`DELETE FROM comment WHERE mediaid=?`, // delete comments
+		`DELETE FROM like WHERE mediaid=?`,    // delete media likes
+		`DELETE FROM comment WHERE mediaid=?`, // delete media comments
 		`DELETE FROM media WHERE mediaid=?`}   // delete media
 
 	// 2 - execute query

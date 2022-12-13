@@ -10,7 +10,7 @@ func (db *appdbimpl) LikePhoto(userID string, mediaID string) error {
 	// here only if user has not liked this photo yet
 
 	// 1 - create new like
-	_, err := db.c.Exec(`INSERT INTO like (userid, mediaid) VALUES (?,?)`, userID, mediaID)
+	_, err := db.c.Exec(`INSERT INTO like (mediaid, userid) VALUES (?,?)`, mediaID, userID)
 	if err != nil {
 		// exec returned error -> return error
 		return fmt.Errorf("error when creating new follow: %w", err)

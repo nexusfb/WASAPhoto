@@ -12,7 +12,6 @@ var (
 // Media struct
 type Media struct {
 	MediaID    string
-	AuthorID   string
 	AuthorName string // notice that author name was not stored in the database struct of media but it is needed here in order to display it
 	Date       string
 	Caption    string `json:"caption,omitempty"`
@@ -26,8 +25,7 @@ type Media struct {
 func (m *Media) FromDatabase(media database.MediaDB, db database.AppDatabase, token string) error {
 	var err error
 	m.MediaID = media.MediaID
-	m.AuthorID = media.AuthorID
-	m.AuthorName, err = db.GetUserName(m.AuthorID)
+	m.AuthorName, err = db.GetUserName(media.AuthorID)
 	if err != nil {
 		return err
 	}

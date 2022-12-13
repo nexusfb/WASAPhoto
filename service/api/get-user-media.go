@@ -33,7 +33,7 @@ func (rt *_router) getUserMedia(w http.ResponseWriter, r *http.Request, ps httpr
 	// 3 - get logged user
 	token := r.Header.Get("Authorization")
 
-	// 4 - check if logged user has been banned by requested user profile
+	// 4 - check if logged user has been banned by the author of the media
 	res := rt.db.Check("ban", "bannerid", "bannedid", userID, token)
 	if res {
 		ctx.Logger.Error("error: could not get user profile because you are not authorized ")
@@ -61,6 +61,7 @@ func (rt *_router) getUserMedia(w http.ResponseWriter, r *http.Request, ps httpr
 	}
 
 	// 7 - return array of media structs
+	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(mediaArray)
 }
