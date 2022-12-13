@@ -58,22 +58,31 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 		return
 	}
 
-	// 6 - check if logged user has been banned by requested user profile
-	res := rt.db.Check("ban", "bannerid", "bannedid", followedID, token)
-	if res {
-		ctx.Logger.Error("error: could not get user profile because you are not authorized")
-		w.WriteHeader(http.StatusUnauthorized)
-		return
-	}
-
-	// 7 - check validity of the follow
+	// 6 - check validity of the follow
 	if followerID == followedID {
 		ctx.Logger.Error("error: you cannot follow yourself")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	// 8 - call follow user database function
+	// 7 - check if logged user already follows the specified user
+	if rt.db.Check("follow", "followerid", "followingid", token, followedID) {
+		// logged user already follows the specified user
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	// 8 - check if logged user has been banned by requested user profile
+	res := rt.db.Check("ban", "bannerid", "bannedid", followedID, token)
+	if res {
+		ctx.Logger.Error("error: could not follow user because you are not authorized")
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	// here only if user exists, logged user does not follow him yet and has not been banned by him
+
+	// 9 - call follow user database function
 	err := rt.db.FollowUser(followerID, followedID)
 	if err != nil {
 		// folloe user database function returned error -> return error

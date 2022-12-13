@@ -44,7 +44,7 @@ func (rt *_router) getUserFollowings(w http.ResponseWriter, r *http.Request, ps 
 	// here only if logged user has not been banned by user profile's owner
 
 	// 5 - call get user followings database function
-	followings, err := rt.db.GetUserFollowers(userID)
+	followings, err := rt.db.GetUserFollowings(userID)
 	if err != nil {
 		/// get user followings database function returned error -> return error
 		ctx.Logger.WithError(err).WithField("userID", userID).Error("error: can't get user followers from database")

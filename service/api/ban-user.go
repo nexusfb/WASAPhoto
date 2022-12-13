@@ -60,10 +60,17 @@ func (rt *_router) banUser(w http.ResponseWriter, r *http.Request, ps httprouter
 		return
 	}
 
-	// 7 - call follow user database function
+	// 7 - check if logged user already banned the specified user
+	if rt.db.Check("ban", "bannerid", "bannedid", bannerID, bannedID) {
+		// logged user has already banned the specified user
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	// 8 - call ban user database function
 	err := rt.db.BanUser(bannerID, bannedID)
 	if err != nil {
-		// folloe user database function returned error -> return error
+		// ban user database function returned error -> return error
 		ctx.Logger.WithError(err).Error("error: can't follow user")
 		w.WriteHeader(http.StatusInternalServerError)
 		return

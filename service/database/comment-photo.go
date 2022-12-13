@@ -18,11 +18,11 @@ func (db *appdbimpl) CommentPhoto(userID string, mediaID string, comment Comment
 	cID := rawCid.String()
 
 	// 2 - create timestamp
-	comment.Date = time.Now().Format(time.RFC3339)
+	now := time.Now().Format(time.RFC3339)
 
 	// 3 - execute query
 	_, err = db.c.Exec(`INSERT INTO comment (commentid, mediaid, authorid, date, content) VALUES (?,?,?,?,?,?,?)`,
-		cID, mediaID, userID, comment.Date, comment.Content)
+		cID, mediaID, userID, now, comment.Content)
 	if err != nil {
 		// exec returned error -> return error
 		return "", fmt.Errorf("error when creating new comment: %w", err)

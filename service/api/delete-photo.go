@@ -26,7 +26,7 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	// 2 - check if media exists
 	if !rt.db.ExistenceCheck(mediaID, "media") {
 		// media does not exist -> don't do anything
-		w.WriteHeader(http.StatusNoContent)
+		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 

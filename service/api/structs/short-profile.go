@@ -4,11 +4,6 @@ import (
 	"github.com/nexusfb/WASAPhoto/service/database"
 )
 
-var (
-	NameRx = UsernameRx   // Username regex is a case-sensitive alfanumeric string + (._)
-	PicRx  = ProfilePicRx // Pic regex is a url pattern for a png/jpg/jpeg image
-)
-
 // Short profile struct represents a username and its
 type ShortProfile struct {
 	Username string // username of the owner of the profile

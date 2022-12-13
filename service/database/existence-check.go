@@ -34,6 +34,23 @@ func (db *appdbimpl) ExistenceCheck(id string, what string) bool {
 		return false
 	}
 
+	// comment case
+	if what == "comment" {
+		// 1 - execute query
+		comment, err := db.c.Query(`SELECT * FROM comment WHERE commentid = ?`, id)
+		if err != nil {
+			// query returned error -> return false
+			return false
+		}
+
+		// 2 - check if at least one row
+		result := comment.Next()
+		if !result {
+			return false
+		}
+		return true
+	}
+
 	// never used
 	return false
 

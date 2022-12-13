@@ -19,6 +19,7 @@ func (db *appdbimpl) UnbanUser(bannerID string, bannedID string) error {
 		return fmt.Errorf("error encountered while checking if row has been deleted: %w", err)
 	} else if affected == 0 {
 		// no row has been deleted -> return error
+		// should never happen since it is already checked in the API
 		return ErrUserNotBanned
 	}
 

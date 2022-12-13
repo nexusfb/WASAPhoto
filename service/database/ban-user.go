@@ -10,6 +10,7 @@ import (
 func (db *appdbimpl) BanUser(bannerID string, bannedID string) error {
 
 	// 1 - check if user already banned
+	// should never happen since it is already checked in the API
 	err := db.c.QueryRow(`SELECT * FROM ban WHERE bannerid = ? AND bannedid = ?`, bannerID, bannedID).Scan()
 	if !errors.Is(err, sql.ErrNoRows) {
 		return ErrUserAlreadyBanned

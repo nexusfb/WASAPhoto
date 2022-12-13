@@ -37,7 +37,7 @@ func (rt *_router) UnfollowUser(w http.ResponseWriter, r *http.Request, ps httpr
 
 	// here only if logged user is trying to unfollow a user
 
-	// 2 - get followedID from path
+	// 4 - get followedID from path
 	followedID := ps.ByName("followingid")
 	followedID = strings.TrimPrefix(followedID, ":followingid=")
 	if len(followedID) == 0 {
@@ -47,7 +47,7 @@ func (rt *_router) UnfollowUser(w http.ResponseWriter, r *http.Request, ps httpr
 		return
 	}
 
-	// 3 - check if user is valid
+	// 5 - check if user is valid
 	if !rt.db.ExistenceCheck(followedID, "user") {
 		// user does not exist
 		ctx.Logger.Error("error: user does not exist")
@@ -55,11 +55,32 @@ func (rt *_router) UnfollowUser(w http.ResponseWriter, r *http.Request, ps httpr
 		return
 	}
 
-	// 4 - call delete photo database function
+	// 6 - check validity of the follow
+	if followerID == followedID {
+		ctx.Logger.Error("error: you cannot unfollow yourself")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
+	// 7 - check if logged user already follows the specified user
+	if !rt.db.Check("follow", "followerid", "followingid", token, followedID) {
+		// logged user does not follow the specified user
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	// 8 - check if logged user has been banned by requested user profile
+	res := rt.db.Check("ban", "bannerid", "bannedid", followedID, token)
+	if res {
+		ctx.Logger.Error("error: could unfollow user because you are not authorized")
+		w.WriteHeader(http.StatusUnauthorized)
+		return
+	}
+
+	// 9 - call delete photo database function
 	err := rt.db.UnfollowUser(followerID, followedID)
 	if errors.Is(err, database.ErrUserNotFollowed) {
-		// database function returned user not followed -> return
-		ctx.Logger.WithError(err).WithField("userID", followedID)
+		// database function returned user not followed -> don't do anything
 		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if err != nil {

@@ -40,8 +40,8 @@ func (rt *_router) deleteUserProfile(w http.ResponseWriter, r *http.Request, ps 
 	// 4 - call delete user profile database function
 	err := rt.db.DeleteUserProfile(user)
 	if errors.Is(err, database.ErrUserProfileDoesNotExists) {
+		// should never happen
 		// database function returned no user profile exists -> return
-		ctx.Logger.WithError(err).WithField("username", user)
 		w.WriteHeader(http.StatusNotFound)
 		return
 	} else if err != nil {

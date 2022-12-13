@@ -25,6 +25,7 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
 	// 2 - get logged user
 	token := r.Header.Get("Authorization")
 
@@ -89,12 +90,13 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 
 	// 13 - conver new profile from array of byte to json and put it into a new profile struct
 	var newProfileJson structs.UserProfile
-	newProfileJson.UserID = userID
 	err = json.Unmarshal(newProfileByte, &newProfileJson)
-	// 10 - call update user profile with the new profile translated to database profile
+
+	// 14 - call update user profile with the new profile translated to database profile
 	_, err = rt.db.UpdateUserProfile(newProfileJson.ToDatabase())
 	if errors.Is(err, database.ErrUserProfileDoesNotExists) {
 		// user profile does not exist -> return error
+		// should never happen since it is already checked in the API
 		ctx.Logger.WithError(err).WithField("username", newProfileJson.Username).Error("error: cannot change username because user profile does not exist")
 		w.WriteHeader(http.StatusNotFound)
 		return

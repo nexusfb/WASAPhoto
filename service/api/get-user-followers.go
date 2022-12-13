@@ -36,7 +36,7 @@ func (rt *_router) getUserFollowers(w http.ResponseWriter, r *http.Request, ps h
 	// 4 - check if logged user has been banned by requested user profile
 	res := rt.db.Check("ban", "bannerid", "bannedid", userID, token)
 	if res {
-		ctx.Logger.Error("error: could not get user profile because you are not authorized ")
+		ctx.Logger.Error("error: could not get user followers because you are not authorized ")
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}

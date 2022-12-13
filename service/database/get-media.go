@@ -18,6 +18,7 @@ func (db *appdbimpl) GetMedia(mediaid string) (MediaDB, error) {
 	result := rawMedia.Next()
 	if !result {
 		// next() returned error which means there is no row (media does not exist) -> return error
+		// should never happen -> existence of the media is already checked in the API
 		return MediaDB{}, ErrMediaDoesNotExists
 	}
 
