@@ -28,7 +28,7 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 
 	// 2 - get logged user
 	token := r.Header.Get("Authorization")
-
+	token = strings.TrimPrefix(token, "Bearer ")
 	// 4 - logged user can change username only of his own profile, check if it is his profile
 	if token != userID {
 		ctx.Logger.Error("error: could not change username because you are not authorized ")
@@ -39,7 +39,7 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 	// notice that in this case I don't check if the requested user exists because the only case in which he updates
 	// the username is if it correspond to the logged user which I take as an assumption to exist
 
-	// here only if logged user is trying to change his username
+	// here only ifs logged user is trying to change his username
 
 	// 5 - take json from request body
 	var newUsernameJson structs.Username

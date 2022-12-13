@@ -22,6 +22,7 @@ func (rt *_router) unbanUser(w http.ResponseWriter, r *http.Request, ps httprout
 
 	// 2 - get logged user
 	token := r.Header.Get("Authorization")
+	token = strings.TrimPrefix(token, "Bearer ")
 
 	// 3 - logged user can ban only from his own profile, check if it is his profile
 	if token != bannerID {

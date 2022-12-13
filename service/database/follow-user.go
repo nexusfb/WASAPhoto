@@ -19,7 +19,7 @@ func (db *appdbimpl) FollowUser(userid string, followid string) error {
 	// here only if user does not follow the other user yet
 
 	// 2 - create new follow
-	_, err = db.c.Exec(`INSERT INTO follow (followerid, followingid) VALUES (?,?)`, userid, followid)
+	_, err = db.c.Exec(`INSERT INTO follow (followerid, followedid) VALUES (?,?)`, userid, followid)
 	if err != nil {
 		// exec returned error -> return error
 		return fmt.Errorf("error when creating new follow: %w", err)

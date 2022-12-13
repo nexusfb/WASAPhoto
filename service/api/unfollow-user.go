@@ -24,10 +24,11 @@ func (rt *_router) UnfollowUser(w http.ResponseWriter, r *http.Request, ps httpr
 	}
 	// 2 - get logged user
 	token := r.Header.Get("Authorization")
+	token = strings.TrimPrefix(token, "Bearer ")
 
 	// 3 - logged user can unfollow only from his own profile, check if it is his profile
 	if token != followerID {
-		ctx.Logger.Error("error: could not change username because you are not authorized ")
+		ctx.Logger.Error("error: could not unfollow user because you are not authorized ")
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -62,8 +63,8 @@ func (rt *_router) UnfollowUser(w http.ResponseWriter, r *http.Request, ps httpr
 		return
 	}
 
-	// 7 - check if logged user already follows the specified user
-	if !rt.db.Check("follow", "followerid", "followingid", token, followedID) {
+	// 7 - check if logged user does not follow the specified user
+	if !rt.db.Check("follow", "followerid", "followedid", token, followedID) {
 		// logged user does not follow the specified user
 		w.WriteHeader(http.StatusNotFound)
 		return

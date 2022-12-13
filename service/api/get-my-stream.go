@@ -24,6 +24,7 @@ func (rt *_router) getMyStream(w http.ResponseWriter, r *http.Request, ps httpro
 
 	// 2 - get logged user
 	token := r.Header.Get("Authorization")
+	token = strings.TrimPrefix(token, "Bearer ")
 
 	// 3 - logged user can get stream only from his own profile, check if it is his profile
 	if token != userID {

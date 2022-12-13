@@ -48,7 +48,7 @@ func (profile *UserProfile) ToDatabase() database.UserProfileDB {
 
 // Function to check if a user profile struct is valid
 func (p *UserProfile) IsValid() bool {
-	return len(p.UserID) == 27 && len(p.Username) >= 5 && len(p.Username) <= 20 && UsernameRx.MatchString(p.Username) && len(p.ProfilePic) <= 200 && ProfilePicRx.MatchString(p.ProfilePic) &&
+	return len(p.Username) >= 5 && len(p.Username) <= 20 && UsernameRx.MatchString(p.Username) && len(p.ProfilePic) <= 200 && ProfilePicRx.MatchString(p.ProfilePic) &&
 		len(p.Bio) <= 150 && BioRx.MatchString(p.Bio)
 }
 

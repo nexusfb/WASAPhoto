@@ -27,10 +27,11 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 
 	// 2 - get logged user
 	token := r.Header.Get("Authorization")
+	token = strings.TrimPrefix(token, "Bearer ")
 
 	// 3 - logged user can follow only from his own profile, check if it is his profile
 	if token != followerID {
-		ctx.Logger.Error("error: could not change username because you are not authorized ")
+		ctx.Logger.Error("error: could not follow user because you are not authorized ")
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}

@@ -41,6 +41,7 @@ func (rt *_router) getMediaLikes(w http.ResponseWriter, r *http.Request, ps http
 
 	// 4 - check if logged user has been banned from the author of the media
 	token := r.Header.Get("Authorization")
+	token = strings.TrimPrefix(token, "Bearer ")
 	res := rt.db.Check("ban", "bannerid", "bannedid", mediaDB.AuthorID, token)
 	if res {
 		ctx.Logger.Error("error: could not get user profile because you are not authorized ")

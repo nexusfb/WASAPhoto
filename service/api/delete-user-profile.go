@@ -25,10 +25,11 @@ func (rt *_router) deleteUserProfile(w http.ResponseWriter, r *http.Request, ps 
 
 	// 2 - get logged user
 	token := r.Header.Get("Authorization")
+	token = strings.TrimPrefix(token, "Bearer ")
 
 	// 3 - logged user can delete only its own profile, check if it is his profile
 	if token != user {
-		ctx.Logger.Error("error: could not change username because you are not authorized ")
+		ctx.Logger.Error("error: could not delete user because you are not authorized ")
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
@@ -36,6 +37,13 @@ func (rt *_router) deleteUserProfile(w http.ResponseWriter, r *http.Request, ps 
 	// the profile is if it correspond to the logged user which I take as an assumption to exist
 
 	// here only if logged user is trying to delete his profile
+
+	// 7 - check if logged user already follows the specified user
+	if !rt.db.ExistenceCheck(token, "user") {
+		// logged user does not follow the specified user
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
 
 	// 4 - call delete user profile database function
 	err := rt.db.DeleteUserProfile(user)

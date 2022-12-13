@@ -32,6 +32,7 @@ func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps htt
 
 	// 2 - check if comment belongs to logged user
 	token := r.Header.Get("Authorization")
+	token = strings.TrimPrefix(token, "Bearer ")
 	if !rt.db.Check("comment", "commentid", "userid", commentID, token) {
 		ctx.Logger.Error("error: only the author of the comment can delete the comment")
 		w.WriteHeader(http.StatusUnauthorized)

@@ -30,6 +30,7 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 
 	// 3 - get logged user
 	token := r.Header.Get("Authorization")
+	token = strings.TrimPrefix(token, "Bearer ")
 
 	// 4 - take media
 	mediaDB, err := rt.db.GetMedia(mediaID)

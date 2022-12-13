@@ -32,6 +32,7 @@ func (rt *_router) getMedia(w http.ResponseWriter, r *http.Request, ps httproute
 
 	// 3 - get logged user
 	token := r.Header.Get("Authorization")
+	token = strings.TrimPrefix(token, "Bearer ")
 
 	// 4 - take media
 	mediaDB, err := rt.db.GetMedia(mediaID)

@@ -6,8 +6,8 @@ import (
 
 // Short profile struct represents a username and its
 type ShortProfile struct {
-	Username string // username of the owner of the profile
-	Pic      string // URL of the profile picture
+	Username string `json:"username"`      // username of the owner of the profile
+	Pic      string `json:"pic,omitempty"` // URL of the profile picture
 }
 
 // Function to map a database profile to the struct profile

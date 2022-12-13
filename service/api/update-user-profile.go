@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"strings"
@@ -27,6 +28,7 @@ func (rt *_router) updateUserProfile(w http.ResponseWriter, r *http.Request, ps 
 
 	// 2 - get logged user
 	token := r.Header.Get("Authorization")
+	token = strings.TrimPrefix(token, "Bearer ")
 
 	// 3 - logged user can change only his own profile, check if it is his profile
 	if token != userID {
@@ -44,6 +46,7 @@ func (rt *_router) updateUserProfile(w http.ResponseWriter, r *http.Request, ps 
 	newProfile.UserID = userID
 	if err := json.NewDecoder(r.Body).Decode(&newProfile); err != nil {
 		// new profile is not a parseable JSON -> return error
+		fmt.Println(r.Body)
 		ctx.Logger.WithError(err).WithField("newProfile", newProfile).Error("error: new profile is not a parseable JSON")
 		w.WriteHeader(http.StatusBadRequest)
 		return

@@ -24,6 +24,7 @@ func (rt *_router) getBannedUsers(w http.ResponseWriter, r *http.Request, ps htt
 
 	// 2 - get logged user
 	token := r.Header.Get("Authorization")
+	token = strings.TrimPrefix(token, "Bearer ")
 
 	// 3 - logged user can get bans only from his own profile, check if it is his profile
 	if token != userID {

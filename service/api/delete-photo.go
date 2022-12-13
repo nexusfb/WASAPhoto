@@ -32,6 +32,7 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 
 	// 3 - check if media belongs to logged user
 	token := r.Header.Get("Authorization")
+	token = strings.TrimPrefix(token, "Bearer ")
 	if !rt.db.Check("media", "mediaid", "authorid", mediaID, token) {
 		ctx.Logger.Error("error: only the author of the media can delete the media")
 		w.WriteHeader(http.StatusUnauthorized)

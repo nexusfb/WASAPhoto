@@ -32,6 +32,7 @@ func (rt *_router) getUserMedia(w http.ResponseWriter, r *http.Request, ps httpr
 
 	// 3 - get logged user
 	token := r.Header.Get("Authorization")
+	token = strings.TrimPrefix(token, "Bearer ")
 
 	// 4 - check if logged user has been banned by the author of the media
 	res := rt.db.Check("ban", "bannerid", "bannedid", userID, token)
