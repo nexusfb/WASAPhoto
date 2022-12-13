@@ -26,7 +26,7 @@ func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps htt
 	// 3 - check if comment exists
 	if !rt.db.ExistenceCheck(commentID, "comment") {
 		// comment does not exist -> don't do anything
-		w.WriteHeader(http.StatusNoContent)
+		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
@@ -53,7 +53,6 @@ func (rt *_router) uncommentPhoto(w http.ResponseWriter, r *http.Request, ps htt
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
 	// 4 - return success (no content)
 	w.WriteHeader(http.StatusNoContent)
 }

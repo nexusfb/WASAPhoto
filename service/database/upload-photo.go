@@ -21,7 +21,7 @@ func (db *appdbimpl) UploadPhoto(userid string, media MediaDB) (string, error) {
 	now := time.Now().Format(time.RFC3339)
 
 	// 3 - execute query
-	_, err = db.c.Exec(`INSERT INTO media (mediaid, authorid, date, caption, photo) VALUES (?,?,?,?,?,?,?)`,
+	_, err = db.c.Exec(`INSERT INTO media (mediaid, authorid, date, caption, photo) VALUES (?,?,?,?,?)`,
 		Mid, userid, now, media.Caption, media.Photo)
 	if err != nil {
 		// exec returned error -> return error

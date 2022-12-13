@@ -1,5 +1,9 @@
 package database
 
+import (
+	"errors"
+)
+
 // function to check if user/media exists or not
 func (db *appdbimpl) ExistenceCheck(id string, what string) bool {
 	// user case
@@ -21,7 +25,7 @@ func (db *appdbimpl) ExistenceCheck(id string, what string) bool {
 	if what == "media" {
 		// 1 - get media
 		_, err := db.GetMedia(id)
-		if err == ErrMediaDoesNotExists {
+		if errors.Is(err, ErrMediaDoesNotExists) {
 			// err media does not exist -> return false
 			return false
 		}
@@ -42,7 +46,7 @@ func (db *appdbimpl) ExistenceCheck(id string, what string) bool {
 			// query returned error -> return false
 			return false
 		}
-
+		defer func() { _ = comment.Close() }()
 		// 2 - check if at least one row
 		result := comment.Next()
 		if !result {

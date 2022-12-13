@@ -110,10 +110,10 @@ func New(db *sql.DB) (AppDatabase, error) {
 
 	// DROP
 	//f, _ := db.Exec(`DROP TABLE user IF EXISTS `)
-	//f, _ = db.Exec(`DROP TABLE media IF EXISTS `)
+	//f, _ := db.Exec(`DROP TABLE media `)
 	//f, _ = db.Exec(`DROP TABLE follow IF EXISTS `)
 	//f, _ = db.Exec(`DROP TABLE ban IF EXISTS `)
-	//f, _ = db.Exec(`DROP TABLE like IF EXISTS `)
+	//f, _ := db.Exec(`DROP TABLE like `)
 	//f, _ = db.Exec(`DROP TABLE comment IF EXISTS `)
 	//fmt.Println(f)
 
@@ -164,7 +164,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 	// 7 - define media table
 	tableName = "media"
 	sqlStmt = `CREATE TABLE media (
-		mediaid INTEGER NOT NULL PRIMARY KEY,
+		mediaid TEXT NOT NULL PRIMARY KEY,
 		authorid TEXT NOT NULL,
 		date TEXT DEFAULT "",
 		caption TEXT DEFAULT "",

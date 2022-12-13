@@ -24,7 +24,6 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
 	// 2 - get logged user
 	token := r.Header.Get("Authorization")
 	token = strings.TrimPrefix(token, "Bearer ")
@@ -50,7 +49,6 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
 	// 5 - check if user is valid
 	if !rt.db.ExistenceCheck(followedID, "user") {
 		// user does not exist
@@ -65,9 +63,9 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
 	// 7 - check if logged user already follows the specified user
-	if rt.db.Check("follow", "followerid", "followingid", token, followedID) {
+
+	if rt.db.Check("follow", "followerid", "followedid", token, followedID) {
 		// logged user already follows the specified user
 		w.WriteHeader(http.StatusOK)
 		return

@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -52,8 +53,9 @@ func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	// here only if logged user has not been banned by media owner
 
 	// 7 - check if not liked by the logged user yet
-	if !rt.db.Check("like", "mediaid", "userid", mediaID, token) {
+	if !rt.db.Check("like", "userid", "mediaid", token, mediaID) {
 		// user did not like the media, nothing to do
+		fmt.Println(token, mediaID)
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
@@ -61,7 +63,7 @@ func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	// here only if logged user has liked this media
 
 	// 8 - call unlike Photo database function
-	err = rt.db.UnlikePhoto(mediaID, token)
+	err = rt.db.UnlikePhoto(token, mediaID)
 	if err != nil {
 		// unlike photo user database function returned error -> return error
 		ctx.Logger.WithError(err).Error("error: can't unlike photo")

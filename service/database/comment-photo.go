@@ -21,7 +21,7 @@ func (db *appdbimpl) CommentPhoto(userID string, mediaID string, comment Comment
 	now := time.Now().Format(time.RFC3339)
 
 	// 3 - execute query
-	_, err = db.c.Exec(`INSERT INTO comment (commentid, mediaid, authorid, date, content) VALUES (?,?,?,?,?,?,?)`,
+	_, err = db.c.Exec(`INSERT INTO comment (commentid, mediaid, userid, date, content) VALUES (?,?,?,?,?)`,
 		cID, mediaID, userID, now, comment.Content)
 	if err != nil {
 		// exec returned error -> return error

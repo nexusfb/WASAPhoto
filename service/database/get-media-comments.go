@@ -16,7 +16,7 @@ func (db *appdbimpl) GetMediaComments(mediaID string) ([]CommentDB, error) {
 	var ret []CommentDB
 	for rawComments.Next() {
 		var c CommentDB
-		err = rawComments.Scan(&c.CommentID, &c.MediaID, &c.AuthorID, &c.Date, &c.Content)
+		err = rawComments.Scan(&c.CommentID, &c.AuthorID, &c.MediaID, &c.Date, &c.Content)
 		if err != nil {
 			// scan returned error -> return error
 			return nil, err

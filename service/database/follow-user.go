@@ -1,8 +1,6 @@
 package database
 
 import (
-	"database/sql"
-	"errors"
 	"fmt"
 )
 
@@ -10,9 +8,9 @@ import (
 func (db *appdbimpl) FollowUser(userid string, followid string) error {
 
 	// 1 - check if user already follows other user
-	err := db.c.QueryRow(`SELECT * FROM follow WHERE followerid = ? AND followedid = ?`, userid, followid).Scan()
-	if !errors.Is(err, sql.ErrNoRows) {
-		// should never happen because it is already checked in the API
+	r, err := db.c.Query(`SELECT * FROM follow WHERE followerid = ? AND followedid = ?`, userid, followid)
+	if !r.Next() == false {
+		// should never happpen since it is checked in the API
 		return ErrUserAlreadyFollowed
 	}
 

@@ -13,7 +13,7 @@ import (
 // Get media with mediaid in the path
 func (rt *_router) getMedia(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	// 1 - get mediaid from path
-	mediaID := ps.ByName("media")
+	mediaID := ps.ByName("mediaid")
 	mediaID = strings.TrimPrefix(mediaID, ":mediaid=")
 	if len(mediaID) == 0 {
 		// mediaid is empty -> return error
@@ -21,7 +21,6 @@ func (rt *_router) getMedia(w http.ResponseWriter, r *http.Request, ps httproute
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-
 	// 2 - check if media exists
 	if !rt.db.ExistenceCheck(mediaID, "media") {
 		// media does not exist

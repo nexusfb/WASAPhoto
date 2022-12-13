@@ -59,7 +59,7 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 	}
 
 	// 7 - check if already liked by the logged user
-	if rt.db.Check("like", "mediaid", "userid", mediaID, token) {
+	if rt.db.Check("like", "userid", "mediaid", token, mediaID) {
 		// user already liked this media
 		w.WriteHeader(http.StatusOK)
 		return
@@ -68,7 +68,7 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 	// here only if logged user could like this media but did not like this media yet
 
 	// 8 - call like Photo database function
-	err = rt.db.LikePhoto(mediaID, token)
+	err = rt.db.LikePhoto(token, mediaID)
 	if err != nil {
 		// like photo user database function returned error -> return error
 		ctx.Logger.WithError(err).Error("error: can't like photo")
