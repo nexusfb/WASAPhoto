@@ -9,11 +9,14 @@ func (db *appdbimpl) FollowUser(userid string, followid string) error {
 
 	// 1 - check if user already follows other user
 	r, err := db.c.Query(`SELECT * FROM follow WHERE followerid = ? AND followedid = ?`, userid, followid)
+	if err != nil {
+		return err
+	}
 	if !r.Next() == false {
 		// should never happpen since it is checked in the API
 		return ErrUserAlreadyFollowed
 	}
-
+	defer func() { _ = r.Close() }()
 	// here only if user does not follow the other user yet
 
 	// 2 - create new follow

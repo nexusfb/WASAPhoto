@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -55,7 +54,6 @@ func (rt *_router) unlikePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	// 7 - check if not liked by the logged user yet
 	if !rt.db.Check("like", "userid", "mediaid", token, mediaID) {
 		// user did not like the media, nothing to do
-		fmt.Println(token, mediaID)
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}

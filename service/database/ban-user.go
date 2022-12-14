@@ -9,6 +9,9 @@ func (db *appdbimpl) BanUser(bannerID string, bannedID string) error {
 
 	// 1 - check if user already banned other user
 	r, err := db.c.Query(`SELECT * FROM ban WHERE bannerid = ? AND bannedid = ?`, bannerID, bannedID)
+	if err != nil {
+		return err
+	}
 	if !r.Next() == false {
 		// should never happpen since it is checked in the API
 		return ErrUserAlreadyFollowed

@@ -57,7 +57,12 @@ func (rt *_router) getUserMedia(w http.ResponseWriter, r *http.Request, ps httpr
 	var mediaArray []structs.Media
 	for _, mediaDB := range mediaDBArray {
 		var media structs.Media
-		media.FromDatabase(mediaDB, rt.db, token)
+		err = media.FromDatabase(mediaDB, rt.db, token)
+		if err != nil {
+			ctx.Logger.WithError(err).Error("error: can't map media from database to API")
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 		mediaArray = append(mediaArray, media)
 	}
 

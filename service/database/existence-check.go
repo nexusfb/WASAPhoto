@@ -10,7 +10,7 @@ func (db *appdbimpl) ExistenceCheck(id string, what string) bool {
 	if what == "user" {
 		// 1 - get username of the user
 		_, err := db.GetUserName(id)
-		if err == ErrUserProfileDoesNotExists {
+		if errors.Is(err, ErrUserProfileDoesNotExists) {
 			// err user does not exist -> return false
 			return false
 		}

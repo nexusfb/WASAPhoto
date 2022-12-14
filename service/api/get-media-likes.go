@@ -64,7 +64,12 @@ func (rt *_router) getMediaLikes(w http.ResponseWriter, r *http.Request, ps http
 	var shortProfileArray []structs.ShortProfile
 	for _, l := range likes {
 		var sp structs.ShortProfile
-		sp.FromDatabase(rt.db, l)
+		err = sp.FromDatabase(rt.db, l)
+		if err != nil {
+			ctx.Logger.WithError(err).Error("error: can't map likes to short profile")
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 		shortProfileArray = append(shortProfileArray, sp)
 	}
 

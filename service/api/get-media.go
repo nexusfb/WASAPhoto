@@ -52,7 +52,12 @@ func (rt *_router) getMedia(w http.ResponseWriter, r *http.Request, ps httproute
 
 	// 6 - map returned mediaDB into media struct
 	var media structs.Media
-	media.FromDatabase(mediaDB, rt.db, token)
+	err = media.FromDatabase(mediaDB, rt.db, token)
+	if err != nil {
+		ctx.Logger.WithError(err).Error("error: can't map media from database to API")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	// 7 - return the mapped media struct
 	w.WriteHeader(http.StatusOK)

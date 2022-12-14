@@ -63,6 +63,11 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 
 	// 8 - convert old profile to array of byte
 	oldProfileByte, err := json.Marshal(&oldProfile)
+	if err != nil {
+		ctx.Logger.WithError(err).Error("error: could not marshal old profile to JSON")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
 	// 9 - create patch
 	patchJson := `[{"op": "replace", "path": "/username", "value": "` + newUsernameJson.Name + `"}]`
@@ -91,6 +96,11 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 	// 13 - conver new profile from array of byte to json and put it into a new profile struct
 	var newProfileJson structs.UserProfile
 	err = json.Unmarshal(newProfileByte, &newProfileJson)
+	if err != nil {
+		ctx.Logger.WithError(err).Error("error: could not unmarshal new profile")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 
 	// 14 - call update user profile with the new profile translated to database profile
 	_, err = rt.db.UpdateUserProfile(newProfileJson.ToDatabase())

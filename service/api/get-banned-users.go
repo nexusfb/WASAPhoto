@@ -51,7 +51,12 @@ func (rt *_router) getBannedUsers(w http.ResponseWriter, r *http.Request, ps htt
 	var shortProfileArray []structs.ShortProfile
 	for _, f := range banned {
 		var sp structs.ShortProfile
-		sp.FromDatabase(rt.db, f)
+		err = sp.FromDatabase(rt.db, f)
+		if err != nil {
+			ctx.Logger.WithError(err).Error("error: can't map banned to short profile")
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 		shortProfileArray = append(shortProfileArray, sp)
 	}
 

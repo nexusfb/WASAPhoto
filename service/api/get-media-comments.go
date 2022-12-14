@@ -64,7 +64,12 @@ func (rt *_router) getMediaComments(w http.ResponseWriter, r *http.Request, ps h
 	var commentsArray []structs.Comment
 	for _, c := range commentsDBArray {
 		var comment structs.Comment
-		comment.FromDatabase(c, rt.db)
+		err = comment.FromDatabase(c, rt.db)
+		if err != nil {
+			ctx.Logger.WithError(err).Error("error: can't map comments from database to API")
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 		commentsArray = append(commentsArray, comment)
 	}
 

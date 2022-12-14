@@ -57,7 +57,12 @@ func (rt *_router) getUserFollowings(w http.ResponseWriter, r *http.Request, ps 
 	var shortProfileArray []structs.ShortProfile
 	for _, f := range followings {
 		var sp structs.ShortProfile
-		sp.FromDatabase(rt.db, f)
+		err = sp.FromDatabase(rt.db, f)
+		if err != nil {
+			ctx.Logger.WithError(err).Error("error: can't map followings to short profile")
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
 		shortProfileArray = append(shortProfileArray, sp)
 	}
 
