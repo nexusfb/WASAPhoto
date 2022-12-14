@@ -41,7 +41,7 @@ func (rt *_router) getBannedUsers(w http.ResponseWriter, r *http.Request, ps htt
 	// 4 - call get banned users database function
 	banned, err := rt.db.GetBannedUsers(userID)
 	if err != nil {
-		/// get banned users database function returned error -> return error
+		//  get banned users database function returned error -> return error
 		ctx.Logger.WithError(err).WithField("userID", userID).Error("error: can't get banned users from database")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
