@@ -12,7 +12,7 @@ import (
 )
 
 // Delete user from logged user's followings list
-func (rt *_router) UnfollowUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
+func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	// 1 - get followerID from path
 	followerID := ps.ByName("userid")
 	followerID = strings.TrimPrefix(followerID, ":userid=")

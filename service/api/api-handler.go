@@ -15,7 +15,7 @@ func (rt *_router) Handler() http.Handler {
 
 	// FOLLOW routes
 	rt.router.PUT("/users/:userid/followings/:followingid", rt.wrap(rt.followUser))      // follow user
-	rt.router.DELETE("/users/:userid/followings/:followingid", rt.wrap(rt.UnfollowUser)) // unfollow user
+	rt.router.DELETE("/users/:userid/followings/:followingid", rt.wrap(rt.unfollowUser)) // unfollow user
 	rt.router.GET("/users/:userid/followers/", rt.wrap(rt.getUserFollowers))             // get followers
 	rt.router.GET("/users/:userid/followings/", rt.wrap(rt.getUserFollowings))           // get following
 

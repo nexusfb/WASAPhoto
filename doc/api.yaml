@@ -31,28 +31,35 @@ components:
     UserID:
       description: Immutable public user identifier
       schema: { $ref: "#/components/schemas/UserID" }
-      name: user-id
+      name: userid
       in: path
       required: true
     
     MediaID:
       description: Immutable user post identifier
       schema: { $ref: "#/components/schemas/MediaID" }
-      name: media-id
+      name: mediaid
       in: path
       required: true
     
     CommentID:
       description: Immutable comment identifier
       schema: { $ref: "#/components/schemas/CommentID" }
-      name: comment-id
+      name: commentid
       in: path
       required: true
-    
-    RelationUser:
-      description: Public user identifier used when creating/destroying relationships between users
-      schema: { $ref: "#/components/schemas/Username" }
-      name: username
+
+    BannedID:
+      description: Immutable public user identifier
+      schema: { $ref: "#/components/schemas/UserID" }
+      name: bannedid
+      in: path
+      required: true
+
+    FollowingID:
+      description: Immutable public user identifier
+      schema: { $ref: "#/components/schemas/UserID" }
+      name: followingid
       in: path
       required: true
   
@@ -73,28 +80,32 @@ components:
     Username:
       description: Public changeable user-defined unique identifier
       type: string
-      pattern: ^(?=[a-zA-Z0-9._]{5,20}$)(?!.*[_.]{2})[^_.].*[^_.]$
+      pattern: ^[a-zA-Z0-9._]{5,20}$
       minLength: 5
       maxLength: 20
 
     UserID:
       description: Public immutable server-defined unique identifier
       type: string
-      pattern: ^[a-zA-Z0-9]+$
-      minLength: 9
-      maxLength: 11
+      pattern: ^[a-zA-Z0-9-]+$
+      minLength: 35
+      maxLength: 37
       readOnly: true
     
     MediaID:
       description: Unique media identifier
-      type: integer
-      format: int64
+      type: string
+      pattern: ^[a-zA-Z0-9-]+$
+      minLength: 35
+      maxLength: 37
       readOnly: true
     
     CommentID:
       description: Unique comment identifier
-      type: integer
-      format: int64
+      type: string
+      pattern: ^[a-zA-Z0-9-]+$
+      minLength: 35
+      maxLength: 37
       readOnly: true
     
     Profile:
@@ -137,8 +148,7 @@ components:
       type: object
       properties:
         MediaID: { $ref: "#/components/schemas/MediaID" }
-        AuthorID: { $ref: "#/components/schemas/UserID" }
-        AuthorUsername: { $ref: "#/components/schemas/Username" }
+        AuthorName: { $ref: "#/components/schemas/Username" }
         Date:
           description: Date and time in which the post was created
           type: string
@@ -166,6 +176,10 @@ components:
         nComments:
           description: Number of comments
           type: integer
+        liked:
+          description: true if logged user has liked the media, false otherwise
+          type: boolean
+        
     
     ShortProfile:
       description: |-
@@ -174,7 +188,6 @@ components:
         The profile has a username and a profile picture.
       type: object
       properties:
-        UserID: { $ref: "#/components/schemas/UserID" }
         Username: { $ref: "#/components/schemas/Username" }
         ProfilePic:
           description: URL to profile picture of the user
@@ -190,8 +203,7 @@ components:
       type: object
       properties:
         CommentID: { $ref: "#/components/schemas/CommentID" }
-        AuthorUsername: { $ref: "#/components/schemas/Username" }
-        AuthorID: { $ref: "#/components/schemas/UserID" }
+        AuthorName: { $ref: "#/components/schemas/Username" }
         Date:
           description: Date of creation of the comment
           type: string
@@ -259,18 +271,41 @@ paths:
         "404": { description: User not found }
         "500": {$ref: "#/components/responses/InternalServerError"}
   
-  /users/{user-id}:
+  /users/{userid}:
     parameters:
       - $ref: "#/components/parameters/UserID"
 
-    put:
+    patch:
       security:
       - bearerAuthentication: []
       tags: ["User"]
       operationId: setMyUserName
+      summary: Modify the username of the specified user
+      description: |-
+        Modifies username of the specified user with the username specified in the body of the request.
+      requestBody:
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/Username" }
+      responses: 
+        "200":
+          description: User profile updates successfully 
+          content:
+            application/json: 
+              schema: { $ref: "#/components/schemas/Profile" }
+
+        "400": { $ref: "#/components/responses/BadRequest" }
+        '403': {$ref : '#/components/responses/UnAuthorized'}
+        "500": {$ref: "#/components/responses/InternalServerError"}
+    
+    put:
+      security:
+      - bearerAuthentication: []
+      tags: ["User"]
+      operationId: updateUserProfile
       summary: Modify the profile of the specified user
       description: |-
-        Modifies username or/and bio or/and profile pic of the specified user with the username/bio/profile pic specified in the body of the request.
+        Modifies username and bio and profile pic of the specified user with the username/bio/profile pic specified in the body of the request.
       requestBody:
         content:
           application/json:
@@ -284,6 +319,7 @@ paths:
 
         "400": { $ref: "#/components/responses/BadRequest" }
         '403': {$ref : '#/components/responses/UnAuthorized'}
+        "500": {$ref: "#/components/responses/InternalServerError"}
     
     delete:
       security:
@@ -292,13 +328,15 @@ paths:
       summary: Delete my profile
       description: |-
         Deletes profile of a user only if the user matches the logged user.
-      operationId: deleteProfile
+      operationId: deleteUserProfile
       responses:
         "204": { description: User deleted successfully }
+        "400": { $ref: "#/components/responses/BadRequest" }
         "404": { description: User not found }
         '403': {$ref : '#/components/responses/UnAuthorized'}
+        "500": {$ref: "#/components/responses/InternalServerError"}
   
-  /users/{user-id}/userposts/:
+  /users/{userid}/media/:
     parameters:
       - $ref: "#/components/parameters/UserID"
     
@@ -306,7 +344,7 @@ paths:
       security:
       - bearerAuthentication: []
       tags: ["User"]
-      operationId: getUserPosts
+      operationId: getUserMedia
       summary: Get the collection of media of a user 
       description: |-
         It should return the collection of the related media in reverse cronological order.
@@ -324,6 +362,7 @@ paths:
                 maxItems: 200
         
         "400": { $ref: "#/components/responses/BadRequest" }
+        '403': {$ref : '#/components/responses/UnAuthorized'}
         "500": { $ref: "#/components/responses/InternalServerError" }
 
     post:
@@ -352,7 +391,7 @@ paths:
         '403': {$ref : '#/components/responses/UnAuthorized'}
         "500": { $ref: "#/components/responses/InternalServerError" }
   
-  /users/{user-id}/stream/:
+  /users/{userid}/stream/:
     parameters:
       - $ref: "#/components/parameters/UserID"
     
@@ -377,10 +416,11 @@ paths:
                 items: { $ref: "#/components/schemas/Media" }
                 minItems: 0
                 maxItems: 200
-        "204": { description: Stream is empty.}
-        "403": { $ref: "#/components/responses/UnAuthorized" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        '403': {$ref : '#/components/responses/UnAuthorized'}
+        "500": { $ref: "#/components/responses/InternalServerError" }
   
-  /users/{user-id}/banned/:
+  /users/{userid}/banned/:
     parameters:
     - $ref: "#/components/parameters/UserID"
     
@@ -405,14 +445,16 @@ paths:
                 items: { $ref: "#/components/schemas/ShortProfile" }
                 minItems: 0
                 maxItems: 999
-        "204": { description: There are 0 banned users.}
+        "400": { $ref: "#/components/responses/BadRequest" }
+        '403': {$ref : '#/components/responses/UnAuthorized'}
+        "500": { $ref: "#/components/responses/InternalServerError" }
     
     
   
-  /users/{user-id}/banned/{username}:
+  /users/{userid}/banned/{bannedid}:
     parameters:
-      - $ref: "#/components/parameters/RelationUser"
       - $ref: "#/components/parameters/UserID"
+      - $ref: "#/components/parameters/BannedID"
 
     put:
       security:
@@ -421,10 +463,6 @@ paths:
       operationId: banUser
       summary: Add user to banned collection
       description: Add a user to the collection of banned users. A banned user cannot see any information of the user who banned him.
-      requestBody:
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/Username" }
 
       responses:
         "201":
@@ -438,10 +476,11 @@ paths:
                 minItems: 0
                 maxItems: 999
         
-        "204": {description: User is already banned.}
+        "200": {description: OK}
         "400": { $ref: "#/components/responses/BadRequest" }
         '403': {$ref : '#/components/responses/UnAuthorized'}
         "404": { description: User not found }
+        "500": { $ref: "#/components/responses/InternalServerError" }
                 
     delete:
       security:
@@ -456,7 +495,7 @@ paths:
         "404": { description: Banned user not found }
         "500": { $ref: "#/components/responses/InternalServerError" }
   
-  /users/{user-id}/followers/:
+  /users/{userid}/followers/:
     parameters:
       - $ref: "#/components/parameters/UserID"
     
@@ -464,7 +503,7 @@ paths:
       security:
       - bearerAuthentication: []
       tags: ["User"]
-      operationId: getFollowers
+      operationId: getUserFollowers
       summary: Get the collection of followers
       description: |-
         The followers collection is a collection of user IDs.
@@ -481,8 +520,11 @@ paths:
                 items: { $ref: "#/components/schemas/ShortProfile" }
                 minItems: 0
                 maxItems: 999
+        "400": { $ref: "#/components/responses/BadRequest" }
+        '403': {$ref : '#/components/responses/UnAuthorized'}
+        "500": { $ref: "#/components/responses/InternalServerError" }
   
-  /users/{user-id}/followings/:
+  /users/{userid}/followings/:
     parameters:
       - $ref: "#/components/parameters/UserID"
     
@@ -507,11 +549,14 @@ paths:
                 items: { $ref: "#/components/schemas/ShortProfile" }
                 minItems: 0
                 maxItems: 999
+        "400": { $ref: "#/components/responses/BadRequest" }
+        '403': {$ref : '#/components/responses/UnAuthorized'}
+        "500": { $ref: "#/components/responses/InternalServerError" }
     
   
-  /users/{user-id}/followings/{username}:
+  /users/{userid}/followings/{followingid}:
     parameters:
-      - $ref: "#/components/parameters/RelationUser"
+      - $ref: "#/components/parameters/FollowingID"
       - $ref: "#/components/parameters/UserID"
     
     put:
@@ -521,10 +566,6 @@ paths:
       operationId: followUser
       summary: Add user ID to followings collection
       description: Add a user ID to followings collection.
-      requestBody:
-        content:
-          application/json:
-            schema: { $ref: "#/components/schemas/Username" }
       
       responses:
         "201":
@@ -539,7 +580,8 @@ paths:
                 maxItems: 999
         "204": {description: Already following current user.}
         "400": { $ref: "#/components/responses/BadRequest" }        
-        '403': {$ref : '#/components/responses/UnAuthorized'}        
+        '403': {$ref : '#/components/responses/UnAuthorized'}  
+        "500": { $ref: "#/components/responses/InternalServerError" }      
                 
     delete:
       security:
@@ -551,10 +593,12 @@ paths:
       
       responses:
         "204": {description: User has been unfollowed successfully }
-        "403": { $ref: "#/components/responses/UnAuthorized" }
-        "404": { description: Folloed user not found }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        '403': {$ref : '#/components/responses/UnAuthorized'}
+        "404": { description: Folloed user not found } 
+        "500": { $ref: "#/components/responses/InternalServerError" }
   
-  /media/{media-id}:
+  /media/{mediaid}:
     parameters:
       - $ref: "#/components/parameters/MediaID"
 
@@ -568,10 +612,30 @@ paths:
       
       responses:
         "204": { description: Media has been successfully deleted }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        '403': {$ref : '#/components/responses/UnAuthorized'}
         "404": { description: Media not found }
         "500": { $ref: "#/components/responses/InternalServerError" }
+      
+    get:
+        security:
+        - bearerAuthentication: []
+        tags: ["Media"]
+        operationId: getMedia
+        summary: Get a media with a specified mediaid
+        description: Return a media object with a specified mediaid
+      
+        responses:
+         "200":
+            description: Collection of likes returned successfully
+            content:
+              application/json:
+                schema: {$ref: '#/components/schemas/Media'}
+         "400": { $ref: "#/components/responses/BadRequest" }
+         '403': {$ref : '#/components/responses/UnAuthorized'}
+         "500": { $ref: "#/components/responses/InternalServerError" }
 
-  /media/{media-id}/likes/:
+  /media/{mediaid}/likes/:
     parameters:
       - $ref: "#/components/parameters/MediaID"
     
@@ -579,7 +643,7 @@ paths:
       security:
       - bearerAuthentication: []
       tags: ["Media"]
-      operationId: getLikes
+      operationId: getMediaLikes
       summary: Get the collection of likes of the media
       description: Return the collection of likes of the media.
       
@@ -594,12 +658,10 @@ paths:
                 items: { $ref: "#/components/schemas/ShortProfile" }
                 minItems: 0
                 maxItems: 999
-  
-  /media/{media-id}/likes/{username}:
-    parameters:
-      - $ref: "#/components/parameters/MediaID"  
-      - $ref: "#/components/parameters/RelationUser"
-    
+        "400": { $ref: "#/components/responses/BadRequest" }
+        '403': {$ref : '#/components/responses/UnAuthorized'}
+        "500": { $ref: "#/components/responses/InternalServerError" }
+
     put:
       security:
       - bearerAuthentication: []
@@ -613,11 +675,10 @@ paths:
       responses:
         "201":
           description: User's like addedd successfully
-          content:
-            application/json:
-              schema: { $ref: "#/components/schemas/Media" }
         "204": {description: Liked already.}
-        "500": { $ref: "#/components/responses/InternalServerError" }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "403": { $ref: "#/components/responses/UnAuthorized" }
+        "500": { $ref: "#/components/responses/InternalServerError"}
     
     delete:
       security:
@@ -631,10 +692,12 @@ paths:
       
       responses:
         "204": { description: like has been successfully removed }
+        "400": { $ref: "#/components/responses/BadRequest" }
         "403": { $ref: "#/components/responses/UnAuthorized" }
         "404": { description: Your like was not found }
+        "500": { $ref: "#/components/responses/InternalServerError"}
   
-  /media/{media-id}/comments/:
+  /media/{mediaid}/comments/:
     parameters:
       - $ref: "#/components/parameters/MediaID"
     
@@ -642,7 +705,7 @@ paths:
       security:
       - bearerAuthentication: []
       tags: ["Media"]
-      operationId: getComments
+      operationId: getMediaComments
       summary: Get the comments of the media
       description: Return the collection of comments of the media.
       
@@ -657,7 +720,9 @@ paths:
                 items: { $ref: "#/components/schemas/Comment" }
                 minItems: 0
                 maxItems: 99
-        "204": { description: Media has no comments yet. }
+        "400": { $ref: "#/components/responses/BadRequest" }
+        "403": { $ref: "#/components/responses/UnAuthorized" }
+        "500": { $ref: "#/components/responses/InternalServerError"}
     
     post:
       security:
@@ -681,11 +746,12 @@ paths:
             application/json:
               schema: { $ref: "#/components/schemas/CommentID" }
         "400": { $ref: "#/components/responses/BadRequest" }
+        "403": { $ref: "#/components/responses/UnAuthorized" }
+        "500": { $ref: "#/components/responses/InternalServerError"}
     
   
-  /media/{media-id}/comments/{comment-id}:
+  /comments/{commentid}:
     parameters:
-      - $ref: "#/components/parameters/MediaID"
       - $ref: "#/components/parameters/CommentID"
 
     delete:
@@ -700,5 +766,8 @@ paths:
       
       responses:
         "204": { description: Comment has been successfully deleted }
+        "400": { $ref: "#/components/responses/BadRequest" }
         "403": { $ref: "#/components/responses/UnAuthorized" }
         "404": { description: Comment not found }
+        "500": { $ref: "#/components/responses/InternalServerError"}
+
