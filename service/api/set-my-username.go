@@ -56,10 +56,20 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 	}
 
 	// 6 - take old username using userID
-	oldName, _ := rt.db.GetUserName(userID)
+	oldName, err := rt.db.GetUserName(userID)
+	if err != nil {
+		ctx.Logger.WithError(err).Error("error: could not get old name")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
 	// 7 - take old profile using old username
-	oldProfile, _ := rt.db.GetUserProfile(oldName)
+	oldProfile, err := rt.db.GetUserProfile(oldName)
+	if err != nil {
+		ctx.Logger.WithError(err).Error("error: could not get old profile")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
 	// 8 - convert old profile to array of byte
 	oldProfileByte, err := json.Marshal(&oldProfile)

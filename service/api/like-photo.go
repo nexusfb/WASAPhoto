@@ -42,8 +42,7 @@ func (rt *_router) likePhoto(w http.ResponseWriter, r *http.Request, ps httprout
 	}
 
 	// 5 - check if logged user has been banned from the author of the media
-	res := rt.db.Check("ban", "bannerid", "bannedid", mediaDB.AuthorID, token)
-	if res {
+	if rt.db.Check("ban", "bannerid", "bannedid", mediaDB.AuthorID, token) {
 		ctx.Logger.Error("error: could not get user profile because you are not authorized ")
 		w.WriteHeader(http.StatusUnauthorized)
 		return

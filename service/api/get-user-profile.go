@@ -51,8 +51,7 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 	}
 
 	// 6 - check if logged user has been banned by requested user profile
-	res := rt.db.Check("ban", "bannerid", "bannedid", id, token)
-	if res {
+	if rt.db.Check("ban", "bannerid", "bannedid", id, token) {
 		ctx.Logger.Error("error: could not get user profile because you are not authorized ")
 		w.WriteHeader(http.StatusUnauthorized)
 		return

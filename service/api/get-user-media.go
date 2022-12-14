@@ -35,8 +35,7 @@ func (rt *_router) getUserMedia(w http.ResponseWriter, r *http.Request, ps httpr
 	token = strings.TrimPrefix(token, "Bearer ")
 
 	// 4 - check if logged user has been banned by the author of the media
-	res := rt.db.Check("ban", "bannerid", "bannedid", userID, token)
-	if res {
+	if rt.db.Check("ban", "bannerid", "bannedid", userID, token) {
 		ctx.Logger.Error("error: could not get user profile because you are not authorized ")
 		w.WriteHeader(http.StatusUnauthorized)
 		return

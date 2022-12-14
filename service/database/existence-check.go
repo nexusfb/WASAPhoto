@@ -48,8 +48,7 @@ func (db *appdbimpl) ExistenceCheck(id string, what string) bool {
 		}
 		defer func() { _ = comment.Close() }()
 		// 2 - check if at least one row
-		result := comment.Next()
-		if !result {
+		if !comment.Next() {
 			return false
 		}
 		return true

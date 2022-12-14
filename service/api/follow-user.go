@@ -72,8 +72,7 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 	}
 
 	// 8 - check if logged user has been banned by requested user profile
-	res := rt.db.Check("ban", "bannerid", "bannedid", followedID, token)
-	if res {
+	if rt.db.Check("ban", "bannerid", "bannedid", followedID, token) {
 		ctx.Logger.Error("error: could not follow user because you are not authorized")
 		w.WriteHeader(http.StatusUnauthorized)
 		return
