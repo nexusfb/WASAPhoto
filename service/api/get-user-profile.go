@@ -2,12 +2,14 @@ package api
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 	"strings"
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/nexusfb/WASAPhoto/service/api/reqcontext"
 	"github.com/nexusfb/WASAPhoto/service/api/structs"
+	"github.com/nexusfb/WASAPhoto/service/database"
 )
 
 // Get user profile with username in query
@@ -29,6 +31,11 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 
 	// 4 - take user id
 	id, err := rt.db.GetUserID(name)
+	if errors.Is(err, database.ErrUserProfileDoesNotExists) {
+		ctx.Logger.Error("error: user profile does not exist")
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
 	if err != nil {
 		ctx.Logger.Error("error: could not get userID %v", err)
 		w.WriteHeader(http.StatusInternalServerError)

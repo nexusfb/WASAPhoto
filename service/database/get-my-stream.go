@@ -6,10 +6,11 @@ import "fmt"
 func (db *appdbimpl) GetMyStream(userid string) ([]MediaDB, error) {
 	// 1 - execute query
 	query := `
-	SELECT mediaid, authorid, date, caption, photo
-	FROM media,follow
-	WHERE media.authorid = follow.followedid AND followerid = ?
-	ORDER BY date DESC;`
+	SELECT media.mediaid, media.authorid, media.date, media.caption, follow.followerid
+	FROM media 
+	INNER JOIN follow on media.authorid=follow.followedid 
+	AND follow.followerid = ?
+	ORDER BY media.date DESC;`
 
 	rawMedia, err := db.c.Query(query, userid)
 	if err != nil {
