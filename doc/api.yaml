@@ -80,7 +80,7 @@ components:
     Username:
       description: Public changeable user-defined unique identifier
       type: string
-      pattern: ^[a-zA-Z0-9._]{5,20}$
+      pattern: ^[a-zA-Z0-9._]+$
       minLength: 5
       maxLength: 20
 

@@ -12,13 +12,13 @@ var (
 // Media struct
 type Media struct {
 	MediaID    string
-	AuthorName string // notice that author name was not stored in the database struct of media but it is needed here in order to display it
-	Date       string
+	AuthorName string `json:"author,omitempty"` // notice that author name was not stored in the database struct of media but it is needed here in order to display it
+	Date       string `json:"date,omitempty"`
 	Caption    string `json:"caption,omitempty"`
 	Photo      string `json:"photo,omitempty"`
-	NLikes     uint32
-	NComments  uint32
-	liked      bool
+	NLikes     uint32 `json:"nlikes,omitempty"`
+	NComments  uint32 `json:"ncomments,omitempty"`
+	Liked      bool   `json:"liked,omitempty"`
 }
 
 // Function to map a database media to the media struct
@@ -34,7 +34,7 @@ func (m *Media) FromDatabase(media database.MediaDB, db database.AppDatabase, to
 	m.Photo = media.Photo
 	m.NLikes = db.CountRows("like", "mediaid", m.MediaID)
 	m.NComments = db.CountRows("comment", "mediaid", m.MediaID)
-	m.liked = db.Check("like", "mediaid", "userid", m.MediaID, token)
+	m.Liked = db.Check("like", "mediaid", "userid", m.MediaID, token)
 	return nil
 }
 
