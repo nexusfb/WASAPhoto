@@ -347,7 +347,7 @@ paths:
       operationId: getUserMedia
       summary: Get the collection of media of a user 
       description: |-
-        It should return the collection of the related media in reverse cronological order.
+        It should return the collection of the user media in reverse cronological order.
         
       responses:
         "200":
