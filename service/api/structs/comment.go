@@ -1,8 +1,6 @@
 package structs
 
 import (
-	"fmt"
-
 	"github.com/nexusfb/WASAPhoto/service/database"
 )
 
@@ -23,7 +21,6 @@ type Comment struct {
 func (c *Comment) FromDatabase(comment database.CommentDB, db database.AppDatabase) error {
 	var err error
 	c.CommentID = comment.CommentID
-	fmt.Println(comment.AuthorID)
 	c.AuthorName, err = db.GetUserName(comment.AuthorID)
 	if err != nil {
 		return err
