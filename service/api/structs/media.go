@@ -12,13 +12,13 @@ var (
 // Media struct
 type Media struct {
 	MediaID    string
-	AuthorName string `json:"author,omitempty"` // notice that author name was not stored in the database struct of media but it is needed here in order to display it
-	Date       string `json:"date,omitempty"`
-	Caption    string `json:"caption,omitempty"`
-	Photo      string `json:"photo,omitempty"`
-	NLikes     uint32 `json:"nlikes,omitempty"`
-	NComments  uint32 `json:"ncomments,omitempty"`
-	Liked      bool   `json:"liked,omitempty"`
+	AuthorName string `json:"author"` // notice that author name was not stored in the database struct of media but it is needed here in order to display it
+	Date       string `json:"date"`
+	Caption    string `json:"caption"`
+	Photo      string `json:"photo"`
+	NLikes     uint32 `json:"nlikes"`
+	NComments  uint32 `json:"ncomments"`
+	Liked      bool   `json:"liked"`
 }
 
 // Function to map a database media to the media struct
