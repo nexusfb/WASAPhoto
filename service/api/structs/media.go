@@ -12,6 +12,7 @@ var (
 // Media struct
 type Media struct {
 	MediaID    string
+	AuthorID   string
 	AuthorName string `json:"author"` // notice that author name was not stored in the database struct of media but it is needed here in order to display it
 	Date       string `json:"date"`
 	Caption    string `json:"caption"`
@@ -39,10 +40,12 @@ func (m *Media) FromDatabase(media database.MediaDB, db database.AppDatabase, to
 }
 
 // Function to map a Media struct to a database media
-func (media *Media) ToDatabase() database.MediaDB {
+func (media *Media) ToDatabase(db database.AppDatabase) database.MediaDB {
 	return database.MediaDB{
-		Caption: media.Caption,
-		Photo:   media.Photo,
+		AuthorID: media.AuthorID,
+		MediaID:  media.MediaID,
+		Caption:  media.Caption,
+		Photo:    media.Photo,
 	}
 }
 

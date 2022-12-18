@@ -26,6 +26,7 @@ func (rt *_router) Handler() http.Handler {
 
 	// MEDIA routes
 	rt.router.POST("/users/:userid/media/", rt.wrap(rt.uploadPhoto)) // upload media
+	rt.router.GET("/photos/:photoid", rt.wrap(rt.getPhoto))
 	rt.router.DELETE("/media/:mediaid", rt.wrap(rt.deletePhoto))     // delete media
 	rt.router.GET("/media/:mediaid", rt.wrap(rt.getMedia))           // get media
 	rt.router.GET("/users/:userid/media/", rt.wrap(rt.getUserMedia)) // get user media

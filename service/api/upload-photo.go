@@ -2,9 +2,14 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strings"
 
+	"github.com/gofrs/uuid"
 	"github.com/julienschmidt/httprouter"
 	"github.com/nexusfb/WASAPhoto/service/api/reqcontext"
 	"github.com/nexusfb/WASAPhoto/service/api/structs"
@@ -38,23 +43,78 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 
 	// here only if logged user is trying to upload a photo in his profile
 
-	// 4 - get media from request body
-	var media structs.Media
-	err := json.NewDecoder(r.Body).Decode(&media)
+	// 4 - take photo from request body
+	photo, fileHeader, err := r.FormFile("pic")
 	if err != nil {
-		// media is not a parseable JSON -> return error
-		ctx.Logger.WithError(err).WithField("media", media).Error("error: media is not a parseable JSON")
+		ctx.Logger.WithError(err).Error("error: could not parse photo")
 		w.WriteHeader(http.StatusBadRequest)
 		return
-	} else if !media.IsValid() {
-		// media is not valid -> return error
-		ctx.Logger.Error("error: new media is not valid")
+	}
+	defer photo.Close()
+	buff := make([]byte, 512)
+	_, err = photo.Read(buff)
+	if err != nil {
+		ctx.Logger.WithError(err).Error("error: could not read photo")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	//5 - check if photo is valid
+	filetype := http.DetectContentType(buff)
+	if filetype != "image/jpeg" && filetype != "image/png" && filetype != "image/jpg" {
+		ctx.Logger.WithError(err).Error("error: The provided file format is not allowed. Please upload a JPEG,JPG or PNG image")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	_, err = photo.Seek(0, io.SeekStart)
+	if err != nil {
+		ctx.Logger.WithError(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	// create new mediaID
+	rawMid, err := uuid.NewV4()
+	if err != nil {
+		// newV4 returned error -> return error
+		ctx.Logger.WithError(err).Error("error encountered while creating new mediaID")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	Mid := rawMid.String()
+
+	// 6 - save photo in photos folder and save with image id
+
+	f, err := os.Create(fmt.Sprintf("./photos/%s%s", Mid, filepath.Ext(fileHeader.Filename)))
+	if err != nil {
+		ctx.Logger.WithError(err)
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
+	defer f.Close()
+	_, err = io.Copy(f, photo)
+	if err != nil {
+		ctx.Logger.WithError(err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
+	// 7 - create picture url
+	picURL := fmt.Sprintf("http://localhost:3000/photos/%s%s", Mid, filepath.Ext(fileHeader.Filename))
+
+	// 8 - take caption
+	caption := r.FormValue("cap")
+
+	// 9 - create media object
+	var media structs.Media
+	media.AuthorID = token
+	media.MediaID = Mid
+	media.Caption = caption
+	media.Photo = picURL
+
+	mediadb := media.ToDatabase(rt.db)
 	// 5 - call upload photo database function with userID and converted media struct to database media
-	newMediaID, err := rt.db.UploadPhoto(token, media.ToDatabase())
+	err = rt.db.UploadPhoto(mediadb)
 	if err != nil {
 		// upload photo database function returned error -> return error
 		ctx.Logger.WithError(err).Error("can't uplad photo")
@@ -65,5 +125,5 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	// 6 - return new media ID
 	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(newMediaID)
+	_ = json.NewEncoder(w).Encode(Mid)
 }

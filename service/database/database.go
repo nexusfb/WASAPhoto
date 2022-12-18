@@ -80,10 +80,10 @@ type AppDatabase interface {
 	CountRows(table string, column string, event string) uint32 // takes table, column, event -> returns the number of rows in the table for which column==event
 
 	// MEDIA
-	UploadPhoto(userid string, media MediaDB) (string, error) // takes userID -> creates media -> returns mediaID
-	DeletePhoto(mediaid string) error                         // takes mediaID -> deletes media -> returns
-	GetMedia(mediaid string) (MediaDB, error)                 // takes mediaID -> reuturns media
-	GetUserMedia(userid string) ([]MediaDB, error)            // takes userID -> returns array of media
+	UploadPhoto(media MediaDB) error               // takes userID -> creates media -> returns mediaID
+	DeletePhoto(mediaid string) error              // takes mediaID -> deletes media -> returns
+	GetMedia(mediaid string) (MediaDB, error)      // takes mediaID -> reuturns media
+	GetUserMedia(userid string) ([]MediaDB, error) // takes userID -> returns array of media
 
 	// LIKES
 	LikePhoto(mediaid string, userid string) error                                 // takes userID and mediaID -> creates like -> reuturns error
