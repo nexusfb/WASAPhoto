@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -71,7 +72,7 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 	// 8 - map returned user profile database to profile struct
 	var userProfile structs.UserProfile
 	userProfile.FromDatabase(userProfileDB, rt.db)
-
+	fmt.Println(userProfile)
 	// 9 - return user profile struct
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")

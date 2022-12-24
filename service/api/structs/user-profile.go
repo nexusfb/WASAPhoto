@@ -16,13 +16,13 @@ var (
 
 // User profile struct
 type UserProfile struct {
-	UserID     string // ID of the owner of the profile
+	UserID     string `json:"userid"`               // ID of the owner of the profile
 	Username   string `json:"username"`             // username of the owner of the profile
 	Bio        string `json:"bio,omitempty"`        // short text content
 	ProfilePic string `json:"profilepic,omitempty"` // url of the profile picture
-	NMedia     uint32 // number of media published by the owner of the profile
-	NFollowers uint32 // number of followers of the owner of the profile
-	NFollowing uint32 // number of followings of the owner of the profile
+	NMedia     uint32 `json:"nmedia"`               // number of media published by the owner of the profile
+	NFollowers uint32 `json:"nfollowers"`           // number of followers of the owner of the profile
+	NFollowing uint32 `json:"nfollowing"`           // number of followings of the owner of the profile
 }
 
 // Function to map a database user profile to the api struct user profile
@@ -54,7 +54,7 @@ func (p *UserProfile) IsValid() bool {
 
 // Username structs represents a username
 type Username struct {
-	Name string `json:"username"`
+	Name string `json:"Username"`
 }
 
 // Function to check if a username is valid

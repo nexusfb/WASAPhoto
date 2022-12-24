@@ -8,7 +8,7 @@ export default {}
 <template>
 
 	<header class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
-		<a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6" href="#/">WASA</a>
+		<a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 fs-6" href="#/">WASA Photo</a>
 		<button class="navbar-toggler position-absolute d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
 			<span class="navbar-toggler-icon"></span>
 		</button>
@@ -30,6 +30,14 @@ export default {}
 							<RouterLink to="/enroll" class="nav-link">
 								<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#send"/></svg>
 								Deliver your homework
+							</RouterLink>
+							<RouterLink to="/login" class="nav-link">
+								<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#key"/></svg>
+								Login
+							</RouterLink>
+							<RouterLink to="/users/:username" class="nav-link">
+								<svg class="feather"><use href="/feather-sprite-v4.29.0.svg#home"/></svg>
+								My profile
 							</RouterLink>
 						</li>
 					</ul>

@@ -110,10 +110,10 @@ func New(db *sql.DB) (AppDatabase, error) {
 
 	// DROP
 	// f, _ := db.Exec(`DROP TABLE user IF EXISTS `)
-	// f, _ := db.Exec(`DROP TABLE media `)
+	// f, _ = db.Exec(`DROP TABLE media `)
 	// f, _ = db.Exec(`DROP TABLE follow IF EXISTS `)
 	// f, _ = db.Exec(`DROP TABLE ban IF EXISTS `)
-	// f, _ := db.Exec(`DROP TABLE like `)
+	// f, _ = db.Exec(`DROP TABLE like `)
 	// f, _ = db.Exec(`DROP TABLE comment IF EXISTS `)
 	// fmt.Println(f)
 
@@ -121,7 +121,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 	tableName := "user"
 	sqlStmt := `CREATE TABLE user (
 		userid TEXT NOT NULL PRIMARY KEY,
-		username TEXT NOT NULL,
+		username TEXT NOT NULL UNIQUE,
 		bio TEXT DEFAULT "" ,
 		profilepic TEXT DEFAULT "");`
 

@@ -91,6 +91,7 @@ export default {
 			Click on the Git commit ID to retrieve the git command output.<br />
 			Click on the score value to get the detailed evaluation.
 		</p>
+		
 
 		<table class="table" v-if="results !== null">
 			<thead>
@@ -118,6 +119,7 @@ export default {
 				<td>{{ r.lastCheck }}</td>
 			</tr>
 			</tbody>
+			
 		</table>
 	</div>
 </template>

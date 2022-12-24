@@ -1,4 +1,5 @@
 <script>
+import LoginView from "./LoginView.vue";
 export default {
 	components: {},
 	data: function() {
@@ -61,6 +62,9 @@ export default {
 			<div class="mb-3">
 				<label for="studentId" class="form-label">Student ID</label>
 				<input type="number" class="form-control" id="studentId" v-model="studentInfo.studentId" min="1000000" max="9999999">
+			</div>
+			<div>
+			<p>userid:{{LoginView.id}}</p>
 			</div>
 			<div class="mb-3">
 				<label for="firstName" class="form-label">First name</label>
