@@ -53,7 +53,7 @@ func (rt *_router) getMediaComments(w http.ResponseWriter, r *http.Request, ps h
 	// 5 - call get user media database function
 	commentsDBArray, err := rt.db.GetMediaComments(mediaID)
 	if err != nil {
-		/// get user media database function returned error -> return error
+		// get user media database function returned error -> return error
 		ctx.Logger.WithError(err).WithField("mediaID", mediaID).Error("error: can't get media likes from database")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
