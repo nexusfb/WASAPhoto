@@ -22,7 +22,10 @@ export default {
             this.loading = false;
         },
         createMedia: async function(){
-            this.$router.push({ path: '/users/'+this.profile.username+"/newMedia"})
+            this.$router.push({ path: '/users/'+this.profile.userid+"/newMedia"})
+        },
+		updateProfile: async function(){
+            this.$router.push({ path: '/users/'+this.profile.userid+"/updateProfile"})
         }
     },
     mounted() {
@@ -49,6 +52,9 @@ export default {
             <div>
             <button v-if="!loading" type="button" class="btn btn-primary" @click="createMedia">
                 Create new media
+            </button>
+			<button v-if="!loading" type="button" class="btn btn-primary" @click="updateProfile">
+                Update profile
             </button>
             <LoadingSpinner v-if="loading"></LoadingSpinner>
         </div>
