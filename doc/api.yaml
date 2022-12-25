@@ -463,7 +463,11 @@ paths:
       operationId: banUser
       summary: Add user to banned collection
       description: Add a user to the collection of banned users. A banned user cannot see any information of the user who banned him.
-
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserID'
       responses:
         "201":
           description: User has been banned successfully 
@@ -566,6 +570,11 @@ paths:
       operationId: followUser
       summary: Add user ID to followings collection
       description: Add a user ID to followings collection.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserID'
       
       responses:
         "201":
