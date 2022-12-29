@@ -7,6 +7,7 @@ import LoginView from "../views/LoginView.vue";
 import MyProfileView from "../views/MyProfileView.vue";
 import NewMediaView from "../views/NewMediaView.vue";
 import UpdateProfileView from "../views/UpdateProfileView.vue";
+import ChangeUsernameView from "../views/ChangeUsernameView.vue";
 
 const router = createRouter({
     history: createWebHashHistory(import.meta.env.BASE_URL),
@@ -16,7 +17,8 @@ const router = createRouter({
         {path: '/login', component: LoginView},
         {path: '/users/:username', component: MyProfileView, props: true},
         {path: '/users/:username/newMedia', component: NewMediaView, props: true},
-		{path: '/users/:userid/updateProfile', component: UpdateProfileView, props: true},
+		{path: '/users/:username/updateProfile', component: UpdateProfileView, props: true},
+		{path: '/users/:username/changeUsername', component: ChangeUsernameView, props: true},
     ]
 })
 

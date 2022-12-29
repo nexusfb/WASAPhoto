@@ -28,12 +28,12 @@ func (rt *_router) updateUserProfile(w http.ResponseWriter, r *http.Request, ps 
 
 	// 2 - get logged user
 	token := r.Header.Get("Authorization")
-	fmt.Println("token" + token)
 	token = strings.TrimPrefix(token, "Bearer ")
 	fmt.Println(token)
 
 	// 3 - logged user can change only his own profile, check if it is his profile
 	if token != userID {
+		fmt.Println(userID)
 		ctx.Logger.Error("error: could not change username because you are not authorized ")
 		w.WriteHeader(http.StatusUnauthorized)
 		return

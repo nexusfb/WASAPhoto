@@ -44,9 +44,13 @@ export default {}
                                 <svg class="feather"><use href="/feather-sprite-v4.29.0.svg#home"/></svg>
                                 New Media
                             </RouterLink>
-							<RouterLink to="/users/:userid/updateProfile" class="nav-link">
+							<RouterLink to="/users/:username/updateProfile" class="nav-link">
                                 <svg class="feather"><use href="/feather-sprite-v4.29.0.svg#home"/></svg>
                                 Update Profile
+                            </RouterLink>
+							<RouterLink to="/users/:username/changeUsername" class="nav-link">
+                                <svg class="feather"><use href="/feather-sprite-v4.29.0.svg#home"/></svg>
+                                Change Username
                             </RouterLink>
                         </li>
                     </ul>

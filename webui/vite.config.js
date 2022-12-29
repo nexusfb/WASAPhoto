@@ -6,21 +6,21 @@ import vue from '@vitejs/plugin-vue'
 // https://vitejs.dev/config/
 export default defineConfig(({command, mode, ssrBuild}) => {
 	const ret = {
-		plugins: [vue()],
+		plugins: [vue({
+			template: {
+			  compilerOptions: {
+				isCustomElement: (tag) => ['update-profile-view'].includes(tag),
+			  }
+			}
+		  })],
 		resolve: {
 			alias: {
 				'@': fileURLToPath(new URL('./src', import.meta.url))
 			}
 		},
 	};
-	if (command === 'serve') {
-		ret.define = {
-			"__API_URL__": JSON.stringify("http://localhost:3000"),
-		};
-	} else {
-		ret.define = {
-			"__API_URL__": JSON.stringify("/"),
-		};
-	}
+	ret.define = {
+		"__API_URL__": JSON.stringify("http://localhost:3000"),
+	};
 	return ret;
 })

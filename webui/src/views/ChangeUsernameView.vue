@@ -10,17 +10,15 @@ export default {
         }
     },
     methods: {
-        UpdateProfile: async function () {
+        ChangeUsername: async function () {
             this.loading = true;
             this.errormsg = null;
             this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
             error => {return Promise.reject(error);});
             try {
-                this.$axios.put("/users/:userid="+this.profile.userid, {
-					bio: this.profile.bio,
-					profilepic: this.profile.profilepic,
+                this.$axios.patch("/users/:userid="+this.profile.userid, {
 					username: this.profile.username,})
-                this.$router.push({ path: '/users/'+this.profile.username })
+                //this.$router.push({ path: '/users/'+this.profile.username })
             } catch (e) {
                 this.errormsg = e.toString();
             }
@@ -47,7 +45,7 @@ export default {
 <template>
         <div
             class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-            <h1 class="h2">Update profile</h1>
+            <h1 class="h2">Change Username</h1>
         </div>
 
         <ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
@@ -56,18 +54,11 @@ export default {
             <label for="description" class="form-label">Username</label>
             <input type="text" class="form-control" id="Username" v-model="profile.username" placeholder= this.profile.username>
         </div>
-        <div class="mb-3">
-            <label for="description" class="form-label">Bio</label>
-            <input type="text" class="form-control" id="bio" v-model="profile.bio" placeholder=this.profile.bio>
-        </div>
-        <div class="mb-3">
-            <label for="description" class="form-label">Profile pic</label>
-            <input type="text" class="form-control" id="profilepic" v-model="profile.profilepic" placeholder=this.profile.profilepic>
-        </div>
+    
 
         <div>
-            <button v-if="!loading" type="button" class="btn btn-primary" @click="UpdateProfile">
-                Update Profile
+            <button v-if="!loading" type="button" class="btn btn-primary" @click="ChangeUsername">
+                Change
             </button>
             <LoadingSpinner v-if="loading"></LoadingSpinner>
         </div>

@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"strings"
@@ -17,6 +18,7 @@ import (
 // Change username with username in request body
 func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	// 1 - take userid from path
+	fmt.Println("chiamato set my username")
 	userID := ps.ByName("userid")
 	userID = strings.TrimPrefix(userID, ":userid=")
 	if len(userID) == 0 {

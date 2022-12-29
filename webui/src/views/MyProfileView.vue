@@ -1,12 +1,12 @@
 
 <script>
 export default {
-    props: [`username`],
     data: function() {
         return {
             loading : false,
             errmsg : null,
             profile:"",
+			media:[],
 
         }
     },
@@ -21,29 +21,45 @@ export default {
             }
             this.loading = false;
         },
+		async GetMedia() {
+            this.loading = true;
+            this.errormsg = null;
+            try {
+                this.$axios.get("/users/:userid="+localStorage.getItem('Authorization')+"/media/").then(response => (this.media = response.data));
+            } catch (e) {
+                this.errormsg = e.toString();
+            }
+            this.loading = false;
+        },
         createMedia: async function(){
             this.$router.push({ path: '/users/'+this.profile.userid+"/newMedia"})
         },
 		updateProfile: async function(){
-            this.$router.push({ path: '/users/'+this.profile.userid+"/updateProfile"})
+            this.$router.push({ path: '/users/'+this.profile.username+"/updateProfile"})
+        },
+		changeUsername: async function(){
+            this.$router.push({ path: '/users/'+this.profile.username+"/changeUsername"})
         }
     },
     mounted() {
+		this.GetMedia();
         this.GetProfile();
     }
 }
 </script>
-
+<update-profile-view :oldProfile="profile" />
 <template>
     <div>
         <h1> Profile</h1>
             </div>
+			
             <div class="card-body">
                 <p class="card-text">
                     id: {{ this.profile.userid }}<br />
                     name: {{ this.profile.username }}<br />
                     bio: {{ this.profile.bio }}<br />
-                    media: {{ this.profile.nmedia }}<br />
+                    media: {{ this.media[0].photo }}<br />
+					<img :src=this.media[0].photo>
                     followers: {{ this.profile.nfollowers}}<br />
                     followings: {{ this.profile.nfollowing}}
 
@@ -55,6 +71,9 @@ export default {
             </button>
 			<button v-if="!loading" type="button" class="btn btn-primary" @click="updateProfile">
                 Update profile
+            </button>
+			<button v-if="!loading" type="button" class="btn btn-primary" @click="changeUsername">
+                change username
             </button>
             <LoadingSpinner v-if="loading"></LoadingSpinner>
         </div>
