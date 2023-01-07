@@ -38,6 +38,7 @@ func (rt *_router) updateUserProfile(w http.ResponseWriter, r *http.Request, ps 
 
 	// 3 - logged user can change only his own profile, check if it is his profile
 	if token != userID {
+		fmt.Println(token)
 		fmt.Println(userID)
 		ctx.Logger.Error("error: could not change username because you are not authorized ")
 		w.WriteHeader(http.StatusUnauthorized)
@@ -90,7 +91,7 @@ func (rt *_router) updateUserProfile(w http.ResponseWriter, r *http.Request, ps 
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-
+	fmt.Println("check1")
 	// create new mediaID
 	rawMid, err := uuid.NewV4()
 	if err != nil {

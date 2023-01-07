@@ -77,6 +77,10 @@ export default {
         },
         onSubmit() {
           // upload file
+          this.loading = true;
+            this.errormsg = null;
+            this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
+            error => {return Promise.reject(error);});
           const formData = new FormData()
           formData.append('pic', this.FILE)
             formData.append('bio', this.profile.bio)
