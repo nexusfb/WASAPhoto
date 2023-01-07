@@ -9,7 +9,7 @@ export default defineConfig(({command, mode, ssrBuild}) => {
 		plugins: [vue({
 			template: {
 			  compilerOptions: {
-				isCustomElement: (tag) => ['update-profile-view'].includes(tag),
+				isCustomElement: (tag) => ['main-footer' ].includes(tag),
 			  }
 			}
 		  })],

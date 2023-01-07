@@ -18,7 +18,7 @@ export default {
             try {
                 this.$axios.patch("/users/:userid="+this.profile.userid, {
 					username: this.profile.username,})
-                //this.$router.push({ path: '/users/'+this.profile.username })
+                this.$router.push({ path: '/users/'+this.profile.username })
             } catch (e) {
                 this.errormsg = e.toString();
             }

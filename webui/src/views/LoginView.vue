@@ -5,7 +5,6 @@ export default {
             errormsg: null,
             detailedmsg: null,
             loading: false,
-            id : 10,
             User: {
                 UserID: null,
                 Username: null,
@@ -21,7 +20,7 @@ export default {
                 let response = await this.$axios.post("/session/", {
                     username: this.Username,
                 });
-				this.UserID  = response.data,
+                this.UserID  = response.data,
                 localStorage.setItem('Authorization', this.UserID),
                 this.$router.push({ path: '/users/'+this.Username })
 

@@ -55,11 +55,11 @@ export default {
 			
             <div class="card-body">
                 <p class="card-text">
-                    id: {{ this.profile.userid }}<br />
+					<img :src=this.profile.profilepic><br />
                     name: {{ this.profile.username }}<br />
                     bio: {{ this.profile.bio }}<br />
-                    media: {{ this.media[0].photo }}<br />
-					<img :src=this.media[0].photo>
+
+
                     followers: {{ this.profile.nfollowers}}<br />
                     followings: {{ this.profile.nfollowing}}
 
