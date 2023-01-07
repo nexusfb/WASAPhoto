@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -25,6 +26,7 @@ func (rt *_router) getUserMedia(w http.ResponseWriter, r *http.Request, ps httpr
 	// 2 - check if user exists
 	if !rt.db.ExistenceCheck(userID, "user") {
 		// user does not exist
+		fmt.Println(userID)
 		ctx.Logger.Error("error: user does not exist")
 		w.WriteHeader(http.StatusBadRequest)
 		return

@@ -1,6 +1,7 @@
 <script>
 import HelloWorld from '../components/filePreview.vue'
  
+// to do: mettere in automatico foto vecchia -> se metto this.file = this.profilepic non va :( ma se faccio this.profile.profilepic si WHYY)
 export default {
     name: 'App',
     components: {HelloWorld},
@@ -9,7 +10,7 @@ export default {
             errormsg: null,
             loading: false,
             profile:"",
-            FILE: null,
+            file: "ciao"
         }
     },
     methods: {
@@ -66,14 +67,17 @@ export default {
             this.loading = true;
             this.errormsg = null;
             try {
-                this.$axios.get("/users/?username="+this.$route.params.username).then(response => (this.profile = response.data));
+                this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
+            error => {return Promise.reject(error);});
+                this.$axios.get("/users/?username="+this.$route.params.username).then(response => (this.profile = response.data))
             } catch (e) {
                 this.errormsg = e.toString();
             }
             this.loading = false;
+            
         },
         onFileUpload (event) {
-          this.FILE = event.target.files[0]
+          this.file = event.target.files[0]
         },
         onSubmit() {
           // upload file
@@ -82,7 +86,7 @@ export default {
             this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
             error => {return Promise.reject(error);});
           const formData = new FormData()
-          formData.append('pic', this.FILE)
+          formData.append('pic', this.file)
             formData.append('bio', this.profile.bio)
             formData.append('username', this.profile.username)
           this.$axios.put("/users/:userid="+this.profile.userid, formData, {
@@ -93,14 +97,12 @@ export default {
         },
     },
     mounted() {
-        this.GetProfile()
+        this.GetProfile();
     }
 }
 </script>
 
 <template>
-
-
 
 
         <div

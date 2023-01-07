@@ -32,18 +32,29 @@ export default {
             this.loading = false;
         },
         createMedia: async function(){
-            this.$router.push({ path: '/users/'+this.profile.userid+"/newMedia"})
+            this.$router.push({ path: '/users/'+this.profile.username+"/newMedia"})
         },
 		updateProfile: async function(){
             this.$router.push({ path: '/users/'+this.profile.username+"/updateProfile"})
         },
 		changeUsername: async function(){
             this.$router.push({ path: '/users/'+this.profile.username+"/changeUsername"})
-        }
+        },
+		async refresh() {
+			this.loading = true;
+			this.errormsg = null;
+			try {
+				this.$axios.get("/users/:userid="+localStorage.getItem('Authorization')+"/media/").then(response => (this.media = response.data));
+			} catch (e) {
+				this.errormsg = e.toString();
+			}
+			this.loading = false;
+		}
     },
     mounted() {
 		this.GetMedia();
         this.GetProfile();
+		this.refresh();
     }
 }
 </script>
@@ -76,7 +87,27 @@ export default {
                 change username
             </button>
             <LoadingSpinner v-if="loading"></LoadingSpinner>
-        </div>
+
+
+			<div class="card" v-if="media === null">
+				<div class="card-body">
+					<p>No media in the database.</p>
+				</div>
+			</div>
+
+		<div class="card" v-if="!loading" v-for="m in media">
+			<div class="card-header">
+				Media
+			</div>
+			<div class="card-body">
+				<p class="card-text">
+					<img :src=m.photo><br />
+					Caption: {{ m.caption }}
+				</p>
+			</div>
+		</div>
+    </div>
+
 </template>
 
 <style scoped>
