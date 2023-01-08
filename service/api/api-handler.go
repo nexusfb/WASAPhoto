@@ -8,6 +8,7 @@ func (rt *_router) Handler() http.Handler {
 	// USER PROFILE routes
 	rt.router.POST("/session/", rt.wrap(rt.doLogin))                  // user login
 	rt.router.GET("/users/", rt.wrap(rt.getUserProfile))              // get user profile
+	rt.router.GET("/search/:username", rt.wrap(rt.getUserList))       // get list of users with that username
 	rt.router.PATCH("/users/:userid", rt.wrap(rt.setMyUserName))      // change username
 	rt.router.PUT("/users/:userid", rt.wrap(rt.updateUserProfile))    // change user profile
 	rt.router.DELETE("/users/:userid", rt.wrap(rt.deleteUserProfile)) // delete user profile

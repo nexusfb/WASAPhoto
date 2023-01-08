@@ -73,6 +73,7 @@ type AppDatabase interface {
 	UnbanUser(bannerID string, bannedID string) error               // takes bannerID and bannedID -> deletes ban -> returns error
 	GetBannedUsers(bannerID string) ([]string, error)               // takes userID -> returns list of banned users by this userID
 	GetMyStream(userID string) ([]MediaDB, error)                   // takes userID -> returns collection of media of followed users
+	GetUserList(username string) ([]string, error)                  // takes username -> returns list of users with similar username
 
 	// UTILITY
 	GetUserName(userid string) (string, error)                  // takes userID -> returns username

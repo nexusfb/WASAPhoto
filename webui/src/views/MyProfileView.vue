@@ -34,6 +34,9 @@ export default {
             }
             this.loading = false;
         },
+		searchUsers: async function(){
+            this.$router.push({ path: '/search'})
+        },
         createMedia: async function(){
             this.$router.push({ path: '/users/'+this.profile.username+"/newMedia"})
         },
@@ -43,6 +46,7 @@ export default {
 		changeUsername: async function(){
             this.$router.push({ path: '/users/'+this.profile.username+"/changeUsername"})
         },
+	
 		async refresh() {
 			this.loading = true;
 			this.errormsg = null;
@@ -94,13 +98,17 @@ export default {
             <div>
             <button v-if="!loading" type="button" class="btn btn-primary" @click="createMedia">
                 Create new media
-            </button>
+            </button><br /><br />
 			<button v-if="!loading" type="button" class="btn btn-primary" @click="updateProfile">
                 Update profile
-            </button>
+            </button><br /><br />
 			<button v-if="!loading" type="button" class="btn btn-primary" @click="changeUsername">
                 change username
+            </button><br /><br />
+			<button v-if="!loading" type="button" class="btn btn-primary" @click="searchUsers">
+                search users
             </button>
+
             <LoadingSpinner v-if="loading"></LoadingSpinner>
 
 
