@@ -1,4 +1,4 @@
-
+// Page of user profile with username, caption, profile picture, nmedia, nfollowers, nfollowing, user media
 <script>
 export default {
     data: function() {
@@ -7,13 +7,14 @@ export default {
             errmsg : null,
             profile:"",
 			media:[],
-
         }
     },
     methods: {
         async GetProfile() {
             this.loading = true;
             this.errormsg = null;
+			this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
+            error => {return Promise.reject(error);});
             try {
                 this.$axios.get("/users/?username="+this.$route.params.username).then(response => (this.profile = response.data));
             } catch (e) {
@@ -21,9 +22,11 @@ export default {
             }
             this.loading = false;
         },
-		async GetMedia() {
+		async GetUserMedia() {
             this.loading = true;
             this.errormsg = null;
+			this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
+            error => {return Promise.reject(error);});
             try {
                 this.$axios.get("/users/:userid="+localStorage.getItem('Authorization')+"/media/").then(response => (this.media = response.data));
             } catch (e) {
@@ -43,37 +46,49 @@ export default {
 		async refresh() {
 			this.loading = true;
 			this.errormsg = null;
+			this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
+            error => {return Promise.reject(error);});
 			try {
 				this.$axios.get("/users/:userid="+localStorage.getItem('Authorization')+"/media/").then(response => (this.media = response.data));
 			} catch (e) {
 				this.errormsg = e.toString();
 			}
 			this.loading = false;
-		}
+		},
+		async deleteMedia(m) {
+            this.loading = true;
+            this.errormsg = null;
+			this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
+            error => {return Promise.reject(error);});
+            try {
+                this.$axios.delete("/media/:mediaid="+ m.id).then(response => (this.media = response.data));
+				this.$router.push({ path: '/users/'+this.profile.username })
+            } catch (e) {
+                this.errormsg = e.toString();
+            }
+            this.loading = false;
+        }
     },
     mounted() {
-		this.GetMedia();
+		this.GetUserMedia();
         this.GetProfile();
 		this.refresh();
     }
 }
 </script>
-<update-profile-view :oldProfile="profile" />
+
 <template>
     <div>
         <h1> Profile</h1>
             </div>
-			
             <div class="card-body">
                 <p class="card-text">
 					<img :src=this.profile.profilepic><br />
                     name: {{ this.profile.username }}<br />
                     bio: {{ this.profile.bio }}<br />
-
-
+					media: {{ this.profile.nmedia}}<br />
                     followers: {{ this.profile.nfollowers}}<br />
                     followings: {{ this.profile.nfollowing}}
-
                 </p>
             </div>
             <div>
@@ -104,6 +119,9 @@ export default {
 					<img :src=m.photo><br />
 					Caption: {{ m.caption }}
 				</p>
+				<button v-if="!loading" type="button" class="btn btn-primary" @click="deleteMedia(m)">
+                delete media
+            	</button>
 			</div>
 		</div>
     </div>

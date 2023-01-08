@@ -11,7 +11,7 @@ var (
 
 // Media struct
 type Media struct {
-	MediaID    string
+	MediaID    string `json:"id"`
 	AuthorID   string
 	AuthorName string `json:"author"` // notice that author name was not stored in the database struct of media but it is needed here in order to display it
 	Date       string `json:"date"`
