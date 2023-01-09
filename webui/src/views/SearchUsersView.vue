@@ -25,8 +25,23 @@ export default {
             this.loading = false;
         },
 
+        async ToProfile(name) {
+            this.loading = true;
+            this.errormsg = null;
+            this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
+            error => {return Promise.reject(error);});
+            try {
+                this.$router.push({ path: '/users/'+name })
+            } catch (e) {
+                this.errormsg = e.toString();
+            }
+            this.loading = false;
+        },
+
         filteredList() {
         return this.users.filter((user) => user.username.toLowerCase().includes(this.input.toLowerCase()) );
+
+        
     },
 },
 	mounted() {
@@ -39,7 +54,9 @@ export default {
     <input type="text" v-model="input" placeholder="Search users..." />
    <div class="item user" v-for="user in filteredList()" :key="user">
     <img :src=user.pic>
-     <p>{{ user.username }}</p>
+    <button v-if="!loading" type="button" class="btn btn-primary" @click="ToProfile(user.username)">
+        {{ user.username }}
+            	</button>
    </div>
    <div class="item error" v-if="input&&!filteredList().length">
       <p>No results found!</p>

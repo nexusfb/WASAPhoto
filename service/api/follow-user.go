@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -43,6 +44,12 @@ func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprou
 	// 4 - get followedID from path
 	followedID := ps.ByName("followingid")
 	followedID = strings.TrimPrefix(followedID, ":followingid=")
+	fmt.Println("follower")
+	fmt.Println(followedID)
+	fmt.Println("authenticated")
+	fmt.Println(token)
+	fmt.Println("followed")
+	fmt.Println(followedID)
 	if len(followedID) == 0 {
 		// followedID is empty -> return error
 		ctx.Logger.Error("error: followedID is empty")

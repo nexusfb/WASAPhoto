@@ -7,6 +7,7 @@ export default {
             errmsg : null,
             profile:"",
 			media:[],
+			logged: localStorage.getItem('Authorization')
         }
     },
     methods: {
@@ -71,6 +72,19 @@ export default {
                 this.errormsg = e.toString();
             }
             this.loading = false;
+        },
+		async followUser() {
+            this.loading = true;
+            this.errormsg = null;
+			this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
+            error => {return Promise.reject(error);});
+            try {
+                this.$axios.put("/users/:userid="+this.logged+"/followings/:followingid="+this.profile.userid);
+				this.$router.push({ path: '/users/'+this.profile.username })
+            } catch (e) {
+                this.errormsg = e.toString();
+            }
+            this.loading = false;
         }
     },
     mounted() {
@@ -92,7 +106,7 @@ export default {
                     bio: {{ this.profile.bio }}<br />
 					media: {{ this.profile.nmedia}}<br />
                     followers: {{ this.profile.nfollowers}}<br />
-                    followings: {{ this.profile.nfollowing}}
+                    followings: {{ this.profile.nfollowing }}
                 </p>
             </div>
             <div>
@@ -107,7 +121,13 @@ export default {
             </button><br /><br />
 			<button v-if="!loading" type="button" class="btn btn-primary" @click="searchUsers">
                 search users
-            </button>
+            </button><br /><br />
+			<div v-if= "this.profile.userid != logged">
+				<button v-if="!loading" type="button" class="btn btn-primary" @click="followUser">
+                follow user
+            	</button>
+			</div>
+
 
             <LoadingSpinner v-if="loading"></LoadingSpinner>
 
