@@ -5,13 +5,13 @@ export default {
         return {
             loading : false,
             errmsg : null,
-            profile:"",
+            profile: this.GetProfile(),
 			media:[],
-			logged: localStorage.getItem('Authorization')
+			logged: localStorage.getItem('Authorization'),
         }
     },
     methods: {
-        async GetProfile() {
+        GetProfile() {
             this.loading = true;
             this.errormsg = null;
 			this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
@@ -20,16 +20,18 @@ export default {
                 this.$axios.get("/users/?username="+this.$route.params.username).then(response => (this.profile = response.data));
             } catch (e) {
                 this.errormsg = e.toString();
+				
             }
             this.loading = false;
         },
-		async GetUserMedia() {
+
+		GetUserMedia() {
             this.loading = true;
             this.errormsg = null;
 			this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
             error => {return Promise.reject(error);});
             try {
-                this.$axios.get("/users/:userid="+localStorage.getItem('Authorization')+"/media/").then(response => (this.media = response.data));
+                this.$axios.get("/users/:userid="+this.profile.userid+"/media/").then(response => (this.media = response.data));
             } catch (e) {
                 this.errormsg = e.toString();
             }
@@ -48,32 +50,53 @@ export default {
             this.$router.push({ path: '/users/'+this.profile.username+"/changeUsername"})
         },
 	
-		async refresh() {
-			this.loading = true;
-			this.errormsg = null;
-			this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
-            error => {return Promise.reject(error);});
-			try {
-				this.$axios.get("/users/:userid="+localStorage.getItem('Authorization')+"/media/").then(response => (this.media = response.data));
-			} catch (e) {
-				this.errormsg = e.toString();
-			}
-			this.loading = false;
+		refresh() {
+			this.GetProfile();
+			this.GetUserMedia();
 		},
-		async deleteMedia(m) {
+		deleteMedia(m) {
             this.loading = true;
             this.errormsg = null;
 			this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
             error => {return Promise.reject(error);});
             try {
-                this.$axios.delete("/media/:mediaid="+ m.id).then(response => (this.media = response.data));
+                this.$axios.delete("/media/:mediaid="+ m.id);
 				this.$router.push({ path: '/users/'+this.profile.username })
             } catch (e) {
                 this.errormsg = e.toString();
             }
             this.loading = false;
+			this.refresh();
         },
-		async followUser() {
+		likeMedia(m) {
+            this.loading = true;
+            this.errormsg = null;
+			this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
+            error => {return Promise.reject(error);});
+            try {
+                this.$axios.put("/media/:mediaid="+ m.id+"/likes/");
+				this.refresh();
+            } catch (e) {
+                this.errormsg = e.toString();
+            }
+            this.loading = false;
+			this.refresh();
+        },
+		unlikeMedia(m) {
+            this.loading = true;
+            this.errormsg = null;
+			this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
+            error => {return Promise.reject(error);});
+            try {
+                this.$axios.delete("/media/:mediaid="+ m.id+"/likes/");
+				this.refresh();
+            } catch (e) {
+                this.errormsg = e.toString();
+            }
+            this.loading = false;
+			this.refresh();
+        },
+		followUser() {
             this.loading = true;
             this.errormsg = null;
 			this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
@@ -85,23 +108,46 @@ export default {
                 this.errormsg = e.toString();
             }
             this.loading = false;
-        }
+			this.refresh();
+        },
+
+		unfollowUser() {
+            this.loading = true;
+            this.errormsg = null;
+			this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
+            error => {return Promise.reject(error);});
+            try {
+                this.$axios.delete("/users/:userid="+this.logged+"/followings/:followingid="+this.profile.userid);
+				this.$router.push({ path: '/users/'+this.profile.username })
+            } catch (e) {
+                this.errormsg = e.toString();
+            }
+            this.loading = false;
+			this.refresh();
+        },
+
+		async toggle(){
+			if (this.profile.followed==true){
+				this.unfollowUser();
+				this.profile.followed = false;
+			}
+			else{
+				this.followUser();
+				this.profile.followed = true;
+			}
+		}
     },
     mounted() {
-		this.GetUserMedia();
-        this.GetProfile();
 		this.refresh();
-    }
+    },
 }
 </script>
 
 <template>
-    <div>
-        <h1> Profile</h1>
-            </div>
-            <div class="card-body">
+    <div> <h1> Profile</h1></div>
+            <div  class="card-body">
                 <p class="card-text">
-					<img :src=this.profile.profilepic><br />
+					<img :src= this.profile.profilepic ><br />
                     name: {{ this.profile.username }}<br />
                     bio: {{ this.profile.bio }}<br />
 					media: {{ this.profile.nmedia}}<br />
@@ -123,9 +169,10 @@ export default {
                 search users
             </button><br /><br />
 			<div v-if= "this.profile.userid != logged">
-				<button v-if="!loading" type="button" class="btn btn-primary" @click="followUser">
-                follow user
+				<button v-if="!loading" type="button" class="ui button big" @click="toggle">
+					{{profile.followed ? 'unfollow' : 'follow'}}
             	</button>
+
 			</div>
 
 
@@ -145,10 +192,18 @@ export default {
 			<div class="card-body">
 				<p class="card-text">
 					<img :src=m.photo><br />
-					Caption: {{ m.caption }}
+					Caption: {{ m.caption }}<br />
+					nlikes: {{ m.nlikes }}<br />
+					liked: {{ m.liked }}
 				</p>
-				<button v-if="!loading" type="button" class="btn btn-primary" @click="deleteMedia(m)">
+				<button v-if="!loading&&(this.profile.userid == logged)" type="button" class="btn btn-primary" @click="deleteMedia(m)">
                 delete media
+            	</button>
+				<button v-if="!loading&&(this.profile.userid != logged)" type="button" class="btn btn-primary" @click="likeMedia(m)">
+                like media
+            	</button>
+				<button v-if="!loading&&(this.profile.userid != logged)" type="button" class="btn btn-primary" @click="unlikeMedia(m)">
+                unlike media
             	</button>
 			</div>
 		</div>

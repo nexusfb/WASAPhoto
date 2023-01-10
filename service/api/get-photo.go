@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	_ "image/jpeg"
 	"io"
 
@@ -16,8 +15,6 @@ import (
 // get photo from photos folder
 func (rt *_router) getPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	// 1 - open file
-	fmt.Println("called get photo")
-	fmt.Println(r.URL.Path)
 	img, err := os.Open("." + r.URL.Path)
 	if err != nil {
 		// error opening file

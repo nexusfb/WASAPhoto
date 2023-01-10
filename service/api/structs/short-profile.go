@@ -1,8 +1,6 @@
 package structs
 
 import (
-	"fmt"
-
 	"github.com/nexusfb/WASAPhoto/service/database"
 )
 
@@ -25,7 +23,6 @@ func (s *ShortProfile) FromDatabase(db database.AppDatabase, userID string) erro
 	// 2 - get profile picture
 	profile, err := db.GetUserProfile(name)
 	if err != nil {
-		fmt.Println("qui")
 		// get user profile returned error -> return error
 		return err
 	}

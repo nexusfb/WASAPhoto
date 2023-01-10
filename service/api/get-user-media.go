@@ -14,8 +14,10 @@ import (
 // Get all media of a user with userid in the path
 func (rt *_router) getUserMedia(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	// 1 - take userid from path
+	fmt.Println("CALLED GET USER MEDIA")
 	userID := ps.ByName("userid")
 	userID = strings.TrimPrefix(userID, ":userid=")
+	fmt.Println("userid=" + userID)
 	if len(userID) == 0 {
 		// userid is empty -> return error
 		ctx.Logger.Error("error: userid is empty")
@@ -26,7 +28,6 @@ func (rt *_router) getUserMedia(w http.ResponseWriter, r *http.Request, ps httpr
 	// 2 - check if user exists
 	if !rt.db.ExistenceCheck(userID, "user") {
 		// user does not exist
-		fmt.Println(userID)
 		ctx.Logger.Error("error: user does not exist")
 		w.WriteHeader(http.StatusBadRequest)
 		return

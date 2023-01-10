@@ -21,7 +21,6 @@ import (
 // Update user profile with userid in the path
 func (rt *_router) updateUserProfile(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	// 1 - take userid from path
-	fmt.Println("update in atto")
 	userID := ps.ByName("userid")
 	userID = strings.TrimPrefix(userID, ":userid=")
 	if len(userID) == 0 {
@@ -34,12 +33,9 @@ func (rt *_router) updateUserProfile(w http.ResponseWriter, r *http.Request, ps 
 	// 2 - get logged user
 	token := r.Header.Get("Authorization")
 	token = strings.TrimPrefix(token, "Bearer ")
-	fmt.Println(token)
 
 	// 3 - logged user can change only his own profile, check if it is his profile
 	if token != userID {
-		fmt.Println(token)
-		fmt.Println(userID)
 		ctx.Logger.Error("error: could not change username because you are not authorized ")
 		w.WriteHeader(http.StatusUnauthorized)
 		return
@@ -62,8 +58,7 @@ func (rt *_router) updateUserProfile(w http.ResponseWriter, r *http.Request, ps 
 	*/
 
 	photo, fileHeader, err := r.FormFile("pic")
-	fmt.Println("foto")
-	fmt.Println(photo)
+
 	if err != nil {
 		ctx.Logger.WithError(err).Error("error: could not parse photo")
 		w.WriteHeader(http.StatusBadRequest)
@@ -91,7 +86,7 @@ func (rt *_router) updateUserProfile(w http.ResponseWriter, r *http.Request, ps 
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	fmt.Println("check1")
+
 	// create new mediaID
 	rawMid, err := uuid.NewV4()
 	if err != nil {

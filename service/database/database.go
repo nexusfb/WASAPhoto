@@ -110,13 +110,13 @@ func New(db *sql.DB) (AppDatabase, error) {
 	}
 
 	// DROP
-	// f, _ := db.Exec(`DROP TABLE user IF EXISTS `)
-	// f, _ = db.Exec(`DROP TABLE media `)
-	// f, _ = db.Exec(`DROP TABLE follow IF EXISTS `)
+	//f, _ := db.Exec(`DROP TABLE user `)
+	//f, _ = db.Exec(`DROP TABLE media `)
+	//f, _ = db.Exec(`DROP TABLE follow IF EXISTS `)
 	// f, _ = db.Exec(`DROP TABLE ban IF EXISTS `)
 	// f, _ = db.Exec(`DROP TABLE like `)
 	// f, _ = db.Exec(`DROP TABLE comment IF EXISTS `)
-	// fmt.Println(f)
+	//fmt.Println(f)
 
 	// 1 - define user table
 	tableName := "user"
@@ -124,7 +124,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 		userid TEXT NOT NULL PRIMARY KEY,
 		username TEXT NOT NULL UNIQUE,
 		bio TEXT DEFAULT "" ,
-		profilepic TEXT DEFAULT "");`
+		profilepic TEXT DEFAULT "http://localhost:3000/photos/1a9bc88e-55a3-41ed-99d0-873ab630507e.jpg");`
 
 	// 2 - create user table
 	err := createTables(tableName, sqlStmt, db)

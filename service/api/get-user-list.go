@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -16,8 +15,6 @@ func (rt *_router) getUserList(w http.ResponseWriter, r *http.Request, ps httpro
 	// 1 - take username from path
 	username := ps.ByName("username")
 	username = strings.TrimPrefix(username, ":username=")
-	fmt.Println("username")
-	fmt.Println(username)
 	/*
 		if len(username) == 0 {
 			// username is empty -> return error
@@ -76,7 +73,6 @@ func (rt *_router) getUserList(w http.ResponseWriter, r *http.Request, ps httpro
 		// 4 - add user to final list
 		finalUserList = append(finalUserList, sp)
 	}
-	fmt.Println(finalUserList)
 	// 7 - return array of names
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")

@@ -16,6 +16,8 @@ import (
 // Get user profile with username in query
 func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	// 1 - check if username in query
+	fmt.Println("GET PROFILE")
+
 	if !r.URL.Query().Has("username") {
 		// no username in query -> return error
 		ctx.Logger.Error("error: no username given")
@@ -25,7 +27,7 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 
 	// 2 - get username from query
 	name := r.URL.Query().Get("username")
-
+	fmt.Println("username=" + name)
 	// 3 - get logged user
 	token := r.Header.Get("Authorization")
 	token = strings.TrimPrefix(token, "Bearer ")
@@ -71,8 +73,7 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 
 	// 8 - map returned user profile database to profile struct
 	var userProfile structs.UserProfile
-	userProfile.FromDatabase(userProfileDB, rt.db)
-	fmt.Println(userProfile)
+	userProfile.FromDatabase(userProfileDB, rt.db, token)
 	// 9 - return user profile struct
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")

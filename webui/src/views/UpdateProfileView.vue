@@ -1,10 +1,7 @@
 <script>
-import HelloWorld from '../components/filePreview.vue'
  
 // to do: mettere in automatico foto vecchia -> se metto this.file = this.profilepic non va :( ma se faccio this.profile.profilepic si WHYY)
 export default {
-    name: 'App',
-    components: {HelloWorld},
     data: function() {
         return {
             errormsg: null,
