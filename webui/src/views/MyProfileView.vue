@@ -8,6 +8,7 @@ export default {
             profile: this.GetProfile(),
 			media:[],
 			logged: localStorage.getItem('Authorization'),
+			comment: "",
         }
     },
     methods: {
@@ -48,6 +49,12 @@ export default {
         },
 		changeUsername: async function(){
             this.$router.push({ path: '/users/'+this.profile.username+"/changeUsername"})
+        },
+		seeMediaComments: async function(m){
+            this.$router.push({ path: "/media/"+m.id+"/comments/"})
+        },
+		seeMyStream: async function(){
+            this.$router.push({ path: "/stream/"})
         },
 	
 		refresh() {
@@ -135,7 +142,23 @@ export default {
 				this.followUser();
 				this.profile.followed = true;
 			}
-		}
+		},
+
+		commentMedia(m) {
+            this.loading = true;
+            this.errormsg = null;
+			this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
+            error => {return Promise.reject(error);});
+            try {
+                this.$axios.post("/media/:mediaid="+ m.id+"/comments/", {
+					content: this.comment,});
+				this.refresh();
+            } catch (e) {
+                this.errormsg = e.toString();
+            }
+            this.loading = false;
+			this.refresh();
+        },
     },
     mounted() {
 		this.refresh();
@@ -168,6 +191,11 @@ export default {
 			<button v-if="!loading" type="button" class="btn btn-primary" @click="searchUsers">
                 search users
             </button><br /><br />
+			<button v-if="!loading&&this.profile.userid == this.logged" type="button" class="btn btn-primary" @click="seeMyStream">
+                see my stream
+            </button><br /><br />
+
+
 			<div v-if= "this.profile.userid != logged">
 				<button v-if="!loading" type="button" class="ui button big" @click="toggle">
 					{{profile.followed ? 'unfollow' : 'follow'}}
@@ -194,16 +222,31 @@ export default {
 					<img :src=m.photo><br />
 					Caption: {{ m.caption }}<br />
 					nlikes: {{ m.nlikes }}<br />
-					liked: {{ m.liked }}
+					ncomments: {{ m.ncomments }}<br />
+					liked: {{ this.comment }}
 				</p>
 				<button v-if="!loading&&(this.profile.userid == logged)" type="button" class="btn btn-primary" @click="deleteMedia(m)">
                 delete media
             	</button>
+
+				<div class="mb-3">
+        		<label for="description" class="form-label">Comment</label>
+            	<input type="text" class="form-control" id="comment" v-model="comment" placeholder="comment here">
+        		</div>
+
+
+
 				<button v-if="!loading&&(this.profile.userid != logged)" type="button" class="btn btn-primary" @click="likeMedia(m)">
                 like media
             	</button>
 				<button v-if="!loading&&(this.profile.userid != logged)" type="button" class="btn btn-primary" @click="unlikeMedia(m)">
                 unlike media
+            	</button>
+				<button v-if="!loading" type="button" class="btn btn-primary" @click="commentMedia(m)">
+                comment media
+            	</button>
+				<button v-if="!loading" type="button" class="btn btn-primary" @click="seeMediaComments(m)">
+                see media comments
             	</button>
 			</div>
 		</div>
