@@ -6,6 +6,7 @@ import (
 
 // Remove ban from bannerid to bannedid
 func (db *appdbimpl) UnbanUser(bannerID string, bannedID string) error {
+	fmt.Println("Ban user")
 	// 1 - execute delete query
 	res, err := db.c.Exec(`DELETE FROM ban WHERE bannerid=? AND bannedid=?`, bannerID, bannedID)
 	if err != nil {

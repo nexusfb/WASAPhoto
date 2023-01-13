@@ -143,6 +143,46 @@ export default {
 				this.profile.followed = true;
 			}
 		},
+		async toggleBan(){
+			if (this.profile.banned==true){
+				this.unbanUser();
+				this.profile.banned = false;
+			}
+			else{
+				this.banUser();
+				this.profile.banned = true;
+			}
+		},
+
+		banUser() {
+            this.loading = true;
+            this.errormsg = null;
+			this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
+            error => {return Promise.reject(error);});
+            try {
+                this.$axios.put("/users/:userid="+this.logged+"/banned/:bannedid="+this.profile.userid);
+				this.$router.push({ path: '/stream/' })
+            } catch (e) {
+                this.errormsg = e.toString();
+            }
+            this.loading = false;
+			this.refresh();
+        },
+
+		unbanUser() {
+            this.loading = true;
+            this.errormsg = null;
+			this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
+            error => {return Promise.reject(error);});
+            try {
+                this.$axios.delete("/users/:userid="+this.logged+"/banned/:bannedid="+this.profile.userid);
+				this.$router.push({ path: '/stream/' })
+            } catch (e) {
+                this.errormsg = e.toString();
+            }
+            this.loading = false;
+			this.refresh();
+        },
 
 		commentMedia(m) {
             this.loading = true;
@@ -175,7 +215,7 @@ export default {
                     bio: {{ this.profile.bio }}<br />
 					media: {{ this.profile.nmedia}}<br />
                     followers: {{ this.profile.nfollowers}}<br />
-                    followings: {{ this.profile.nfollowing }}
+                    followings: {{ this.profile.banned }}
                 </p>
             </div>
             <div>
@@ -197,8 +237,15 @@ export default {
 
 
 			<div v-if= "this.profile.userid != logged">
-				<button v-if="!loading" type="button" class="ui button big" @click="toggle">
+				<button v-if="!loading" type="button" class="btn btn-primary" @click="toggle">
 					{{profile.followed ? 'unfollow' : 'follow'}}
+            	</button>
+
+			</div>
+
+			<div v-if= "this.profile.userid != logged">
+				<button v-if="!loading" type="button" class="btn btn-primary" @click="toggleBan">
+					{{this.profile.banned ? 'unban' : 'ban'}}
             	</button>
 
 			</div>

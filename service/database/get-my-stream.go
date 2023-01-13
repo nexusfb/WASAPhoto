@@ -6,7 +6,7 @@ import "fmt"
 func (db *appdbimpl) GetMyStream(userid string) ([]MediaDB, error) {
 	// 1 - execute query
 	query := `
-	SELECT media.mediaid, media.authorid, media.date, media.caption, follow.followerid
+	SELECT media.mediaid, media.authorid, media.date, media.caption, media.photo
 	FROM media 
 	INNER JOIN follow on media.authorid=follow.followedid 
 	AND follow.followerid = ?
@@ -33,6 +33,7 @@ func (db *appdbimpl) GetMyStream(userid string) ([]MediaDB, error) {
 	if err = rawMedia.Err(); err != nil {
 		return nil, err
 	}
+	fmt.Println(ret)
 	// 3 - return result media array
 	return ret, nil
 }

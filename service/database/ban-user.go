@@ -6,7 +6,7 @@ import (
 
 // Add a ban from bannerid user to bannedid user
 func (db *appdbimpl) BanUser(bannerID string, bannedID string) error {
-
+	fmt.Println("BAN USER")
 	// 1 - check if user already banned other user
 	r, err := db.c.Query(`SELECT * FROM ban WHERE bannerid = ? AND bannedid = ?`, bannerID, bannedID)
 	if err != nil {
@@ -38,12 +38,33 @@ func (db *appdbimpl) BanUser(bannerID string, bannedID string) error {
 	}
 
 	// 4 - create new ban
-	_, err = db.c.Exec(`INSERT INTO ban (bannerid, bannedid) VALUES (?,?)`, bannerID, bannedID)
+	_, err = db.c.Exec(`INSERT INTO ban (bannerid, bannedid) VALUES (?,?);`, bannerID, bannedID)
 	if err != nil {
 		// exec returned error -> return error
 		return fmt.Errorf("error when creating new ban: %w", err)
 	}
 
+	// 5 - delete all likes/comments of banned user from logged user
+	query :=
+		`DELETE FROM like WHERE mediaid in (SELECT like.mediaid FROM like JOIN media WHERE media.authorid = ? and like.userid = ?)
+		AND userid in (SELECT like.userid FROM like JOIN media WHERE media.authorid = ? and like.userid = ?)` // delete media likes
+
+	_, err = db.c.Exec(query, bannerID, bannedID, bannerID, bannedID)
+	if err != nil {
+		// exec returned error -> return error
+		return fmt.Errorf("error encountered while executing a delete query: %w", err)
+	}
+
+	// 5 - delete all likes/comments of banned user from logged user
+	query =
+		`DELETE FROM comment WHERE mediaid in (SELECT comment.mediaid FROM comment  JOIN media WHERE media.authorid = ? and comment.userid = ?)
+		AND userid in (SELECT comment.userid FROM comment JOIN media WHERE media.authorid = ? and comment.userid = ?)` // delete media likes
+
+	_, err = db.c.Exec(query, bannerID, bannedID, bannerID, bannedID)
+	if err != nil {
+		// exec returned error -> return error
+		return fmt.Errorf("error encountered while executing a delete query: %w", err)
+	}
 	// 3 - return nil error
 	return nil
 }

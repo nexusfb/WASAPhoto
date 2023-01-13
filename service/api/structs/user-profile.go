@@ -24,7 +24,7 @@ type UserProfile struct {
 	NFollowers uint32 `json:"nfollowers"` // number of followers of the owner of the profile
 	NFollowing uint32 `json:"nfollowing"` // number of followings of the owner of the profile
 	Followed   bool   `json:"followed"`
-	Banned     bool
+	Banned     bool   `json:"banned"`
 }
 
 // Function to map a database user profile to the api struct user profile
@@ -37,7 +37,7 @@ func (p *UserProfile) FromDatabase(profile database.UserProfileDB, db database.A
 	p.NFollowers = db.CountRows("follow", "followedid", p.UserID)
 	p.NFollowing = db.CountRows("follow", "followerid", p.UserID)
 	p.Followed = db.Check("follow", "followerid", "followedid", token, profile.UserID)
-	p.Banned = false
+	p.Banned = db.Check("ban", "bannerid", "bannedid", token, profile.UserID)
 }
 
 // Function to map the api struct user profile to a database user profile
