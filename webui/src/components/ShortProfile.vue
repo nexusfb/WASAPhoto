@@ -19,6 +19,20 @@ export default {
             type: String,
             default: 'unknown'
         }
+    },
+    methods: {
+        async ToProfile(name) {
+            this.loading = true;
+            this.errormsg = null;
+            this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
+            error => {return Promise.reject(error);});
+            try {
+                this.$router.push({ path: '/users/'+name })
+            } catch (e) {
+                this.errormsg = e.toString();
+            }
+            this.loading = false;
+        },
     }
 }
 </script>
@@ -29,8 +43,11 @@ export default {
             <figure class="profilePic">
                 <img :src="pic" :width="size" :height="size" />
                 <div class="short-profile-username">
-                    <h3>{{this.username}}</h3>
+                    <button v-if="!loading" class="miao" @click="ToProfile(this.username)">
+        {{ this.username }}
+            	</button>
                 </div>
+                
             </figure>
         </div>
     </header>
@@ -46,6 +63,13 @@ export default {
     background-color:rgb(237, 246, 249);
     border-radius: 20px;
 
+}
+.miao {
+   color:rgb(237, 246, 249);
+   border: 2px solid #ffffff;
+   border-radius: 20px;
+   padding-left: 10px;
+    padding-right: 10px;
 }
 .header-content {
     display: flex;
@@ -67,7 +91,8 @@ export default {
     margin-left: 9px;
     font-size: 16px;
     align-items: center;
-    color: black
+    color: black;
+    background-color: rgb(237, 246, 249);
 }
 
 </style>

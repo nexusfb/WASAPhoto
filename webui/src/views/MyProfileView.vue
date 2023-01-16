@@ -1,20 +1,25 @@
 // Page of user profile with username, caption, profile picture, nmedia, nfollowers, nfollowing, user media
 <script>
 import NewMedia from "@/components/NewMedia.vue";
+import NavBar from "@/components/NewHomeBar.vue";
 export default {
-    components: { NewMedia },
+    components: { NewMedia, NavBar},
     data: function() {
         return {
             loading : false,
-            errmsg : null,
-            profile: this.GetProfile(),
+            errmsg : true,
+            profile: {},
 			media:[],
 			logged: localStorage.getItem('Authorization'),
 			comment: "",
-			creating: false,
+			creatingMedia: false,
+			changingProfile: false,
+			changingusername: false,
 			photo: "",
-         caption:"",
-         preview: "",
+         	caption:"",
+         	preview: "",
+			newppic:null,
+
         }
     },
     methods: {
@@ -49,16 +54,29 @@ export default {
             this.$router.push({ path: '/search'})
         },
         createMedia: async function(){
-			if (this.creating==false){
-            this.creating = true;}
+			if (this.creatingMedia==false){
+            this.creatingMedia = true;
+			this.changingProfile = false;
+			this.changingusername = false;}
 			else{
-            this.creating == false;}
+            this.creatingMedia = false;}
         },
+		
 		updateProfile: async function(){
-            this.$router.push({ path: '/users/'+this.profile.username+"/updateProfile"})
+            if (this.changingProfile==false){
+            this.changingProfile = true;
+			this.changingusername = false;
+			this.creatingMedia = false;}
+			else{
+            this.changingProfile = false;}
         },
 		changeUsername: async function(){
-            this.$router.push({ path: '/users/'+this.profile.username+"/changeUsername"})
+            if (this.changingusername==false){
+            this.changingusername = true;
+			this.creatingMedia = false;
+			this.changingProfile = false;}
+			else{
+            this.changingusername = false;}
         },
 		seeMediaComments: async function(m){
             this.$router.push({ path: "/media/"+m.id+"/comments/"})
@@ -238,15 +256,56 @@ export default {
           formData.append('cap', this.caption)
           
 		  try {
-			this.$axios.post("/users/"+ this.profile.userid+ "/media/", formData, {
+			await this.$axios.post("/users/"+ this.profile.userid+ "/media/", formData, {
           }).then((res) => {
             console.log(res)
-          })
-				await this.refresh();
+          });
+		  this.$router.push({ path: '/users/'+this.profile.username })
+		  
             } catch (e) {
                 this.errormsg = e.toString();
             }
+			this.refresh();
+			this.creatingMedia = false;
             this.loading = false;
+        },
+		async submitProfile() {
+            this.loading = true;
+            this.error = null;
+            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
+                error => { return Promise.reject(error); });
+            try {
+                let formData = new FormData();
+            	formData.append('bio', this.profile.bio)
+            	formData.append('username', this.profile.username)
+                if (!this.$refs.newppic) return
+                formData.append('pic', this.$refs.newppic.files[0]);
+                await this.$axios.put("/users/:userid="+this.profile.userid, formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+                this.$router.push({ path: '/users/'+this.profile.username })
+            } catch (error) {
+                this.error = error;
+            }
+			this.refresh();
+            this.loading = false;
+			this.changingProfile = false;
+        },
+		changename: async function () {
+            this.loading = true;
+            this.errormsg = null;
+            this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
+            error => {return Promise.reject(error);});
+            try {
+                await this.$axios.patch("/users/:userid="+this.profile.userid, {
+					username: this.profile.username,})
+                this.$router.push({ path: '/users/'+this.profile.username })
+            } catch (e) {
+                this.errormsg = e.toString();
+            }
+			this.refresh();
+            this.loading = false;
+			this.changingusername = false;
         },
     },
     mounted() {
@@ -256,7 +315,12 @@ export default {
 </script>
 
 <template>
-
+	<div class="Home">
+		
+		<div class="sidebar">
+			<NavBar />
+		</div>
+	</div>
     <header class="micio">
         <div class="header-content">
 			<div class="user-title">
@@ -275,7 +339,7 @@ export default {
 			<div class="row">
 				<div class="column">media</div>
 				<div class="column">followers</div>
-				<div class="column">{{ this.creating }}</div>
+				<div class="column">followings</div>
 			</div>
 
         </div>
@@ -310,15 +374,15 @@ export default {
 			</div>
 		</div>
     </header>
-	<div v-if= "this.creating==true">
+
+	<div v-if= "this.creatingMedia==true">
         <div class="newmedia">
           <form @submit.prevent="onSubmit">
 			<div class="upload-space">
 				<h2>create new media</h2>
-              <div class="form-group">
-				<label for="fileupload">Choose photo to post</label>
-                  <input id="fileupload"  type="file" accept="image/png, image/jpeg" @change="handleImageUpload">
-              </div>
+              <div class="input">
+				<input type="file" id="post-image" @change="handleImageUpload" accept="image/*">
+				</div>
 			  <div class="preview-space">
               <img id="preview-image" v-if="preview" :src="preview" :width="400" :height="400">
 				</div> 
@@ -331,6 +395,51 @@ export default {
               </div>
           </form>
 		</div>
+	</div>
+	<div v-if= "this.changingusername==true">
+        <div class="newusername">
+          <form @submit.prevent="changename">
+
+				<h2>change username</h2>
+
+
+			  <div class="form-group2">
+				<label for="description" class="form-label">Username</label>
+            	<input type="text" class="form-control" id="Username" v-model="profile.username" placeholder= this.profile.username>
+              
+              </div>
+              <div class="form-group2">
+                  <button class="login-button">Upload File</button>
+              </div>
+          </form>
+		</div>
+	</div>
+	<div v-if= "this.changingProfile==true">
+        <div class="change-profile">
+          <form @submit.prevent="submitProfile">
+			<div class="upload-space">
+				<h2>change profile</h2>
+              <div class="input">
+				<input type="file" id="newppic" name="newppic" ref="newppic" @change="handleImageUpload" accept="image/*">
+				</div>
+			  <div class="preview-space2">
+              <img id="preview-image2" v-if="preview" :src="preview" :width="400" :height="400">
+				</div> 
+			</div>
+			  <div class="form-group2">
+				<label for="description" class="form-label">Username</label>
+            	<input type="text" class="form-control" id="Username" v-model="profile.username" placeholder= this.profile.username>
+              </div>
+			  <div class="form-group2">
+				<label for="description" class="form-label">Bio</label>
+				  <input type="text" class="form-control" id="bio" v-model="profile.bio" placeholder= this.profile.bio >
+              </div>
+              <div class="form-group2">
+                  <button class="login-button">change profile</button>
+              </div>
+          </form>
+		</div>
+		
 	</div>
 
 
@@ -417,6 +526,19 @@ export default {
 	padding-top: 10px;
     background-color:rgb(182, 34, 135);
     border-radius: 20px;
+	align-items: center;
+	margin: auto;
+
+}
+.newusername {
+    height: 200px;
+    padding-left: 10px;
+    padding-right: 16px;
+	padding-top: 10px;
+    background-color:rgb(182, 34, 135);
+    border-radius: 20px;
+	align-items: center;
+	margin: auto;
 
 }
 .upload-space {
@@ -430,9 +552,21 @@ export default {
 	margin:auto;
 
 }
+.change-profile {
+    height: 800px;
+    padding-left: 10px;
+    padding-right: 16px;
+	padding-top: 20px;
+    background-color:rgb(34, 182, 39);
+    border-radius: 20px;
+ 	text-align-last:  center;
+	margin:auto;
+
+}
 .preview-space {
     height: 400px;
     border-radius: 20px;
+	border: 1px solid hsl(0, 73%, 41%);
 	margin-left: 600px;
 	margin-top: -225px;
 
@@ -441,6 +575,21 @@ export default {
     display: flex;
  align-items: center;
 	margin:auto;
+
+}
+.preview-space2 {
+    height: 400px;
+    border-radius: 20px;
+	border: 1px solid hsl(0, 73%, 41%);
+	margin-left: 600px;
+	margin-top: -225px;
+
+}
+.preview-space2 img{
+    display: flex;
+ align-items: center;
+	margin:auto;
+	border-radius: 50pc;
 
 }
 .header-content {
@@ -466,14 +615,11 @@ export default {
 
 
 }
-.form-group{
+.input{
 	width: 300px;
 	height: 50px;
-    background-color:#f4ba00;
-    border-radius: 20px;
 	margin-top: 200px;
 	margin-left: 150px;
-	border: 1px solid rgb(255, 255, 255);
 }
 .user-numbers {
   height: 60px;
@@ -482,9 +628,11 @@ export default {
 	margin:auto;
 }
 .buttons {
-  margin-left: 200px;
-  margin-right: 200px;
-  margin-bottom: 200px;
+	height: 60px;
+  margin-bottom: -200px;
+  margin-top: 50px;
+  width: 1000px;
+	margin:auto;
   background-color:rgb(182, 34, 34);
 }
 .column {
@@ -514,8 +662,8 @@ margin: auto;
 }
 .login-button{
     border-radius: 20px;
-    margin-top: 8px;
 	align-items: center;
+	margin-top: 20px;
     width: 200px;
     height: 40px;
     border: 1px solid rgb(255, 255, 255);
@@ -528,5 +676,26 @@ margin: auto;
     text-transform: uppercase;
     text-decoration: none;
     border-radius: 25px;
+
+}
+.Home {
+	max-width: 601px;
+	margin-left: auto;
+	margin-right: auto;
+	padding-bottom: 10vh;
+	background: #f4ba00;
+}
+.sidebar {
+	display: contents;
+}
+@media (--t) {
+	.sidebar {
+		display: block;
+		margin-top: 16px;
+	}
+	.sidebar p {
+		position: sticky;
+		top: calc(53px + 30px + 18px);
+	}
 }
 </style>

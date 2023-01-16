@@ -1,13 +1,13 @@
 // Home bar to move between three main pages: stream, search page, logged user profile
 <script>
 export default {
+    name: "NavBar",
     data: function () {
         return {
             errormsg: null,
             loading: false,
             logged: localStorage.getItem('Authorization'),
             Username: "",
-            profile: {} 
         }
     },
     methods: {
@@ -23,32 +23,12 @@ export default {
             this.loading = false;
         },
         async get_user_profile() {
-            this.loading = true;
-            this.errormsg = null;
-            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
-                error => { return Promise.reject(error); });
-            try {
-                let response = await this.$axios.get("/users/?username=" + this.Username)
-                this.profile = response.data
-                this.Username = this.profile.username
-                this.$router.push({ path: "/users/", query: { username: this.Username }})
-                console.log(this.profile)
-            } catch (e) {
-                this.errormsg = e.toString();
-            }
-            this.loading = false;
+            this.$router.push({ path: "/users/", query: { username: this.Username } })
         },
         rect() {
-            /*const s = document.getElementById('nav-search-section');
-            s.addEventListener('click', toggleActive);
-            function toggleActive() {*/
             const rectangle = document.querySelector('.rectangle');
             rectangle.classList.toggle('active')
         },
-      /*   restart_search() {
-            this.$route.params.username = ""
-            onclick = "document.getElementById('search').value = ''"
-        } */
     },
     mounted() {
         this.refresh()
@@ -59,13 +39,33 @@ export default {
 <template>
     <nav>
         <div class="nav-wrapper center">
-            <div id="nav-profile-section" class="nav-section" @click="rect">
+
+            <div id="nav-home-section" class="nav-section">
+                <router-link to="/"><ciao/></router-link>
+                <router-link to="/" class="font-style">Home</router-link>
             </div>
-            <div id="nav-search" class="nav-section" @click="rect">  
+            <div id="nav-search-section" class="nav-section" @click="rect">
+                <h3>ciao</h3>
             </div>
-            <div id="nav-profile" class="nav-section" @click="rect">
+            <div id="nav-profile-section" class="nav-section">
+                <!-- profile picture-->
+                
+            </div>
+
+        </div>
+        <div class="center">
+            <div class="rectangle">
+                <p class="title font-style">Search</p>
+                <div class="input-wrapper">
+                    <font-awesome-icon class="icons" icon="fa-solid fa-magnifying-glass" inverse
+                        @click="get_user_profile" />
+                    <input id="search" v-model="Username" type="text" placeholder="Search" />
+                    <font-awesome-icon class="icons" icon="fa-solid fa-xmark"
+                        onclick="document.getElementById('search').value = ''" />
+                </div>
             </div>
         </div>
+
     </nav>
 </template>
 
@@ -108,9 +108,9 @@ nav {
     border-left: 1px solid var(--bo1);
     justify-content: center;
 }
-#nav-stream,
-#nav-search,
-#nav-profile {
+#nav-home-section,
+#nav-search-section,
+#nav-profile-section {
     flex-basis: calc(100% / 3);
 }
 .icons {
