@@ -2,7 +2,7 @@
 export default {
     data: function() {
         return {
-            errormsg: null,
+            errormsg: true,
             detailedmsg: null,
             loading: false,
             User: {
@@ -37,6 +37,7 @@ export default {
 
 <template>
     <div>
+		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
         <div
             class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
             <h1 class="h2">Login</h1>
@@ -55,6 +56,51 @@ export default {
             <LoadingSpinner v-if="loading"></LoadingSpinner>
         </div>
     </div>
+
+	<transition name="popup-t">
+    <div
+      v-show="active"
+      ref="con"
+      :class="[`vs-popup-${color}`,{'fullscreen':fullscreen}]"
+      class="vs-component con-vs-popup"
+      @click="close($event,true)">
+      <div
+        :style="styleCon"
+        class="vs-popup--background"/>
+      <div
+        ref="popupx"
+        :style="stylePopup"
+        class="vs-popup">
+
+        <!-- //header -->
+        <header
+          :style="styleHeader"
+          class="vs-popup--header">
+          <div class="vs-popup--title">
+            <h3>{{ title }}</h3>
+            <slot name="subtitle" />
+          </div>
+          <vs-icon
+            v-if="!buttonCloseHidden"
+            ref="btnclose"
+            :icon-pack="iconPack"
+            :icon="iconClose"
+            :style="stylePopup"
+            class="vs-popup--close vs-popup--close--icon"
+            @click="close"
+          />
+        </header>
+
+        <!-- // slots  -->
+        <div
+          :style="styleContent"
+          :class="classContent"
+          class="vs-popup--content">
+          <slot/>
+        </div>
+      </div>
+    </div>
+  </transition>
 
 </template>
 

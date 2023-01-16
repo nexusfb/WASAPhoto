@@ -124,7 +124,7 @@ func New(db *sql.DB) (AppDatabase, error) {
 		userid TEXT NOT NULL PRIMARY KEY,
 		username TEXT NOT NULL UNIQUE,
 		bio TEXT DEFAULT "" ,
-		profilepic TEXT DEFAULT "http://localhost:3000/photos/1a9bc88e-55a3-41ed-99d0-873ab630507e.jpg");`
+		profilepic TEXT DEFAULT "");`
 
 	// 2 - create user table
 	err := createTables(tableName, sqlStmt, db)

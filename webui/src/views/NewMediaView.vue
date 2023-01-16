@@ -6,6 +6,7 @@ export default {
          photo: "",
          caption:"",
          profile: "",
+         preview: "",
       }
     },
     methods: {
@@ -21,6 +22,20 @@ export default {
             }
             this.loading = false;
             
+        },
+        handleImageUpload(event) {
+            this.previewImage(event)
+            this.onFileUpload(event)
+        },
+        previewImage(event) {
+            let input = event.target;
+            if (input.files && input.files[0]) {
+                let reader = new FileReader();
+                reader.onload = (e) => {
+                    this.preview = e.target.result;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
         },
         onFileUpload (event) {
           this.photo = event.target.files[0]
@@ -52,8 +67,9 @@ export default {
       <div class="container">
           <form @submit.prevent="onSubmit">
               <div class="form-group">
-                  <input type="file" @change="onFileUpload">
+                  <input type="file" @change="handleImageUpload">
               </div>
+              <img id="preview-image" v-if="preview" :src="preview" :width="400" :height="400">
               <div class="form-group">
                   <input type="text" v-model="caption" placeholder="Write a caption here" class="form-control">
               </div>

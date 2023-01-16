@@ -35,7 +35,7 @@ export default {
 }
 </script>
 <template>
-	<div>
+	<div class="stream">
 		
 
 		<ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
@@ -71,6 +71,9 @@ export default {
 </template>
 
 <style scoped>
+.stream{
+    background-color: #02587b;
+}
 .card {
     margin-bottom: 20px;
 }

@@ -85,7 +85,7 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 
 	// 6 - save photo in photos folder and save with image id
 
-	f, err := os.Create(fmt.Sprintf("./photos/%s%s", Mid, filepath.Ext(fileHeader.Filename)))
+	f, err := os.Create(fmt.Sprintf("./webui/src/assets/photos/%s%s", Mid, filepath.Ext(fileHeader.Filename)))
 	if err != nil {
 		ctx.Logger.WithError(err)
 		w.WriteHeader(http.StatusBadRequest)
@@ -100,7 +100,7 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 
 	// 7 - create picture url
-	picURL := fmt.Sprintf("http://localhost:3000/photos/%s%s", Mid, filepath.Ext(fileHeader.Filename))
+	picURL := fmt.Sprintf("./src/assets/photos/%s%s", Mid, filepath.Ext(fileHeader.Filename))
 
 	// 8 - take caption
 	caption := r.FormValue("cap")

@@ -14,6 +14,7 @@ type Media struct {
 	MediaID    string `json:"id"`
 	AuthorID   string
 	AuthorName string `json:"author"` // notice that author name was not stored in the database struct of media but it is needed here in order to display it
+	AuthorPic  string `json:"authorpic"`
 	Date       string `json:"date"`
 	Caption    string `json:"caption"`
 	Photo      string `json:"photo"`
@@ -30,6 +31,11 @@ func (m *Media) FromDatabase(media database.MediaDB, db database.AppDatabase, to
 	if err != nil {
 		return err
 	}
+	profile, err := db.GetUserProfile(m.AuthorName)
+	if err != nil {
+		return err
+	}
+	m.AuthorPic = profile.ProfilePic
 	m.Date = media.Date
 	m.Caption = media.Caption
 	m.Photo = media.Photo
