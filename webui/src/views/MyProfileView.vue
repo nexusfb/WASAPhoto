@@ -520,7 +520,7 @@ export default {
     padding-left: 10px;
     padding-right: 16px;
 	padding-top: 10px;
-    background-color:rgb(182, 34, 135);
+    background-color:rgb(34, 182, 41);
     border-radius: 20px;
 	align-items: center;
 	margin: auto;
@@ -531,7 +531,7 @@ export default {
     padding-left: 10px;
     padding-right: 16px;
 	padding-top: 10px;
-    background-color:rgb(182, 34, 135);
+    background-color:rgb(34, 172, 182);
     border-radius: 20px;
 	align-items: center;
 	margin: auto;
@@ -629,6 +629,7 @@ export default {
   margin-top: 50px;
   width: 800px;
 	margin:auto;
+	background-color:rgb(34, 145, 182);
 }
 .buttons2 {
 	height: 60px;
