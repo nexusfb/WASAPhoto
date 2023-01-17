@@ -7,43 +7,37 @@ export default {
             errormsg: null,
             loading: false,
             logged: localStorage.getItem('Authorization'),
-            Username: "",
-            path1:'/users/'+ this.profilo,
-            path2:'/users/'+ this.profilo+'/stream',
-            path3:'/users/'+ this.profilo+'/search',
+            name: "",
+            myProfilePath:'/users/'+ this.name,
+
         }
     },
     props:{
         profilo: "",
     },
     methods: {
-        async GetProfile() {
+        async GetUsername() {
             this.loading = true;
             this.errormsg = null;
 			this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
             error => {return Promise.reject(error);});
             try {
-                let response = await this.$axios.get("/users/?username="+this.$route.params.username)
-				this.profile = response.data;
+                let response = await this.$axios.get("/id")
+				this.name = response.data;
             } catch (e) {
                 this.errormsg = e.toString();
 				
             }
             this.loading = false;
         },
-        async refresh() {
+        
+        refresh() {
             this.loading = true;
             this.errormsg = null;
-            /* try {
-                let response = await this.$axios.get("/users/" + logged + "/stream/");
-                this.stream = response.data;
-            } catch (e) {
-                this.errormsg = e.toString();
-            } */
+            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
+                error => { return Promise.reject(error); });
+			this.GetUsername();
             this.loading = false;
-        },
-        async get_user_profile() {
-            this.$router.push({ path: "/users/", query: { username: this.Username } })
         },
         rect() {
             const rectangle = document.querySelector('.rectangle');
@@ -62,13 +56,13 @@ export default {
         <div class="nav-wrapper center">
 
             <div id="nav-home-section" class="nav-section">
-                <router-link :to="path1" class="font-style">home</router-link>
+                <router-link :to="'/users/'+ this.name" class="font-style">home</router-link>
             </div>
             <div id="nav-home-section" class="nav-section">
-                <router-link :to="path2" class="font-style">Stream</router-link>
+                <router-link to="/stream" class="font-style">Stream</router-link>
             </div>
-            <div id="nav-home-section" class="nav-section" @click="getProfile">
-                <router-link :to="path3" class="font-style">Search</router-link>
+            <div id="nav-home-section" class="nav-section" >
+                <router-link to="/search" class="font-style">Search</router-link>
             </div>
     
 

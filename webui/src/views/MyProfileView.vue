@@ -51,7 +51,7 @@ export default {
             this.loading = false;
         },
 		searchUsers: async function(){
-            this.$router.push({ path: "/users/"+this.profile.username+'/search'})
+            this.$router.push({ path: '/search'})
         },
         createMedia: async function(){
 			if (this.creatingMedia==false){
@@ -82,7 +82,7 @@ export default {
             this.$router.push({ path: "/media/"+m.id+"/comments/"})
         },
 		seeMyStream: async function(){
-            this.$router.push({ path: "/users/"+this.profile.username+"stream/"})
+            this.$router.push({ path: "/stream"})
         },
 	
 		refresh() {
@@ -357,6 +357,15 @@ export default {
 
         </div>
 		<div class="buttons">
+			<div class="buttons2" v-if= "this.profile.userid != logged">
+				<button v-if="!loading" type="button" class="login-button" @click="toggle">
+					{{profile.followed ? 'unfollow' : 'follow'}}
+            	</button>
+				<button v-if="!loading" type="button" class="login-button" @click="toggleBan">
+					{{this.profile.banned ? 'unban' : 'ban'}}
+            	</button>
+
+			</div>
 			<button v-if="!loading&&this.profile.userid == logged" type="button" class="login-button" @click="createMedia">
                 Create new media
             </button>
@@ -366,28 +375,11 @@ export default {
 			<button v-if="!loading&&this.profile.userid == logged" type="button" class="login-button" @click="changeUsername">
                 change username
             </button>
-			<button v-if="!loading" type="button" class="login-button" @click="searchUsers">
-                search users
-            </button>
-			<button v-if="!loading&&this.profile.userid == this.logged" type="button" class="login-button" @click="seeMyStream">
-                see my stream
-            </button>
 			<button v-if="!loading&&this.profile.userid == this.logged" type="button" class="login-button" @click="getBanned">
                 see banned users
             </button>
-			<div v-if= "this.profile.userid != logged">
-				<button v-if="!loading" type="button" class="login-button" @click="toggle">
-					{{profile.followed ? 'unfollow' : 'follow'}}
-            	</button>
-
-			</div>
-
-			<div v-if= "this.profile.userid != logged">
-				<button v-if="!loading" type="button" class="login-button" @click="toggleBan">
-					{{this.profile.banned ? 'unban' : 'ban'}}
-            	</button>
-
-			</div>
+			
+			
 		</div>
     </header>
 
@@ -459,19 +451,7 @@ export default {
 	</div>
 
 
-			<div v-if= "this.profile.userid != logged">
-				<button v-if="!loading" type="button" class="btn btn-primary" @click="toggle">
-					{{profile.followed ? 'unfollow' : 'follow'}}
-            	</button>
-
-			</div>
-
-			<div v-if= "this.profile.userid != logged">
-				<button v-if="!loading" type="button" class="btn btn-primary" @click="toggleBan">
-					{{this.profile.banned ? 'unban' : 'ban'}}
-            	</button>
-
-			</div>
+			
 		
 
 
@@ -647,9 +627,15 @@ export default {
 	height: 60px;
   margin-bottom: -200px;
   margin-top: 50px;
-  width: 1000px;
+  width: 800px;
 	margin:auto;
-  background-color:rgb(182, 34, 34);
+}
+.buttons2 {
+	height: 60px;
+  margin-bottom: -200px;
+  margin-top: 50px;
+  width: 400px;
+	margin:auto;
 }
 .column {
   padding: 2px;

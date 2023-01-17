@@ -23,7 +23,7 @@ export default {
 			this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
             error => {return Promise.reject(error);});
             try {
-                this.$axios.get("/users/:userid="+localStorage.getItem('Authorization')+"/followings/").then(response => (this.users = response.data));
+                this.$axios.get("/users/:userid="+this.profile.userid+"/followings/").then(response => (this.users = response.data));
             } catch (e) {
                 this.errormsg = e.toString();
             }
@@ -42,6 +42,25 @@ export default {
             }
             this.loading = false;
         },
+        async GetProfile() {
+            this.loading = true;
+            this.errormsg = null;
+			this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
+            error => {return Promise.reject(error);});
+            try {
+                let response = await this.$axios.get("/users/?username="+this.$route.params.username)
+				this.profile = response.data;
+            } catch (e) {
+                this.errormsg = e.toString();
+				
+            }
+            this.loading = false;
+        },
+        refresh() {
+			this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
+                error => { return Promise.reject(error); });
+			this.GetProfile().then(() => this.GetUserList());
+		},
 
         filteredList() {
         return this.users.filter((user) => user.username.toLowerCase().includes(this.input.toLowerCase()) );
@@ -50,8 +69,7 @@ export default {
     },
 },
 	mounted() {
-		this.GetUserList();
-        this.filteredList();
+		this.refresh();
 	}
 }
 </script>

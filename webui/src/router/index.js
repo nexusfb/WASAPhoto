@@ -26,9 +26,9 @@ const router = createRouter({
 		{path: '/users/:username/bans/', component: UserBans, props: true},
 		{path: '/users/:username/updateProfile', component: UpdateProfileView, props: true},
 		{path: '/users/:username/changeUsername', component: ChangeUsernameView, props: true},
-		{path: '/users/:username/search', component: SearchUsersView, props: true},
+		{path: '/search', component: SearchUsersView, props: true},
 		{path: '/media/:mediaid/comments/', component: MediaComments, props: true},
-		{path: '/users/:username/stream/', component: MyStream, props: true},
+		{path: '/stream', component: MyStream, props: true},
     ]
 })
 

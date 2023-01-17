@@ -43,10 +43,6 @@ export default {
 
 <template>
     <div class="background">
-        <div>
-            // qui mettere immagine per login, qualcosa con WASA Photos??? -> vale??
-            <img />
-        </div>
         <ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
         <div class="login-container">
             <h1> WASA Photo </h1>
@@ -78,7 +74,7 @@ export default {
     margin-top: 50px;
 }
 .login-container {
-    margin-top: 150px;
+    margin-top: 350px;
     width: 300px;
     height: 200px;
     background-color:  #e0e8eb;
