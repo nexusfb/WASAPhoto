@@ -1,6 +1,10 @@
 // Page of user profile with username, caption, profile picture, nmedia, nfollowers, nfollowing, user media
 <script>
+import NavBar from "@/components/NewHomeBar.vue";
 export default {
+    components:{
+        NavBar
+    },
     data: function() {
         return {
             posts:[],
@@ -35,6 +39,10 @@ export default {
 }
 </script>
 <template>
+    <div class="Home">
+		<NavBar/>
+		
+	</div>
 	<div class="stream">
 		
 

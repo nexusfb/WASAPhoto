@@ -23,7 +23,7 @@ export default {
 			this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
             error => {return Promise.reject(error);});
             try {
-                this.$axios.get("/search/:username=").then(response => (this.users = response.data));
+                this.$axios.get("/users/:userid="+localStorage.getItem('Authorization')+"/banned/").then(response => (this.users = response.data));
             } catch (e) {
                 this.errormsg = e.toString();
             }
@@ -60,7 +60,7 @@ export default {
 		<NavBar :profilo="this.$route.params.username"/>
 		
 	</div>
-    <input type="text" v-model="input" placeholder="Search users..." />
+    <h3>BANNED</h3>
    <div class="item user" v-for="user in filteredList()" :key="user">
     <ShortProfile  :username="user.username" :pic="user.pic"/>
     
@@ -97,7 +97,10 @@ export default {
    box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px,
      rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
  }
- 
+ .titolo{
+    text-align: center;
+    background-color: red;
+ }
  .item {
    width: 350px;
    margin: 0 auto 10px auto;

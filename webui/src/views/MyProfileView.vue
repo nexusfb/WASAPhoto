@@ -51,7 +51,7 @@ export default {
             this.loading = false;
         },
 		searchUsers: async function(){
-            this.$router.push({ path: '/search'})
+            this.$router.push({ path: "/users/"+this.profile.username+'/search'})
         },
         createMedia: async function(){
 			if (this.creatingMedia==false){
@@ -82,7 +82,7 @@ export default {
             this.$router.push({ path: "/media/"+m.id+"/comments/"})
         },
 		seeMyStream: async function(){
-            this.$router.push({ path: "/stream/"})
+            this.$router.push({ path: "/users/"+this.profile.username+"stream/"})
         },
 	
 		refresh() {
@@ -307,6 +307,15 @@ export default {
             this.loading = false;
 			this.changingusername = false;
         },
+		async getFollowers() {
+            this.$router.push({ path: '/users/'+this.profile.username+'/followers/'})
+        },
+		async getFollowings() {
+            this.$router.push({ path: '/users/'+this.profile.username+'/followings/'})
+        },
+		async getBanned() {
+            this.$router.push({ path: '/users/'+this.profile.username+'/bans/'})
+        }
     },
     mounted() {
 		this.refresh();
@@ -316,10 +325,8 @@ export default {
 
 <template>
 	<div class="Home">
+		<NavBar :profilo="this.$route.params.username"/>
 		
-		<div class="sidebar">
-			<NavBar />
-		</div>
 	</div>
     <header class="micio">
         <div class="header-content">
@@ -338,8 +345,14 @@ export default {
 			</div>
 			<div class="row">
 				<div class="column">media</div>
-				<div class="column">followers</div>
-				<div class="column">followings</div>
+				<div class="column"><button v-if="!loading"  @click="getFollowers">
+        			followers
+            		</button></div>
+				<div class="column">
+					<button v-if="!loading"  @click="getFollowings">
+        			followings
+            		</button>
+				</div>
 			</div>
 
         </div>
@@ -358,6 +371,9 @@ export default {
             </button>
 			<button v-if="!loading&&this.profile.userid == this.logged" type="button" class="login-button" @click="seeMyStream">
                 see my stream
+            </button>
+			<button v-if="!loading&&this.profile.userid == this.logged" type="button" class="login-button" @click="getBanned">
+                see banned users
             </button>
 			<div v-if= "this.profile.userid != logged">
 				<button v-if="!loading" type="button" class="login-button" @click="toggle">
@@ -683,15 +699,17 @@ margin: auto;
 	margin-left: auto;
 	margin-right: auto;
 	padding-bottom: 10vh;
-	background: #f4ba00;
 }
 .sidebar {
-	display: contents;
+	margin-top: 10px;
+	background: #f4ba00;
+	border: 2px solid #f4ba00;
 }
 @media (--t) {
 	.sidebar {
 		display: block;
 		margin-top: 16px;
+		border: 2px solid #f4ba00;
 	}
 	.sidebar p {
 		position: sticky;

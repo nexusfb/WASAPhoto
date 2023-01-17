@@ -8,9 +8,29 @@ export default {
             loading: false,
             logged: localStorage.getItem('Authorization'),
             Username: "",
+            path1:'/users/'+ this.profilo,
+            path2:'/users/'+ this.profilo+'/stream',
+            path3:'/users/'+ this.profilo+'/search',
         }
     },
+    props:{
+        profilo: "",
+    },
     methods: {
+        async GetProfile() {
+            this.loading = true;
+            this.errormsg = null;
+			this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
+            error => {return Promise.reject(error);});
+            try {
+                let response = await this.$axios.get("/users/?username="+this.$route.params.username)
+				this.profile = response.data;
+            } catch (e) {
+                this.errormsg = e.toString();
+				
+            }
+            this.loading = false;
+        },
         async refresh() {
             this.loading = true;
             this.errormsg = null;
@@ -36,39 +56,27 @@ export default {
 }
 </script>
 
+
 <template>
     <nav>
         <div class="nav-wrapper center">
 
             <div id="nav-home-section" class="nav-section">
-                <router-link to="/"><ciao/></router-link>
-                <router-link to="/" class="font-style">Home</router-link>
+                <router-link :to="path1" class="font-style">home</router-link>
             </div>
-            <div id="nav-search-section" class="nav-section" @click="rect">
-                <h3>ciao</h3>
+            <div id="nav-home-section" class="nav-section">
+                <router-link :to="path2" class="font-style">Stream</router-link>
             </div>
-            <div id="nav-profile-section" class="nav-section">
-                <!-- profile picture-->
-                
+            <div id="nav-home-section" class="nav-section" @click="getProfile">
+                <router-link :to="path3" class="font-style">Search</router-link>
             </div>
+    
 
         </div>
-        <div class="center">
-            <div class="rectangle">
-                <p class="title font-style">Search</p>
-                <div class="input-wrapper">
-                    <font-awesome-icon class="icons" icon="fa-solid fa-magnifying-glass" inverse
-                        @click="get_user_profile" />
-                    <input id="search" v-model="Username" type="text" placeholder="Search" />
-                    <font-awesome-icon class="icons" icon="fa-solid fa-xmark"
-                        onclick="document.getElementById('search').value = ''" />
-                </div>
-            </div>
-        </div>
+       
 
     </nav>
 </template>
-
 <style>
 :root {
     --ba1: rgb(6, 12, 24);
@@ -93,8 +101,10 @@ nav {
     position: fixed;
     width: 601px;
     height: 12vh;
-    bottom: 0;
+    top: 0;
     z-index: 99;
+    background-color: burlywood;
+    border-radius: 35px;
 }
 .center {
     display: flex;

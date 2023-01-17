@@ -4,12 +4,12 @@
 <script>
 // import post & nav bar
 import Media from '@/components/Media.vue'
-import HomeBar from '@/components/NewHomeBar.vue'
+import NavBar from '@/components/NewHomeBar.vue'
 export default {
 	name: 'stream',
 	components: {
 		Media,
-		HomeBar
+		NavBar
 	},
 	data: function () {
 		return {
@@ -41,6 +41,10 @@ export default {
 </script>
 
 <template>
+    <div class="Home">
+		<NavBar :profilo="this.$route.params.username"/>
+		
+	</div>
 	<div class="stream">
         <div class="timeline">
 		    <Media v-for="m in this.media" :media="m"/>
