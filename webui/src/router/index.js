@@ -1,8 +1,6 @@
 
 
 import {createRouter, createWebHashHistory} from 'vue-router'
-import EnrollView from "../views/EnrollView.vue";
-import ResultsView from "../views/ResultsView.vue";
 import NewLoginView from "../views/NewLoginView.vue";
 import MyProfileView from "../views/MyProfileView.vue";
 import NewMediaView from "../views/NewMediaView.vue";
