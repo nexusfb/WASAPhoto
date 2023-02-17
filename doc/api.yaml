@@ -48,20 +48,6 @@ components:
       name: commentid
       in: path
       required: true
-
-    BannedID:
-      description: Immutable public user identifier
-      schema: { $ref: "#/components/schemas/UserID" }
-      name: bannedid
-      in: path
-      required: true
-
-    FollowingID:
-      description: Immutable public user identifier
-      schema: { $ref: "#/components/schemas/UserID" }
-      name: followingid
-      in: path
-      required: true
   
   responses:
   
@@ -88,24 +74,24 @@ components:
       description: Public immutable server-defined unique identifier
       type: string
       pattern: ^[a-zA-Z0-9-]+$
-      minLength: 35
-      maxLength: 37
+      minLength: 1
+      maxLength: 20
       readOnly: true
     
     MediaID:
       description: Unique media identifier
       type: string
       pattern: ^[a-zA-Z0-9-]+$
-      minLength: 35
-      maxLength: 37
+      minLength: 1
+      maxLength: 20
       readOnly: true
     
     CommentID:
       description: Unique comment identifier
       type: string
       pattern: ^[a-zA-Z0-9-]+$
-      minLength: 35
-      maxLength: 37
+      minLength: 1
+      maxLength: 20
       readOnly: true
     
     Profile:
@@ -122,13 +108,13 @@ components:
             It can be movie quotes, description of the user, a sequence of numbers, anything.
             It is displayed to other users underneath the profile picture.
           type: string
-          pattern: ^.*$
+          pattern: '^[a-zA-Z0-9,._:;?!\x27\- ]*$'
           minLength: 0
           maxLength: 150
         ProfilePic:
           description: Photo that is displayed next to username, bio and counts in the user profile
           type: string
-          pattern: ^(https?:\/\/.*\.(?:png|jpg|jpeg))$
+          pattern: '^[a-zA-Z0-9-_]*\.(png|jpg|jpeg)$'
           minLength: 0
           maxLength: 200
         NMedia:
@@ -161,13 +147,13 @@ components:
             It can be movie quotes, description of the photo, a sequence of numbers, anything.
             It is displayed to other users underneath the photo.
           type: string
-          pattern: ^.*$
+          pattern: '^[a-zA-Z0-9,._:;?!\x27\- ]*$'
           minLength: 0
           maxLength: 50
         Photo:
           description: Photo content of the user post
           type: string
-          pattern: ^(https?:\/\/.*\.(?:png|jpg|jpeg))$
+          pattern: '^[a-zA-Z0-9-_]*\.(png|jpg|jpeg)$'
           minLength: 0
           maxLength: 200
         NLikes:
@@ -192,7 +178,7 @@ components:
         ProfilePic:
           description: URL to profile picture of the user
           type: string
-          pattern: ^(https?:\/\/.*\.(?:png|jpg|jpeg))$
+          pattern:  '^[a-zA-Z0-9-_]*\.(png|jpg|jpeg)$'
           minLength: 0
           maxLength: 200
               
@@ -213,7 +199,7 @@ components:
         Content:
           description: Content of the comment
           type: string
-          pattern: ^.*$
+          pattern:  '^[a-zA-Z0-9,._:;?!\x27\- ]*$'
           minLength: 0
           maxLength: 150
           
@@ -236,11 +222,18 @@ paths:
         required: true
 
       responses:
+        '200':
+          description: User already existed. Returning user ID present in the database.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserID' }
         '201':
-          description: User log-in action successful 
+          description: User created. Returning created user ID.
           content:
               application/json: 
                 schema: { $ref: "#/components/schemas/UserID" }
+        '400': {description: Bad request. Invalid username or not parseable JSON}
+        '500': {$ref: "#/components/responses/InternalServerError" }
   
   /users/:
 
@@ -255,7 +248,7 @@ paths:
         - name: Username
           in: query
           description: Username to filter by
-          required: true
+          required: false
           schema:
               $ref: '#/components/schemas/Username'
       
@@ -293,9 +286,10 @@ paths:
           content:
             application/json: 
               schema: { $ref: "#/components/schemas/Profile" }
-
+        "204": 
+          description: No content. Update occured but didn't send back any representation or description.
         "400": { $ref: "#/components/responses/BadRequest" }
-        '403': {$ref : '#/components/responses/UnAuthorized'}
+        "403": {$ref : '#/components/responses/UnAuthorized'}
         "500": {$ref: "#/components/responses/InternalServerError"}
     
     put:
@@ -316,7 +310,8 @@ paths:
           content:
             application/json: 
               schema: { $ref: "#/components/schemas/Profile" }
-
+        "204":
+          description: No content. Update occured but didn't send back any representation or description.
         "400": { $ref: "#/components/responses/BadRequest" }
         '403': {$ref : '#/components/responses/UnAuthorized'}
         "500": {$ref: "#/components/responses/InternalServerError"}
@@ -416,9 +411,7 @@ paths:
                 items: { $ref: "#/components/schemas/Media" }
                 minItems: 0
                 maxItems: 200
-        "400": { $ref: "#/components/responses/BadRequest" }
-        '403': {$ref : '#/components/responses/UnAuthorized'}
-        "500": { $ref: "#/components/responses/InternalServerError" }
+        "204": { description: No content. User still doesn't follow any user.}
   
   /users/{userid}/banned/:
     parameters:
@@ -454,7 +447,12 @@ paths:
   /users/{userid}/banned/{bannedid}:
     parameters:
       - $ref: "#/components/parameters/UserID"
-      - $ref: "#/components/parameters/BannedID"
+      - name: bannedid
+        in: path
+        required: true
+        description: User who is banning
+        schema:
+          { $ref: "#/components/schemas/UserID" }
 
     put:
       security:
@@ -479,8 +477,7 @@ paths:
                 items: { $ref: "#/components/schemas/ShortProfile" }
                 minItems: 0
                 maxItems: 999
-        
-        "200": {description: OK}
+        "204": {description: User already banned.}
         "400": { $ref: "#/components/responses/BadRequest" }
         '403': {$ref : '#/components/responses/UnAuthorized'}
         "404": { description: User not found }
@@ -524,9 +521,6 @@ paths:
                 items: { $ref: "#/components/schemas/ShortProfile" }
                 minItems: 0
                 maxItems: 999
-        "400": { $ref: "#/components/responses/BadRequest" }
-        '403': {$ref : '#/components/responses/UnAuthorized'}
-        "500": { $ref: "#/components/responses/InternalServerError" }
   
   /users/{userid}/followings/:
     parameters:
@@ -553,15 +547,16 @@ paths:
                 items: { $ref: "#/components/schemas/ShortProfile" }
                 minItems: 0
                 maxItems: 999
-        "400": { $ref: "#/components/responses/BadRequest" }
-        '403': {$ref : '#/components/responses/UnAuthorized'}
-        "500": { $ref: "#/components/responses/InternalServerError" }
-    
   
   /users/{userid}/followings/{followingid}:
     parameters:
-      - $ref: "#/components/parameters/FollowingID"
       - $ref: "#/components/parameters/UserID"
+      - name: followingid
+        in: path
+        required: true
+        description: User who is following
+        schema:
+          { $ref: "#/components/schemas/UserID" }
     
     put:
       security:
@@ -670,7 +665,17 @@ paths:
         "400": { $ref: "#/components/responses/BadRequest" }
         '403': {$ref : '#/components/responses/UnAuthorized'}
         "500": { $ref: "#/components/responses/InternalServerError" }
-
+  
+  /media/{mediaid}/likes/{likeid}:
+    parameters:
+      - $ref: "#/components/parameters/MediaID"
+      - name: likeid
+        in: path
+        required: true
+        description: User who is liking the photo
+        schema:
+          { $ref: "#/components/schemas/UserID" }
+    
     put:
       security:
       - bearerAuthentication: []
@@ -705,7 +710,7 @@ paths:
         "403": { $ref: "#/components/responses/UnAuthorized" }
         "404": { description: Your like was not found }
         "500": { $ref: "#/components/responses/InternalServerError"}
-  
+
   /media/{mediaid}/comments/:
     parameters:
       - $ref: "#/components/parameters/MediaID"
@@ -729,9 +734,6 @@ paths:
                 items: { $ref: "#/components/schemas/Comment" }
                 minItems: 0
                 maxItems: 99
-        "400": { $ref: "#/components/responses/BadRequest" }
-        "403": { $ref: "#/components/responses/UnAuthorized" }
-        "500": { $ref: "#/components/responses/InternalServerError"}
     
     post:
       security:
