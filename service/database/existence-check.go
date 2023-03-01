@@ -21,6 +21,21 @@ func (db *appdbimpl) ExistenceCheck(id string, what string) bool {
 		// 2 - error occurred when looking for username -> return false ( no possibly harmful operation is performed)
 		return false
 	}
+	// user case
+	if what == "username" {
+		// 1 - get userid of the user
+		_, err := db.GetUserID(id)
+		if errors.Is(err, ErrUserProfileDoesNotExists) {
+			// err user does not exist -> return false
+			return false
+		}
+		if err == nil {
+			// user exists -> return true
+			return true
+		}
+		// 2 - error occurred when looking for username -> return false (no possibly harmful operation is performed)
+		return false
+	}
 	// media case
 	if what == "media" {
 		// 1 - get media

@@ -10,11 +10,15 @@ var (
 
 // Comment struct
 type Comment struct {
+	// unique identifier for the comment
 	CommentID string `json:"commentid"`
-	// notice that author name was not stored in the database struct of media but it is needed here in order to display it
+	// username of the author of the comment
+	// notice that author name is not stored in the database but it is needed here in order to display it
 	AuthorName string `json:"author"`
-	Date       string `json:"date"`
-	Content    string `json:"content"`
+	// date and time of the comment
+	Date string `json:"date"`
+	// body of the comment
+	Content string `json:"content"`
 }
 
 // Function to map a database comment to the comment api struct

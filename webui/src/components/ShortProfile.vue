@@ -8,7 +8,6 @@ export default {
         pic: { 
             type: String,
             default:
-                // select default profile pic here??
                 ""
         },
         size:{
@@ -18,6 +17,11 @@ export default {
         username:{
             type: String,
             default: 'unknown'
+        },
+    },
+    data: function () {
+        return {
+            sp: "",
         }
     },
     methods: {
@@ -33,7 +37,28 @@ export default {
             }
             this.loading = false;
         },
-    }
+        async getImage() {
+            this.loading = true;
+            this.errormsg = null;
+            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
+                error => { return Promise.reject(error); });
+            try {
+                let response = await this.$axios.get("/images/?image_name=" + this.pic, { responseType: 'blob' })
+                // Get the image data as a Blob object
+                var imgBlob = response.data;
+                // Create an object URL from the Blob object
+                this.sp = URL.createObjectURL(imgBlob);
+            } catch (e) {
+                this.errormsg = e.response.data.error.toString();
+            }
+            this.loading = false;
+        },
+    },
+    mounted() {
+        if (this.pic) {
+            this.getImage()
+        }
+    },
 }
 </script>
 
@@ -41,7 +66,7 @@ export default {
     <header class="header">
         <div class="header-content">
             <figure class="profilePic">
-                <img :src="pic" :width="size" :height="size" />
+                <img :src=this.sp :width="size" :height="size" />
                 <div class="short-profile-username">
                     <button v-if="!loading" class="miao" @click="ToProfile(this.username)">
         {{ this.username }}
@@ -55,17 +80,18 @@ export default {
 
 <style>
 .header {
+    margin-top: 10px;
     display: flex;
     align-items: center;
     height: 60px;
     padding-left: 10px;
     padding-right: 16px;
-    background-color:rgb(237, 246, 249);
-    border-radius: 20px;
+    background-color:#DDBEA8;
+    border-radius: 30px ;
+
 
 }
 .miao {
-   color:rgb(237, 246, 249);
    border: 2px solid #ffffff;
    border-radius: 20px;
    padding-left: 10px;
@@ -83,7 +109,7 @@ export default {
   margin-top: 14px;
 }
 .profilePic img {
-  border: 2px solid #f4ba00;
+  border: 2px solid #2b1e4f;
   border-radius: inherit;
 }
 .short-profile-username {
@@ -92,7 +118,18 @@ export default {
     font-size: 16px;
     align-items: center;
     color: black;
-    background-color: rgb(237, 246, 249);
+    background-color:#DDBEA8;
+}
+.short-profile-username button {
+
+    margin-left: 9px;
+    font-size: 16px;
+    align-items: center;
+    color: beige;
+    background-color: #2b1e4f;
+    font-family: "Copperplate";
+    text-transform: uppercase;
+    border-color: #2b1e4f;
 }
 
 </style>

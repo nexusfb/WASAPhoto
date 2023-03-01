@@ -1,9 +1,6 @@
-// View of WASA Photo login page
-
 <script>
 
 export default {
-
     data: function() {
         return {
             errormsg: null,
@@ -47,7 +44,7 @@ export default {
         <div class="login-container">
             <h1> WASA Photo </h1>
             <div class="register">
-                <input type="text" v-model="User.username" placeholder="username">
+                <input type="text" v-model="User.username" placeholder="enter username">
                 <button v-if="!loading" class="login-button" type="button" @click="LoginUser">LOGIN</button>
                 <LoadingSpinner v-if="loading"></LoadingSpinner>
             </div>
@@ -58,9 +55,9 @@ export default {
 
 <style scoped>
 .background {
-  background-color: #02587b;
-  margin: -10px;
-  height: 100vh;
+  background-color: #160F29;
+  margin: -50px;
+  height: 110vh;
   display: flex;
   flex-direction: column;
   text-align: center;
@@ -69,41 +66,44 @@ export default {
     margin-right: auto;
     margin-left: auto;
 }
-.logo {
-    width: 100px;
-    margin-top: 50px;
-}
 .login-container {
-    margin-top: 350px;
-    width: 300px;
-    height: 200px;
-    background-color:  #e0e8eb;
+    margin-top: 370px;
+    width: 400px;
+    height: 300px;
+    background-color:  #DDBEA8;
     position: relative;
     border-radius: 25px;
 }
 .login-container h1 {
-    margin-top: 15px;
+    margin-top: 80px;
+    color:#160F29;
+    font-family: "Copperplate";
+    text-transform: uppercase;
+    
 }
 .register input{
-    position: absolute;
-    top: 66px;
-    left: 45px;
+    position: relative;
+    top: 10px;
+    left: 5px;
     width: 70%;
     height: 40px;
     padding-left: 15px; 
-    border: 1px solid hsl(0, 0%, 100%);
+    border: 1px solid #DDBEA8;
+    background-color:  #f3dfc1;
+    color:#160F29;
 }
 .login-button{
+    position: relative;
     border-radius: 20px;
-    margin-top: 80px;
-    width: 70%;
+    margin-top: 20px;
+    width: 50%;
     height: 40px;
     border: 1px solid rgb(255, 255, 255);
-    background: #f4ba00;
-    font-size: 14px;
-    font-family: "Rubik", sans-serif;
+    background: #368F8B;
+    font-size: 15px;
+    font-family: "Copperplate";
     font-weight: 400;
-    color: white;
+    color: #f3dfc1;
     letter-spacing: 4px;
     text-transform: uppercase;
     text-decoration: none;

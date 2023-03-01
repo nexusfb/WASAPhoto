@@ -1,7 +1,6 @@
 <script>
 import ShortProfile from "@/components/ShortProfile.vue"
 export default {
-    name:Media;
     props: {
         media:"",
 

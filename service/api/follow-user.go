@@ -1,7 +1,6 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -17,7 +16,6 @@ At the end followers and following are in the same table so it does not matter
 I chose this way because users/userid/banned will need userid to be the logged user so I wanted to keep continuity between them */
 func (rt *_router) followUser(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	// 1 - get followerID from path
-	fmt.Println("FOLLOW")
 	followerID := ps.ByName("userid")
 	followerID = strings.TrimPrefix(followerID, ":userid=")
 	if len(followerID) == 0 {

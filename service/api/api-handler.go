@@ -31,6 +31,7 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.DELETE("/media/:mediaid", rt.wrap(rt.deletePhoto))     // delete media
 	rt.router.GET("/media/:mediaid", rt.wrap(rt.getMedia))           // get media
 	rt.router.GET("/users/:userid/media/", rt.wrap(rt.getUserMedia)) // get user media
+	rt.router.GET("/images/", rt.wrap(rt.getImage))                  // Get Image
 
 	// LIKES routes
 	rt.router.PUT("/media/:mediaid/likes/", rt.wrap(rt.likePhoto))      // like a media

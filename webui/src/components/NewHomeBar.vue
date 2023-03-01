@@ -82,10 +82,10 @@ nav {
     margin-right: auto;
 }
 .font-style {
-    font-size: 1.5em;
-    font-family: "Rubik", sans-serif;
+    font-size: 1.3em;
+    font-family: "Copperplate", sans-serif;
     font-weight: 400;
-    color: white;
+    color: #fcecd4;
     text-decoration: none;
 }
 .nav-wrapper {
@@ -93,11 +93,11 @@ nav {
     border: 2px solid var(--bo1);
     overflow: hidden;
     position: fixed;
-    width: 601px;
-    height: 12vh;
+    width: 1450px;
+    height: 5vh;
     top: 0;
     z-index: 99;
-    background-color: burlywood;
+    background-color: #DDBEA8;
     border-radius: 35px;
 }
 .center {
@@ -111,6 +111,7 @@ nav {
     gap: 1rem;
     border-left: 1px solid var(--bo1);
     justify-content: center;
+    color:#DDBEA8
 }
 #nav-home-section,
 #nav-search-section,

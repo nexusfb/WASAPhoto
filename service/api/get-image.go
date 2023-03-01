@@ -14,39 +14,23 @@ import (
 )
 
 // get photo from photos folder
-func (rt *_router) getPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-	/*// 1 - open file
-	img, err := os.Open("." + r.URL.Path)
-	if err != nil {
-		// error opening file
-		ctx.Logger.Error("error: could not open photo file")
-		w.WriteHeader(http.StatusInternalServerError)
-	}
-	defer img.Close()
+func (rt *_router) getImage(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 
-	// 2 - prepare response
-	w.Header().Set("Content-Type", "image/jpeg")
-	_, err = io.Copy(w, img)
-	if err != nil {
-		// error copying image
-		ctx.Logger.Error("error: could not copy photo")
-		w.WriteHeader(http.StatusInternalServerError)
-	}*/
-	var media string
-	if r.URL.Query().Has("media") {
-		media = r.URL.Query().Get("media")
+	var image_file_name string
+	if r.URL.Query().Has("image_name") {
+		image_file_name = r.URL.Query().Get("image_name")
 
 	} else {
-		// No image field found
+		// No image field founded
 		w.WriteHeader(http.StatusBadRequest)
-		_, _ = w.Write([]byte(`{"error": "query has no field media"}`))
+		_, _ = w.Write([]byte(`{"error": "query has no field image_name"}`))
 		return
 	}
 
 	// Obtain the path for the image in the server
 	image_directory := "/tmp"
 	folder_name := "images"
-	path := filepath.Join(image_directory, folder_name, media)
+	path := filepath.Join(image_directory, folder_name, image_file_name)
 
 	// Open the image
 	img, err := os.Open(path)
@@ -65,5 +49,4 @@ func (rt *_router) getPhoto(w http.ResponseWriter, r *http.Request, ps httproute
 		ctx.Logger.WithError(err).Error("error: could not copy photo")
 		w.WriteHeader(http.StatusInternalServerError)
 	}
-
 }

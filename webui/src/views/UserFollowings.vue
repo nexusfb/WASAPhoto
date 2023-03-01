@@ -1,3 +1,4 @@
+
 <script>
 import { ref } from 'vue';
 import ShortProfile from "@/components/ShortProfile.vue"
@@ -23,7 +24,7 @@ export default {
 			this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
             error => {return Promise.reject(error);});
             try {
-                this.$axios.get("/users/:userid="+this.profile.userid+"/followings/").then(response => (this.users = response.data));
+                this.$axios.get("/users/:userid="+localStorage.getItem('Authorization')+"/followings/").then(response => (this.users = response.data));
             } catch (e) {
                 this.errormsg = e.toString();
             }
@@ -42,25 +43,6 @@ export default {
             }
             this.loading = false;
         },
-        async GetProfile() {
-            this.loading = true;
-            this.errormsg = null;
-			this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
-            error => {return Promise.reject(error);});
-            try {
-                let response = await this.$axios.get("/users/?username="+this.$route.params.username)
-				this.profile = response.data;
-            } catch (e) {
-                this.errormsg = e.toString();
-				
-            }
-            this.loading = false;
-        },
-        refresh() {
-			this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
-                error => { return Promise.reject(error); });
-			this.GetProfile().then(() => this.GetUserList());
-		},
 
         filteredList() {
         return this.users.filter((user) => user.username.toLowerCase().includes(this.input.toLowerCase()) );
@@ -69,71 +51,73 @@ export default {
     },
 },
 	mounted() {
-		this.refresh();
+		this.GetUserList();
+        this.filteredList();
 	}
 }
 </script>
 <template>
-    <div class="Home">
-		<NavBar :profilo="this.$route.params.username"/>
-		
-	</div>
-    <h3>FOLLOWINGS</h3>
-   <div class="item user" v-for="user in filteredList()" :key="user">
-    <ShortProfile  :username="user.username" :pic="user.pic"/>
+   <div class="page_b">
     
+	<div class="Bar_b">
+		<NavBar :profilo="this.$route.params.username"/>
+	</div>
+    <header class="summary_page_b">
+        <h3>FOLLOWINGS</h3>
+        <div class="item-user2" v-for="user in filteredList()" :key="user">
+    <ShortProfile  :username="user.username" :pic="user.pic"/>
    </div>
-   <div class="item error" v-if="input&&!filteredList().length">
-      <p>No results found!</p>
+   <div class="item-error" v-if="!filteredList().length">
+      <h2>No results found!</h2>
    </div>
+    </header>
+</div>
  </template>
+
  <style>
- @import url("https://fonts.googleapis.com/css2?family=Montserrat&display=swap");
- 
- * {
-   padding: 0;
-   margin: 0;
-   box-sizing: border-box;
-   font-family: "Montserrat", sans-serif;
- }
- 
- body {
-   padding: 20px;
-   min-height: 100vh;
-   background-color: rgb(234, 242, 255);
- }
- 
- input {
-   display: block;
-   width: 350px;
-   margin: 20px auto;
-   padding: 10px 45px;
-   background-size: 15px 15px;
-   font-size: 16px;
-   border: none;
-   border-radius: 5px;
-   box-shadow: rgba(50, 50, 93, 0.25) 0px 2px 5px -1px,
-     rgba(0, 0, 0, 0.3) 0px 1px 3px -1px;
- }
- .titolo{
+.page_b{
+background-color: #160F29;
+  margin: -50px;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+}
+.Bar_b {
+    position: relative;
+    margin-top:50px;
+	max-width: 601px;
+	margin-left: 120px;
+}
+.summary_page_b{
+    position: relative;
+    margin-top: 50px;
+    height: 6000px;
+    padding-left: 10px;
+    padding-right: 16px;
+    background-color:#246A73;
+    border-radius: 20px;
+}
+.page_b h3 {
+    position: relative;
+    margin-top: 30px;
+	font-size: 45px;
     text-align: center;
-    background-color: red;
- }
- .item {
-   width: 350px;
-   margin: 0 auto 10px auto;
-   padding: 10px 20px;
-   color: white;
-   border-radius: 5px;
-   box-shadow: rgba(0, 0, 0, 0.1) 0px 1px 3px 0px,
-     rgba(0, 0, 0, 0.06) 0px 1px 2px 0px;
- }
- 
- .user {
-   cursor: pointer;
- }
- 
- .error {
-   background-color: tomato;
- }
+	color:beige;
+    font-family: "Copperplate";
+    text-transform: uppercase;
+}
+.item-error h2{
+    position: relative;
+    margin-top: 30px;
+	font-size: 25px;
+    text-align: center;
+	color:beige;
+    font-family: "Copperplate";
+    text-transform: uppercase;
+}
+.item-user2{
+    width: 500px;
+    margin-left: 640px;
+}
+
  </style>

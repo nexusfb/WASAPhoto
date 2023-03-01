@@ -1,22 +1,20 @@
 package api
 
 import (
-	"errors"
 	"net/http"
 
 	"strings"
 
 	"github.com/julienschmidt/httprouter"
 	"github.com/nexusfb/WASAPhoto/service/api/reqcontext"
-	"github.com/nexusfb/WASAPhoto/service/database"
 )
 
 // Delete user profile with userid in the path
 func (rt *_router) deleteUserProfile(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	// 1 - take userid from the path
-	user := ps.ByName("userid")
-	user = strings.TrimPrefix(user, ":userid=")
-	if len(user) == 0 {
+	userID := ps.ByName("userid")
+	userID = strings.TrimPrefix(userID, ":userid=")
+	if userID == "" {
 		// userid is empty -> return error
 		ctx.Logger.Error("error: userid is empty")
 		w.WriteHeader(http.StatusBadRequest)
@@ -28,7 +26,7 @@ func (rt *_router) deleteUserProfile(w http.ResponseWriter, r *http.Request, ps 
 	token = strings.TrimPrefix(token, "Bearer ")
 
 	// 3 - logged user can delete only its own profile, check if it is his profile
-	if token != user {
+	if token != userID {
 		ctx.Logger.Error("error: could not delete user because you are not authorized ")
 		w.WriteHeader(http.StatusUnauthorized)
 		return
@@ -38,26 +36,31 @@ func (rt *_router) deleteUserProfile(w http.ResponseWriter, r *http.Request, ps 
 
 	// here only if logged user is trying to delete his profile
 
-	// 7 - check if logged user already follows the specified user
-	if !rt.db.ExistenceCheck(token, "user") {
-		// logged user does not follow the specified user
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-
-	// 4 - call delete user profile database function
-	err := rt.db.DeleteUserProfile(user)
-	if errors.Is(err, database.ErrUserProfileDoesNotExists) {
-		// should never happen
-		// database function returned no user profile exists -> return
-		w.WriteHeader(http.StatusNotFound)
-		return
-	} else if err != nil {
-		// database function returned error while deleting -> return error
-		ctx.Logger.WithError(err).WithField("userid", user).Error("can't delete the user profile")
+	// 4 - delete user images from the folder
+	userMedia, err := rt.db.GetUserMedia(userID)
+	if err != nil {
+		ctx.Logger.WithError(err).Error("can't get user media")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	// 5 - return success (no content)
+	for _, media := range userMedia {
+		err := rt.deleteImageFromFolder(media.MediaID, w, ctx)
+		if err != nil {
+			ctx.Logger.WithError(err)
+			w.WriteHeader(http.StatusInternalServerError)
+			return
+		}
+	}
+
+	// 5 - call delete user profile database function
+	err = rt.db.DeleteUserProfile(userID)
+	if err != nil {
+		// database function returned error while deleting -> return error
+		ctx.Logger.WithError(err).WithField("userid", userID).Error("can't delete the user profile")
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	// 6 - return success (no content)
 	w.WriteHeader(http.StatusNoContent)
 }
