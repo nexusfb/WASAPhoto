@@ -12,6 +12,7 @@ import MyStream from "../views/NewStreamView.vue";
 import UserBans from "../views/UserBans.vue";
 import UserFollowers from "../views/UserFollowers.vue";
 import UserFollowings from "../views/UserFollowings.vue";
+import Likes from "../views/Likes.vue";
 
 /*
 import { createRouter, createWebHashHistory } from 'vue-router'
@@ -40,6 +41,7 @@ const router = createRouter({
 		{path: '/users/:username/changeUsername', component: ChangeUsernameView, props: true},
 		{path: '/search', component: SearchUsersView, props: true},
 		{path: '/media/:mediaid/comments/', component: MediaComments, props: true},
+		{path: '/media/:mediaid/likes/', component: Likes, props: true},
 		{path: '/stream', component: MyStream, props: true},
 		/*
 		{ path: '/', component: Login, name: 'Login', alias: "/login" },

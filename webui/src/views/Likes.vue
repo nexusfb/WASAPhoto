@@ -4,7 +4,6 @@ import { ref } from 'vue';
 import ShortProfile from "@/components/ShortProfile.vue"
 import NavBar from "@/components/NewHomeBar.vue";
 export default {
-    props:['username'],
     components: {
         ShortProfile,
         NavBar
@@ -19,13 +18,13 @@ export default {
         }
     },
     methods: {
-        async GetUserList() {
+        async GetLikes() {
             this.loading = true;
             this.errormsg = null;
 			this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
             error => {return Promise.reject(error);});
             try {
-                this.$axios.get("/users/:userid="+this.$route.params.username+"/followers/").then(response => (this.users = response.data));
+                this.$axios.get("/media/:mediaid="+this.$route.params.mediaid+"/likes/").then(response => (this.users = response.data));
             } catch (e) {
                 this.errormsg = e.toString();
             }
@@ -52,7 +51,7 @@ export default {
     },
 },
 	mounted() {
-		this.GetUserList();
+		this.GetLikes();
         this.filteredList();
 	}
 }
@@ -64,12 +63,12 @@ export default {
 		<NavBar :profilo="this.$route.params.username"/>
 	</div>
     <header class="summary_page_b">
-        <h3>FOLLOWERS</h3>
+        <h3>LIKES</h3>
         <div class="item-user2" v-for="user in filteredList()" :key="user">
     <ShortProfile  :username="user.username" :pic="user.pic"/>
    </div>
    <div class="item-error" v-if="!filteredList().length">
-      <h2>No results found!</h2>
+      <h2>No likes yet!</h2>
    </div>
     </header>
 </div>

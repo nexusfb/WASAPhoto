@@ -3,12 +3,12 @@
 
 <script>
 // import post & nav bar
-import Media from '@/components/Media.vue'
+import FinalMedia from '@/components/FinalMedia.vue'
 import NavBar from '@/components/NewHomeBar.vue'
 export default {
 	name: 'stream',
 	components: {
-		Media,
+		FinalMedia,
 		NavBar
 	},
 	data: function () {
@@ -40,56 +40,74 @@ export default {
 }
 </script>
 
-<template>
-    <div class="Home">
-		<NavBar :profilo="this.$route.params.username"/>
-		
-	</div>
-	<div class="stream">
-        <div class="timeline">
-		    <Media v-for="m in this.media" :media="m"/>
-        </div>
-       
-		<div class="sidebar">
-			<HomeBar />
-		</div>
-	</div>
-</template>
 
-<style>
-.stream {
-	margin-left: auto;
-	margin-right: auto;
-	padding-bottom: 10vh;
-    background-color: #02587b;
-}
-.timeline {
-    align-items: center;
-    max-width: 700px;
-	margin-left: 400px;
-	margin-right: auto;
-	padding-bottom: 10vh;
-    background-color: #6bd5ff;
-}
-@media (--t) {
-	.stream {
-		max-width: none;
-		display: grid;
-		grid-template-columns: 1fr 295px;
-		grid-gap: 28px;
-	}
-}
-.sidebar {
-	display: none;
-}
-@media (--t) {
-	.sidebar {
-		display: block;
-		margin-top: 16px;
-	}
-	.sidebar p {
-		position: sticky;
-		top: calc(53px + 30px + 18px);
-	}
-}
-</style>
+
+<template>
+	<div class="stream_page">
+	 
+	 <div class="Bar_b">
+		 <NavBar :profilo="this.$route.params.username"/>
+	 </div>
+	 <header class="summary_page_b">
+		 <h3>MY STREAM</h3>
+		 <div class="stream_timeline">
+		 <FinalMedia	v-on:refresh-parent="refresh" v-for="post in this.media" :key="post.id" :pp="post.authorpic" :photoId="post.id"
+				:owner="post.author" :image="post.photo"
+				:timestamp="post.date" :caption="post.caption" :likesCount="post.nlikes"
+				:commentsCount="post.ncomments" :liked="post.liked" :logged="this.$route.params.username"/>
+	 </div>
+	 </header>
+ </div>
+  </template>
+ 
+  <style>
+ .stream_page{
+ background-color: #160F29;
+   margin: -50px;
+   display: flex;
+   flex-direction: column;
+   text-align: center;
+ }
+ .Bar_b {
+	 position: relative;
+	 margin-top:50px;
+	 max-width: 601px;
+	 margin-left: 120px;
+ }
+ .summary_page_b{
+	 position: relative;
+	 margin-top: 50px;
+	 height: 6000px;
+	 padding-left: 10px;
+	 padding-right: 16px;
+	 background-color:#246A73;
+	 border-radius: 20px;
+ }
+ .stream_page h3 {
+	 position: relative;
+	 margin-top: 30px;
+	 font-size: 45px;
+	 text-align: center;
+	 color:beige;
+	 font-family: "Copperplate";
+	 text-transform: uppercase;
+ }
+ .stream_timeline {
+	margin-left: 580px;
+ }
+ .item-error h2{
+	 position: relative;
+	 margin-top: 30px;
+	 font-size: 25px;
+	 text-align: center;
+	 color:beige;
+	 font-family: "Copperplate";
+	 text-transform: uppercase;
+ }
+ 
+ .item-user2{
+	 width: 500px;
+	 margin-left: 640px;
+ }
+ 
+  </style>

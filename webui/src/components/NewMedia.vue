@@ -56,7 +56,27 @@ export default {
             }
             this.loading = false;
         },
-    }
+        async getImage() {
+            this.loading = true;
+            this.errormsg = null;
+            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
+                error => { return Promise.reject(error); });
+            try {
+                let response = await this.$axios.get("/images/?image_name=" + this.pic, { responseType: 'blob' })
+                // Get the image data as a Blob object
+                var imgBlob = response.data;
+                // Create an object URL from the Blob object
+                this.photo = URL.createObjectURL(imgBlob);
+            } catch (e) {
+                this.errormsg = e.response.data.error.toString();
+            }
+            this.loading = false;
+        },
+    },mounted() {
+        if (this.pic) {
+            this.getImage()
+        }
+    },
 }
 </script>
 

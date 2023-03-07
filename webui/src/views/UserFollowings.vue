@@ -24,7 +24,7 @@ export default {
 			this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
             error => {return Promise.reject(error);});
             try {
-                this.$axios.get("/users/:userid="+localStorage.getItem('Authorization')+"/followings/").then(response => (this.users = response.data));
+                this.$axios.get("/users/:userid="+this.$route.params.username+"/followings/").then(response => (this.users = response.data));
             } catch (e) {
                 this.errormsg = e.toString();
             }

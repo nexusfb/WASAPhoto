@@ -1,9 +1,9 @@
 // Page of user profile with username, caption, profile picture, nmedia, nfollowers, nfollowing, user media
 <script>
-import NewMedia from "@/components/NewMedia.vue";
+import FinalMedia from "@/components/FinalMedia.vue";
 import NavBar from "@/components/NewHomeBar.vue";
 export default {
-    components: { NewMedia, NavBar},
+    components: { FinalMedia, NavBar},
     data: function() {
         return {
             loading : false,
@@ -309,10 +309,10 @@ export default {
 			this.changingusername = false;
         },
 		async getFollowers() {
-            this.$router.push({ path: '/users/'+this.profile.username+'/followers/'})
+            this.$router.push({ path: '/users/'+this.profile.userid+'/followers/', props: true})
         },
 		async getFollowings() {
-            this.$router.push({ path: '/users/'+this.profile.username+'/followings/'})
+            this.$router.push({ path: '/users/'+this.profile.userid+'/followings/'})
         },
 		async getBanned() {
             this.$router.push({ path: '/users/'+this.profile.username+'/bans/'})
@@ -425,7 +425,8 @@ export default {
         <div class="newusername">
           <form @submit.prevent="changename">
             <div class="upload-space-username">
-				<h2>change username</h2>
+				<h2>change username
+                </h2>
 			  <div class="form-username">
 				<h3>insert username</h3>
             	<input type="text" v-model="profile.username" placeholder= this.profile.username>
@@ -460,11 +461,6 @@ export default {
 		
 	</div>
 
-
-			
-		
-
-
             <LoadingSpinner v-if="loading"></LoadingSpinner>
 
 
@@ -474,43 +470,14 @@ export default {
 				</div>
 			</div>
 
-		<div class="card" v-if="!loading" v-for="m in media">
-			<div class="card-header">
-				Media
-			</div>
-			<div class="card-body">
-				<p class="card-text">
-					<img :src=m.photo :width="500" :height="500"><br />
-					Caption: {{ m.caption }}<br />
-					nlikes: {{ m.nlikes }}<br />
-					ncomments: {{ m.ncomments }}<br />
-					liked: {{ this.comment }}
-				</p>
-				<button v-if="!loading&&(this.profile.userid == logged)" type="button" class="btn btn-primary" @click="deleteMedia(m)">
-                delete media
-            	</button>
-
-				<div class="mb-3">
-        		<label for="description" class="form-label">Comment</label>
-            	<input type="text" class="form-control" id="comment" v-model="comment" placeholder="comment here">
-        		</div>
-
-
-
-				<button v-if="!loading&&(this.profile.userid != logged)" type="button" class="btn btn-primary" @click="likeMedia(m)">
-                like media
-            	</button>
-				<button v-if="!loading&&(this.profile.userid != logged)" type="button" class="btn btn-primary" @click="unlikeMedia(m)">
-                unlike media
-            	</button>
-				<button v-if="!loading" type="button" class="btn btn-primary" @click="commentMedia(m)">
-                comment media
-            	</button>
-				<button v-if="!loading" type="button" class="btn btn-primary" @click="seeMediaComments(m)">
-                see media comments
-            	</button>
-			</div>
-		</div>
+			<header class="summary_page_b">
+		 <div class="stream_timeline">
+		 <FinalMedia	v-on:refresh-parent="refresh" v-for="post in media" :key="post.id" :pp="post.authorpic" :photoId="post.id"
+				:owner="post.author" :image="post.photo"
+				:timestamp="post.date" :caption="post.caption" :likesCount="post.nlikes"
+				:commentsCount="post.ncomments" :liked="post.liked" :logged="this.$route.params.username"/>
+	 </div>
+	 </header>
     </div>
 
 </template>
@@ -574,6 +541,7 @@ background-color: #160F29;
   width: 300px;
   align-items: center;
   margin-top:20px;
+  margin-left: 740px;
 }
 .column {
   padding: 2px;
@@ -677,7 +645,7 @@ margin: auto;
     width: 200px;
     background-color: #e8d1c1;
     color: #e8d1c1;
-    margin-left: 5px;
+    margin-left: -140px;
     margin-top: 270px;
 }
 .preview-space {
