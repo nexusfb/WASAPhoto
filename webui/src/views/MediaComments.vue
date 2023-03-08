@@ -1,11 +1,12 @@
+
 <script>
 import { ref } from 'vue';
-import CommentForm from "@/components/CommentForm.vue"
+import ShortProfile from "@/components/ShortProfile.vue"
 import NavBar from "@/components/NewHomeBar.vue";
 export default {
-    props:['mediaid'],
+    props:['username'],
     components: {
-        CommentForm,
+        ShortProfile,
         NavBar
     },
     data: function() {
@@ -13,50 +14,46 @@ export default {
             loading : false,
             errmsg : null,
             input: ref(""),
-            name:"",
-			comments:[],
-            logged: localStorage.getItem('Authorization'),
+            profile:"",
+			users:[],
         }
     },
     methods: {
-        async GetCommentsList() {
+        async GetUserList() {
             this.loading = true;
             this.errormsg = null;
 			this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
             error => {return Promise.reject(error);});
             try {
-                this.$axios.get("/media/:mediaid="+this.$route.params.mediaid+"/comments/").then(response => (this.comments = response.data));
+                this.$axios.get("/users/:userid="+this.$route.params.username+"/followers/").then(response => (this.users = response.data));
             } catch (e) {
                 this.errormsg = e.toString();
             }
             this.loading = false;
         },
 
-        async GetUsername() {
+        async ToProfile(name) {
             this.loading = true;
             this.errormsg = null;
-			this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
+            this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
             error => {return Promise.reject(error);});
             try {
-                let response = await this.$axios.get("/id")
-				this.name = response.data;
+                this.$router.push({ path: '/users/'+name })
             } catch (e) {
-                this.errormsg = e.
-                toString();
-				
+                this.errormsg = e.toString();
             }
             this.loading = false;
         },
-        async refresh() {
-			await this.GetCommentsList()
-		},
+
+        filteredList() {
+        return this.users.filter((user) => user.username.toLowerCase().includes(this.input.toLowerCase()) );
 
         
     },
-
+},
 	mounted() {
-		this.GetCommentsList().then(this.GetUsername());
-        this.refresh();
+		this.GetUserList();
+        this.filteredList();
 	}
 }
 </script>
@@ -64,15 +61,15 @@ export default {
    <div class="page_b">
     
 	<div class="Bar_b">
-		<NavBar :profilo="this.name"/>
+		<NavBar :profilo="this.$route.params.username"/>
 	</div>
     <header class="summary_page_b">
-        <h3>COMMENTS</h3>
-        <div class="comment_page1">
-            <CommentForm	v-on:refresh-parent="refresh"  v-for="comment in comments" :key="comment.commentid" :commentid="comment.commentid" :pp="comment.authorpic" :owner="comment.author" :timestamp="comment.date" :body="comment.content" :logged="this.logged" :authorid="comment.authorid"/>
-        </div>
-    <div class="item-error" v-if="!comments.length">
-      <h2>No comments yet!</h2>
+        <h3>FOLLOWERS</h3>
+        <div class="item-user2" v-for="user in filteredList()" :key="user">
+    <ShortProfile  :username="user.username" :pic="user.pic"/>
+   </div>
+   <div class="item-error" v-if="!filteredList().length">
+      <h2>No results found!</h2>
    </div>
     </header>
 </div>
@@ -92,7 +89,15 @@ export default {
      max-width: 601px;
      margin-left: 120px;
  }
-
+ .summary_page_b{
+     position: relative;
+     margin-top: 50px;
+     height: 6000px;
+     padding-left: 10px;
+     padding-right: 16px;
+     background-color:#246A73;
+     border-radius: 20px;
+ }
  .page_b h3 {
      position: relative;
      margin-top: 30px;
@@ -101,9 +106,6 @@ export default {
      color:beige;
      font-family: "Copperplate";
      text-transform: uppercase;
- }
- .comment_page1 {
-    margin-left: 550px;
  }
  .item-error h2{
      position: relative;

@@ -14,7 +14,7 @@ type Media struct {
 	// unique identifier of the media
 	MediaID string `json:"id"`
 	// unique identifier of the author of the media
-	AuthorID string
+	AuthorID string `json:"authorid"`
 	// username of the author of the media
 	// notice that author name was not stored in the database struct of media but it is needed here in order to display it
 	AuthorName string `json:"author"`
@@ -42,6 +42,7 @@ func (m *Media) FromDatabase(media database.MediaDB, db database.AppDatabase, to
 	if err != nil {
 		return err
 	}
+	m.AuthorID = media.AuthorID
 	profile, err := db.GetUserProfile(m.AuthorName)
 	if err != nil {
 		return err

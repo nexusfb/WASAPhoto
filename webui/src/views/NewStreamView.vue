@@ -54,7 +54,7 @@ export default {
 		 <FinalMedia	v-on:refresh-parent="refresh" v-for="post in this.media" :key="post.id" :pp="post.authorpic" :photoId="post.id"
 				:owner="post.author" :image="post.photo"
 				:timestamp="post.date" :caption="post.caption" :likesCount="post.nlikes"
-				:commentsCount="post.ncomments" :liked="post.liked" :logged="this.$route.params.username"/>
+				:commentsCount="post.ncomments" :liked="post.liked" :logged="this.logged" :authorid="post.authorid"/>
 	 </div>
 	 </header>
  </div>

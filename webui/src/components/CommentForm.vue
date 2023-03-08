@@ -1,17 +1,13 @@
 <script>
 import ShortProfile from "@/components/ShortProfile.vue"
 export default {
-    name: "FinalMedia",
+    name: "CommentForm",
     props: {
         pp:String,
-        photoId: String,
+        commentid:  String,
         owner: String,
-        image: String,
         timestamp: String,
-        caption: String,
-        likesCount: Number,
-        commentsCount: Number,
-        liked: Boolean,
+        body: String,
         logged: String,
         authorid: String,
     },
@@ -29,9 +25,6 @@ export default {
             myPP: "",
             ppUrl: "",
             imgUrl: "",
-            likes: [],
-            comments: [],
-            ciao: "",
         }
     },
     methods: {
@@ -45,7 +38,6 @@ export default {
                 try {
                     let response = await this.$axios.get("/users/?username=" + this.owner)
                     this.myPP = response.data.profilepic
-                    this.ciao = response.data.bio
                 } catch (e) {
                     this.errormsg = e.response.data.error.toString();
                 }
@@ -53,12 +45,8 @@ export default {
             this.loading = false;
         },
         async getImages() {
-            if (this.image) {
-                let uri = await this.GetImage(this.image)
-                this.imgUrl = uri
-            }
-            if (this.profilePictureUrl) {
-                let uri = await this.GetImage(this.profilePictureUrl)
+            if (this.pp) {
+                let uri = await this.GetImage(this.pp)
                 this.ppUrl = uri
             }
         },
@@ -79,55 +67,15 @@ export default {
             this.loading = false;
             return uri
         },
-        async deletePhoto() {
+        async deleteComment() {
             this.loading = true;
             this.errormsg = null;
             try {
-                this.$axios.delete('/media/' + this.photoId).then(() => (this.$emit('refresh-parent'), this.liked = true)).catch(e => this.errormsg = e.response.data.error.toString())
+                this.$axios.delete('/comments/' + this.commentid).then(() => (this.$emit('refresh-parent'))).catch(e => this.errormsg = e.response.data.error.toString())
             } catch (e) {
                 this.errormsg = e.response.data.error.toString();
             }
             this.loading = false;
-        },
-        async refresh() {
-        },
-        async GetLikes() {
-            this.$router.push({ path: '/media/'+this.photoId+'/likes/', props: true})
-        },
-        async LikeClick() {
-            if (this.isMine) {
-                return
-            }
-            this.loading = true;
-            this.errormsg = null;
-            /* The interceptor is modifying the headers of the requests being sent by adding an 'Authorization' header with a value that is stored in the browser's local storage. Just keeping the AuthToken in the header.
-            If you don't use this interceptor, the 'Authorization' header with the token won't be added to the requests being sent, it can cause the requests to fail.
-            */
-            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
-                error => { return Promise.reject(error); });
-            if (this.liked) {
-                this.$axios.delete("/media/:mediaid="+ this.photoId + "/likes/").then(() => (this.$emit('refresh-parent'), this.liked = false)).catch(e => this.errormsg = e.response.data.error.toString());
-            } else {
-                this.$axios.put("/media/:mediaid="+ this.photoId + "/likes/").then(() => (this.$emit('refresh-parent'), this.liked = true)).catch(e => this.errormsg = e.response.data.error.toString())
-            }
-            this.loading = false;
-        },
-        async submitComment() {
-            this.loading = true;
-            this.errormsg = null;
-            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
-                error => { return Promise.reject(error); });
-            try {
-                let response = await this.$axios.post('/media/' + this.photoId + '/comments/', {
-                    content: this.textComment, author: this.username,
-                }).then(() => (this.$emit('refresh-parent'), this.liked = false)).catch(e => this.errormsg = e.response.data.error.toString());
-            } catch (e) {
-                this.errormsg = e.response.data.error.toString();
-            }
-            this.loading = false;
-        },
-        async GetComments(isRefresh) {
-            this.$router.push({ path: '/media/'+this.photoId+'/comments/', props: true})
         },
     },
     computed: {
@@ -181,7 +129,7 @@ export default {
         }
     },
     mounted() {
-        this.Get_my_profile().then(() => this.getImages()).then(() => this.refresh())
+        this.Get_my_profile().then(() => this.getImages())
     }
 }
 </script>
@@ -195,42 +143,15 @@ export default {
                 <ShortProfile  :username="this.owner" :pic="this.pp"/>
             </div>
             <div class="header-more">
-                <button v-if=isMine type="delete" @click="deletePhoto">Delete Photo</button>
+                <button v-if=isMine type="delete" @click="deleteComment">Delete Comment</button>
             </div>
         </header>
-
-        <!-- media -->
-        <div class="post-media">
-            <img :src="imgUrl" alt="" class="post-image" />
-            <!-- src="https://picsum.photos/600/400?random=1" -->
-        </div>
-
-        <div class="two-col section">
-            <!-- action & count-->
-            <div class="like-content">
-                <button v-if=!liked class="btn-secondary like-review" @click="LikeClick">like</button>
-                <button v-if=liked class="btn-secondary like-review" @click="LikeClick">unlike</button>
-                <button class="btn-secondary2 like-review" @click="GetLikes(false)">{{this.likesCount}} likes</button>
-                <button class="btn-secondary3 like-review" @click="GetComments(false)">{{this.commentsCount}} comments</button>
-                <span class="caption-span2">{{ timeAgo }}</span>
-            </div>
-        
             <div class="caption">
-                <button class="btn-secondary4 like-review" @click="get_user_profile(owner)">{{ owner }} </button>
-                <div class="caption-span">{{ this.caption }}</div>
-                
+                <span class="caption-span">{{ this.body }}</span>
+                <span class="caption-span2">{{ timeAgo }}</span>
                 
             </div>
         </div>
-
-        <div class="comments-list">
-            <!-- comments form -->
-            <div class="comment section">
-                <input class="text-body" type="text" placeholder="Add a comment...">
-                <button class="btn-secondary5 like-review" @click="submitComment">Post</button>
-            </div>
-        </div>
-    </div>
 </template>
 
 
@@ -315,14 +236,10 @@ export default {
 #comment:hover {
     color: #555
 }
-.text-body input {
-    background-color: #911b1b;
-}
 .post .caption {
     flex-wrap: wrap;
-    margin-top: 60px;
+    margin-top: 90px;
     padding-left: 25%;
-    height: auto;
     /* outline: solid; */
 }
 .post .caption li b:hover {
@@ -330,23 +247,20 @@ export default {
     cursor: pointer;
 }
 .post .caption .caption-span {
-    margin-left: -5px;
-    position: relative;
-    margin-top: 5px;
-    width: 420px;
-    color: #2b1e4f;
-    height: auto;
-    font-size: 15px;
-    text-align: start;
-    
-}
-.post .like-content .caption-span2 {
-    margin-left: 370px;
+    margin-left: -350px;
     overflow: auto;
     position: absolute;
-    margin-top: -30px;
-    width: 170px;
-    font-size: 15px;
+    margin-top: -75px;
+    color: #2b1e4f;
+    font-family: "Copperplate";
+    text-transform: uppercase;
+    
+}
+.post .caption .caption-span2 {
+    margin-left: 60px;
+    overflow: auto;
+    position: absolute;
+    margin-top: -35px;
     color: #6b6972;
     font-family: "Copperplate";
     text-transform: uppercase;

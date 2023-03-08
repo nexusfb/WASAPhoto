@@ -106,7 +106,7 @@ export default {
   padding: 2px;
   border-radius: 50%;
   display: inline-flex;
-  margin-top: 14px;
+  margin-top: 10px;
 }
 .profilePic img {
   border: 2px solid #2b1e4f;
@@ -118,7 +118,6 @@ export default {
     font-size: 16px;
     align-items: center;
     color: black;
-    background-color:#DDBEA8;
 }
 .short-profile-username button {
 

@@ -38,6 +38,19 @@ export default {
             }
             this.loading = false;
         },
+        async deleteProfile() {
+            this.loading = true;
+            this.errormsg = null;
+			this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
+            error => {return Promise.reject(error);});
+            try {
+                this.$axios.delete("/users/:userid="+this.logged).then(this.logout)
+            } catch (e) {
+                this.errormsg = e.toString();
+				
+            }
+            this.loading = false;
+        },
 
 		async GetUserMedia() {
             this.loading = true;
@@ -50,6 +63,9 @@ export default {
                 this.errormsg = e.toString();
             }
             this.loading = false;
+        },
+        logout: async function(){
+            this.$router.push({ path: '/'})
         },
 		searchUsers: async function(){
             this.$router.push({ path: '/search'})
@@ -300,7 +316,7 @@ export default {
             try {
                 await this.$axios.patch("/users/:userid="+this.profile.userid, {
 					username: this.profile.username,})
-                this.$router.push({ path: '/users/'+this.profile.username })
+                this.$router.push({ path: '/users/'+this.profile.username }).then(() => (this.$emit('refresh-parent'), this.liked = false)).catch(e => this.errormsg = e.response.data.error.toString());
             } catch (e) {
                 this.errormsg = e.toString();
             }
@@ -351,6 +367,8 @@ export default {
 			{{this.profile.username}}
             </div>
         </div>
+        <button v-if="this.profile.userid==logged" class="button1" @click="deleteProfile">Delete Profile</button>
+            <button v-if="this.profile.userid==logged"  class="button2" @click="logout">logout</button>
 		<div class="profilepic">
 		<img :src= this.profile.profilepic :width="300" :height="300" ><br />
         </div>
@@ -475,7 +493,7 @@ export default {
 		 <FinalMedia	v-on:refresh-parent="refresh" v-for="post in media" :key="post.id" :pp="post.authorpic" :photoId="post.id"
 				:owner="post.author" :image="post.photo"
 				:timestamp="post.date" :caption="post.caption" :likesCount="post.nlikes"
-				:commentsCount="post.ncomments" :liked="post.liked" :logged="this.$route.params.username"/>
+				:commentsCount="post.ncomments" :liked="post.liked" :logged="this.logged" :authorid="post.authorid"/>
 	 </div>
 	 </header>
     </div>
@@ -578,6 +596,30 @@ margin: auto;
   background-color: #1b5158;
   border-color: beige;
   color: beige;
+
+}
+.button1{
+    background-color: rgb(139, 14, 2);
+    margin-left: 550px;
+    margin-top: -45px;
+    position: absolute;
+    color:beige;
+    font-family: "Copperplate";
+    font-size: 17px;
+    width: 140px;
+    border-radius: 20px;
+
+}
+.button2{
+    background-color: rgb(66, 2, 139);
+    margin-left: 700px;
+    margin-top: -45px;
+    position: absolute;
+    color:beige;
+    font-family: "Copperplate";
+    font-size: 17px;
+    width: 100px;
+    border-radius: 20px;
 
 }
 .myprofilebuttons {

@@ -15,6 +15,8 @@ type Comment struct {
 	// username of the author of the comment
 	// notice that author name is not stored in the database but it is needed here in order to display it
 	AuthorName string `json:"author"`
+	AuthorID   string `json:"authorid"`
+	AuthorPic  string `json:"authorpic"`
 	// date and time of the comment
 	Date string `json:"date"`
 	// body of the comment
@@ -26,9 +28,12 @@ func (c *Comment) FromDatabase(comment database.CommentDB, db database.AppDataba
 	var err error
 	c.CommentID = comment.CommentID
 	c.AuthorName, err = db.GetUserName(comment.AuthorID)
+	c.AuthorID = comment.AuthorID
+	profile, err := db.GetUserProfile(c.AuthorName)
 	if err != nil {
 		return err
 	}
+	c.AuthorPic = profile.ProfilePic
 	c.Date = comment.Date
 	c.Content = comment.Content
 	return nil
