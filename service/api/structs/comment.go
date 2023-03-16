@@ -28,6 +28,9 @@ func (c *Comment) FromDatabase(comment database.CommentDB, db database.AppDataba
 	var err error
 	c.CommentID = comment.CommentID
 	c.AuthorName, err = db.GetUserName(comment.AuthorID)
+	if err != nil {
+		return err
+	}
 	c.AuthorID = comment.AuthorID
 	profile, err := db.GetUserProfile(c.AuthorName)
 	if err != nil {

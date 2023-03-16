@@ -3,7 +3,6 @@ package api
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 	"strings"
 
@@ -31,7 +30,6 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 	id, err := rt.db.GetUserID(name)
 	if errors.Is(err, database.ErrUserProfileDoesNotExists) {
 		ctx.Logger.Error("error: user profile does not exist")
-		fmt.Println(name)
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}

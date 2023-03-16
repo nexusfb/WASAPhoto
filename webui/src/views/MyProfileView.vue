@@ -157,13 +157,12 @@ export default {
 			this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
             error => {return Promise.reject(error);});
             try {
-                this.$axios.put("/users/:userid="+this.logged+"/followings/:followingid="+this.profile.userid);
-				this.$router.push({ path: '/users/'+this.profile.username })
+                this.$axios.put("/users/:userid="+this.logged+"/followings/:followingid="+this.profile.userid).then(() => (this.refresh()));
+				// this.$router.push({ path: '/users/'+this.profile.username });
             } catch (e) {
                 this.errormsg = e.toString();
             }
             this.loading = false;
-			this.refresh();
         },
 
 		unfollowUser() {
@@ -172,13 +171,12 @@ export default {
 			this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
             error => {return Promise.reject(error);});
             try {
-                this.$axios.delete("/users/:userid="+this.logged+"/followings/:followingid="+this.profile.userid);
-				this.$router.push({ path: '/users/'+this.profile.username })
+                this.$axios.delete("/users/:userid="+this.logged+"/followings/:followingid="+this.profile.userid).then(() => (this.refresh()));
+				//this.$router.push({ path: '/users/'+this.profile.username })
             } catch (e) {
                 this.errormsg = e.toString();
             }
             this.loading = false;
-			this.refresh();
         },
 
 		async toggle(){
@@ -275,11 +273,8 @@ export default {
           formData.append('cap', this.caption)
           
 		  try {
-			await this.$axios.post("/users/"+ this.profile.userid+ "/media/", formData, {
-          }).then((res) => {
-            console.log(res)
-          });
-		  this.$router.push({ path: '/users/'+this.profile.username })
+			this.$axios.post("/users/"+ this.profile.userid+ "/media/", formData, {
+          }).then(() => (this.refresh()));
 		  
             } catch (e) {
                 this.errormsg = e.toString();
@@ -302,7 +297,7 @@ export default {
                 await this.$axios.put("/users/:userid="+this.profile.userid, formData, {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
-                this.$router.push({ path: '/users/'+this.profile.username })
+                this.$router.push({ path: '/users/'+this.profile.username }).then(() => (this.refresh()));
             } catch (error) {
                 this.error = error;
             }
@@ -314,9 +309,9 @@ export default {
             this.loading = true;
             this.errormsg = null;
             try {
-                await this.$axios.patch("/users/:userid="+this.profile.userid, {
+                this.$axios.patch("/users/:userid="+this.profile.userid, {
 					username: this.profile.username,})
-                this.$router.push({ path: '/users/'+this.profile.username }).then(() => (this.$emit('refresh-parent'), this.liked = false)).catch(e => this.errormsg = e.response.data.error.toString());
+                this.$router.push({ path: '/users/'+this.profile.username }).then(() => (this.refresh()));
             } catch (e) {
                 this.errormsg = e.toString();
             }
@@ -819,7 +814,7 @@ margin: auto;
     width: 300px;
     font-size: 15px;
     margin-top: 30px;
-    margin-left: 130px;
+    margin-left: -10px;
 }
 .form-username button{
     font-size: 20px;
@@ -829,7 +824,7 @@ margin: auto;
     text-transform: uppercase;
     background-color: #246A73;
     margin-top: -5px;
-    margin-left: -40px;
+    margin-left: 20px;
 }
 .form-username h3{
     position: absolute;

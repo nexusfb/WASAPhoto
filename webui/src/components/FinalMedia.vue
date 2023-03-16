@@ -226,7 +226,7 @@ export default {
         <div class="comments-list">
             <!-- comments form -->
             <div class="comment section">
-                <input class="text-body" type="text" placeholder="Add a comment...">
+                <input class="text-body" type="text" v-model="this.textComment" placeholder="Add a comment...">
                 <button class="btn-secondary5 like-review" @click="submitComment">Post</button>
             </div>
         </div>

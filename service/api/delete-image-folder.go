@@ -25,9 +25,7 @@ func (rt *_router) deleteImageFromFolder(photo_id string, w http.ResponseWriter,
 		return err
 	}
 
-	image_directory := "/tmp"
-	folder_name := "images"
-	path := filepath.Join(image_directory, folder_name, photo.Photo)
+	path := filepath.Join("/tmp", "images", photo.Photo)
 	err = os.Remove(path)
 	if err != nil {
 		// handle the error
