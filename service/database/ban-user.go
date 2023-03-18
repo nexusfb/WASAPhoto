@@ -6,7 +6,6 @@ import (
 
 // Add a ban from bannerid user to bannedid user
 func (db *appdbimpl) BanUser(bannerID string, bannedID string) error {
-	fmt.Println("BAN USER")
 	// 1 - check if user already banned other user
 	r, err := db.c.Query(`SELECT * FROM ban WHERE bannerid = ? AND bannedid = ?`, bannerID, bannedID)
 	if err != nil {
