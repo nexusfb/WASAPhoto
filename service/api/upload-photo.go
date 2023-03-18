@@ -18,7 +18,6 @@ import (
 // Post a new media with userid in the path
 func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
 	// 1 - take userid from path
-	fmt.Println("provo a upload photo")
 	userID := ps.ByName("userid")
 	userID = strings.TrimPrefix(userID, ":userid=")
 	if len(userID) == 0 {
@@ -208,7 +207,6 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	fmt.Println("upload tutto ok")
 	// 6 - return new media ID
 	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Type", "application/json")

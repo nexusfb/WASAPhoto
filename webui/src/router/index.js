@@ -14,20 +14,6 @@ import UserFollowers from "../views/UserFollowers.vue";
 import UserFollowings from "../views/UserFollowings.vue";
 import Likes from "../views/Likes.vue";
 
-/*
-import { createRouter, createWebHashHistory } from 'vue-router'
-// import PostForm from '../components/PostForm.vue'
-import Login from '../views/aleLoginView.vue'
-import ProfileView from '../views/aleProfileView.vue'
-// import list from '../components/UserList.vue'
-import comments from '../components/Comments.vue'
-import Home from '../views/aleHomeView.vue'
-// import Edit from '../components/EditPage.vue'
-import changed from '../components/ChangeUsername.vue'
-// import SinglePhoto from '@/components/SinglePhoto.vue'
-// import ErrorMsg from '@/components/ErrorMsg.vue'
-*/
-
 const router = createRouter({
     history: createWebHashHistory(import.meta.env.BASE_URL),
     routes: [
@@ -43,29 +29,7 @@ const router = createRouter({
 		{path: '/media/:mediaid/comments/', component: MediaComments, props: true},
 		{path: '/media/:mediaid/likes/', component: Likes, props: true},
 		{path: '/stream', component: MyStream, props: true},
-		/*
-		{ path: '/', component: Login, name: 'Login', alias: "/login" },
-		{ path: '/users/:user_id/stream/', component: Home, name: 'Home'},
-		// get user profile by name
-		{ path: '/users/', component: ProfileView, name: 'Profile', query: { username: { type: String, default: '' } }},
-		// change username
-		{ path: '/users/:user_id/changeUsername/', component: changed, name: 'username'},
-		// change profile
-		{ path: '/users/:user_id/editProfile/', component: Edit, name: 'EditPage'},
-		// delete profile
-
-		// upload a photo
-		{ path: '/users/:user_id/form/', component: PostForm, name: 'PostForm'},
-		// Get Single Photo
-		{ path: '/post/:photo_id', component: SinglePhoto},
-
-		// See comments
-		{ path: '/photos/:photo_id/comments/', component: comments},
-
-		// Get list of the users that added a like/follow/ban
-		{ path: '/:listType(likes|followers|following|bans)/', component: list},
-
-		{ path: '/error/:msg', component: ErrorMsg, props: true}*/
+		
     ]
 })
 
