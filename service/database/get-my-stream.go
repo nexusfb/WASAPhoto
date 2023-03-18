@@ -33,7 +33,6 @@ func (db *appdbimpl) GetMyStream(userid string) ([]MediaDB, error) {
 	if err = rawMedia.Err(); err != nil {
 		return nil, err
 	}
-	fmt.Println(ret)
 	// 3 - return result media array
 	return ret, nil
 }
