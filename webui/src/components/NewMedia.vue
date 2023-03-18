@@ -12,10 +12,9 @@ export default {
         },
 
     },
-    data: {
-        photo: "",
-        caption:"",
-        preview: "",
+    data: function() {
+        photo: "" ;
+        preview: "";
     },
     methods: {
         handleImageUpload(event) {
