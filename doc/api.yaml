@@ -530,7 +530,7 @@ paths:
       security:
       - bearerAuthentication: []
       tags: ["User"]
-      operationId: getUserFollowing
+      operationId: getUserFollowings
       summary: Get the collection of following users
       description: |-
         The followings collection is a collection of user IDs.
