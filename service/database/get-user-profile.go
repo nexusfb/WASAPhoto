@@ -19,6 +19,9 @@ func (db *appdbimpl) GetUserProfile(username string) (UserProfileDB, error) {
 	if !user.Next() {
 		return UserProfileDB{}, ErrUserProfileDoesNotExists
 	}
+	if err = user.Err(); err != nil {
+		return UserProfileDB{}, err
+	}
 	err = user.Scan(&ret.UserID, &ret.Username, &ret.Bio, &ret.ProfilePic)
 	if err != nil {
 		// scan returned error -> return error

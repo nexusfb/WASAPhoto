@@ -47,6 +47,6 @@ func (rt *_router) getImage(w http.ResponseWriter, r *http.Request, ps httproute
 	if err != nil {
 		// error copying image
 		ctx.Logger.WithError(err).Error("error: could not copy photo")
-		w.WriteHeader(http.StatusInternalServerError)
+		// w.WriteHeader(http.StatusInternalServerError)
 	}
 }

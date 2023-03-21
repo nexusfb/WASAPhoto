@@ -17,7 +17,7 @@ export default {
 					<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 				</div>
 				<div class="modal-body">
-					<textarea readonly style="width: 100%;" rows="25">{{ log }}</textarea>
+					<textarea readonly style="width: 100%;" rows="25" v-model="log" />
 				</div>
 				<div class="modal-footer">
 					<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

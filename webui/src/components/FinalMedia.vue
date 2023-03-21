@@ -31,13 +31,15 @@ export default {
             imgUrl: "",
             likes: [],
             comments: [],
-            ciao: "",
+            authLike: this.liked,
         }
     },
     methods: {
         async get_user_profile(name) {
-            this.$router.push({ path: "/users/", query: { username: name } })
+            this.$router.push({ path: '/users/'+name })
         },
+
+        
         async Get_my_profile() {
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
@@ -83,7 +85,7 @@ export default {
             this.loading = true;
             this.errormsg = null;
             try {
-                this.$axios.delete('/media/' + this.photoId).then(() => (this.$emit('refresh-parent'), this.liked = true)).catch(e => this.errormsg = e.response.data.error.toString())
+                this.$axios.delete('/media/' + this.photoId).then(() => (this.$emit('refresh-parent'))).catch(e => this.errormsg = e.response.data.error.toString())
             } catch (e) {
                 this.errormsg = e.response.data.error.toString();
             }
@@ -96,6 +98,7 @@ export default {
         },
         async LikeClick() {
             if (this.isMine) {
+                this.errormsg = "Error: you cannot like your own media."
                 return
             }
             this.loading = true;
@@ -105,10 +108,10 @@ export default {
             */
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
-            if (this.liked) {
-                this.$axios.delete("/media/:mediaid="+ this.photoId + "/likes/").then(() => (this.$emit('refresh-parent'), this.liked = false)).catch(e => this.errormsg = e.response.data.error.toString());
+            if (this.authLike) {
+                this.$axios.delete("/media/:mediaid="+ this.photoId + "/likes/").then(() => (this.$emit('refresh-parent'), this.authLike = false)).catch(e => this.errormsg = e.response.data.error.toString());
             } else {
-                this.$axios.put("/media/:mediaid="+ this.photoId + "/likes/").then(() => (this.$emit('refresh-parent'), this.liked = true)).catch(e => this.errormsg = e.response.data.error.toString())
+                this.$axios.put("/media/:mediaid="+ this.photoId + "/likes/").then(() => (this.$emit('refresh-parent'), this.authLike = true)).catch(e => this.errormsg = e.response.data.error.toString())
             }
             this.loading = false;
         },
@@ -117,14 +120,25 @@ export default {
             this.errormsg = null;
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
+            if (this.textComment.length==0){
+                this.errormsg = "Error: empty comments are not valid. Please try again."
+                return
+            }
+            if (this.textComment.length>150){
+                this.errormsg = "Error: the comment is too long. Please try again with a shorter comment."
+                return
+            }
+            else{
             try {
-                let response = await this.$axios.post('/media/' + this.photoId + '/comments/', {
+                await this.$axios.post('/media/' + this.photoId + '/comments/', {
                     content: this.textComment, author: this.username,
-                }).then(() => (this.$emit('refresh-parent'), this.liked = false)).catch(e => this.errormsg = e.response.data.error.toString());
+                }).then(() => (this.$emit('refresh-parent'))).catch(e => this.errormsg = e.response.data.error.toString());
             } catch (e) {
                 this.errormsg = e.response.data.error.toString();
             }
+        }
             this.loading = false;
+            this.refresh()
         },
         async GetComments(isRefresh) {
             this.$router.push({ path: '/media/'+this.photoId+'/comments/', props: true})
@@ -208,8 +222,8 @@ export default {
         <div class="two-col section">
             <!-- action & count-->
             <div class="like-content">
-                <button v-if=!liked class="btn-secondary like-review" @click="LikeClick">like</button>
-                <button v-if=liked class="btn-secondary like-review" @click="LikeClick">unlike</button>
+                <button v-if=!authLike class="btn-secondary like-review" @click="LikeClick">like</button>
+                <button v-if=authLike class="btn-secondary like-review" @click="LikeClick">unlike</button>
                 <button class="btn-secondary2 like-review" @click="GetLikes(false)">{{this.likesCount}} likes</button>
                 <button class="btn-secondary3 like-review" @click="GetComments(false)">{{this.commentsCount}} comments</button>
                 <span class="caption-span2">{{ timeAgo }}</span>
@@ -217,7 +231,7 @@ export default {
         
             <div class="caption">
                 <button class="btn-secondary4 like-review" @click="get_user_profile(owner)">{{ owner }} </button>
-                <div class="caption-span">{{ this.caption }}</div>
+                <div class="caption-span">{{ caption }}</div>
                 
                 
             </div>

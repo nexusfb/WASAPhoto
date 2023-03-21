@@ -68,7 +68,7 @@ export default {
             <figure class="profilePic">
                 <img :src=this.sp :width="size" :height="size" />
                 <div class="short-profile-username">
-                    <button v-if="!loading" class="miao" @click="ToProfile(this.username)">
+                    <button v-if="!loading" class="sp-border" @click="ToProfile(this.username)">
         {{ this.username }}
             	</button>
                 </div>
@@ -91,7 +91,7 @@ export default {
 
 
 }
-.miao {
+.sp-border {
    border: 2px solid #ffffff;
    border-radius: 20px;
    padding-left: 10px;

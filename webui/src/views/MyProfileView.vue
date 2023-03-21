@@ -16,9 +16,10 @@ export default {
 			changingProfile: false,
 			changingusername: false,
 			photo: "",
-         	caption:"",
+         	photoCaption:"",
          	preview: "",
 			newppic:null,
+            new:"",
 
         }
     },
@@ -107,7 +108,8 @@ export default {
                 error => { return Promise.reject(error); });
 			await this.GetProfile()
             if (this.profile.profilepic){await this.getImage(this.profile.profilepic)}
-            this.GetUserMedia()
+            this.GetUserMedia();
+            this.new = this.profile.username
 		},
 		deleteMedia(m) {
             this.loading = true;
@@ -235,6 +237,11 @@ export default {
             this.errormsg = null;
 			this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
             error => {return Promise.reject(error);});
+            if (this.comment.length==0){
+                if (e.response && e.response.status == 400){
+                this.errormsg = "Error: the inserted username is invalid. Try again."}
+            }
+            else{
             try {
                 this.$axios.post("/media/:mediaid="+ m.id+"/comments/", {
 					content: this.comment,});
@@ -242,6 +249,7 @@ export default {
             } catch (e) {
                 this.errormsg = e.toString();
             }
+        }
             this.loading = false;
 			this.refresh();
         },
@@ -270,15 +278,19 @@ export default {
             error => {return Promise.reject(error);});
           const formData = new FormData()
           formData.append('pic', this.photo)
-          formData.append('cap', this.caption)
-          
+          formData.append('cap', this.photoCaption)
+          if (!this.photo){
+                this.errormsg = "Error: you must provide a picture. Please try again."
+                return
+            }
+          else{
 		  try {
 			this.$axios.post("/users/"+ this.profile.userid+ "/media/", formData, {
           }).then(() => (this.refresh()));
 		  
             } catch (e) {
                 this.errormsg = e.toString();
-            }
+            }}
 			this.refresh();
 			this.creatingMedia = false;
             this.loading = false;
@@ -286,34 +298,58 @@ export default {
 		async submitProfile() {
             this.loading = true;
             this.error = null;
-            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
-                error => { return Promise.reject(error); });
+            
+            if (this.new.length<5){
+                this.errormsg = "Error: usernames have to be at least 5 characters long. Please try again."
+                return
+            }
+            if (this.new.length>20){
+                this.errormsg = "Error: usernames can have a maximum lenght of 20 characters. Please try again."
+                return
+            }
+            if (!this.$refs.newppic.files[0]){
+                this.errormsg = "Error: you must provide a profile picture. Please try again."
+                return
+            }
             try {
                 let formData = new FormData();
             	formData.append('bio', this.profile.bio)
-            	formData.append('username', this.profile.username)
-                if (!this.$refs.newppic) return
+            	formData.append('username', this.new)
                 formData.append('pic', this.$refs.newppic.files[0]);
                 await this.$axios.put("/users/:userid="+this.profile.userid, formData, {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
-                this.$router.push({ path: '/users/'+this.profile.username }).then(() => (this.refresh()));
-            } catch (error) {
-                this.error = error;
+                this.$router.push({ path: '/users/'+this.new }).then(() => (this.refresh()));
+            } catch (e) {
+                if (e.response && e.response.status == 400){
+                this.errormsg = "Error: the inserted profile is invalid. Please try again."
+                }
+
             }
-			this.refresh();
+            this.refresh = true;
             this.loading = false;
 			this.changingProfile = false;
         },
 		changename: async function () {
             this.loading = true;
             this.errormsg = null;
+            if (this.new.length<5){
+                this.errormsg = "Error: usernames have to be at least 5 characters long. Please try again."
+                return
+            }
+            if (this.new.length>20){
+                this.errormsg = "Error: usernames can have a maximum lenght of 20 characters. Please try again."
+                return
+            }
             try {
                 this.$axios.patch("/users/:userid="+this.profile.userid, {
-					username: this.profile.username,})
-                this.$router.push({ path: '/users/'+this.profile.username }).then(() => (this.refresh()));
+					username: this.new,})
+                this.$router.push({ path: '/users/'+this.new }).then(() => (this.refresh()));
             } catch (e) {
-                this.errormsg = e.toString();
+                if (e.response && e.response.status == 400){
+                this.errormsg = "Error: the inserted username is invalid. Please try again."}
+                if (e.response && e.response.status == 500){
+                this.errormsg = "Error: internal error. Please try again."}
             }
 			this.refresh();
             this.loading = false;
@@ -352,7 +388,9 @@ export default {
 </script>
 
 <template>
+    <ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
     <div class="page">
+        <ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
 	<div class="Bar">
 		<NavBar :profilo="this.$route.params.username"/>
 	</div>
@@ -427,7 +465,7 @@ export default {
                 <img id="preview-image" v-if="preview" :src="preview" :width="400" :height="400">
 			  </div> 
 			  <div class="form-caption">
-                  <input type="text" v-model="caption" placeholder="Write a caption here" class="form-control">
+                  <input type="text" v-model="photoCaption" placeholder="Write a caption here" class="form-control">
                   <button class="login-button">Share</button>
               </div>
             </div>
@@ -436,17 +474,15 @@ export default {
 	</div>
 	<div v-if= "this.changingusername==true">
         <div class="newusername">
-          <form @submit.prevent="changename">
             <div class="upload-space-username">
 				<h2>change username
                 </h2>
 			  <div class="form-username">
 				<h3>insert username</h3>
-            	<input type="text" v-model="profile.username" placeholder= this.profile.username>
-                <button class="login-button">change</button>
+            	<input type="text" v-model="this.new" placeholder= this.profile.username>
+                <button class="login-button" @click="changename">change</button>
               </div>
             </div>
-          </form>
 		</div>
 	</div>
 	<div v-if= "this.changingProfile==true">
@@ -463,7 +499,7 @@ export default {
 				</div>
 			  <div class="form-profile">
 				<label for="description" class="form-label">Username</label>
-            	<input type="text" class="form-control" id="Username" v-model="profile.username" placeholder= this.profile.username>
+            	<input type="text" class="form-control" id="Username" v-model="this.new" placeholder= this.profile.username>
 				<label for="description" class="form-label">Bio</label>
 				<input type="text" class="form-control" id="bio" v-model="profile.bio" placeholder= this.profile.bio >
                 <button class="login-button">change profile</button>
@@ -477,11 +513,9 @@ export default {
             <LoadingSpinner v-if="loading"></LoadingSpinner>
 
 
-			<div class="card" v-if="media === null">
-				<div class="card-body">
-					<p>No media in the database.</p>
-				</div>
-			</div>
+			<div class="item-error" v-if="!media">
+            <h2>No media has been posted yet!</h2>
+            </div>
 
 			<header class="summary_page_b">
 		 <div class="stream_timeline">
@@ -554,7 +588,7 @@ background-color: #160F29;
   width: 300px;
   align-items: center;
   margin-top:20px;
-  margin-left: 740px;
+  margin-left: 710px;
 }
 .column {
   padding: 2px;

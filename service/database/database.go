@@ -116,7 +116,6 @@ func New(db *sql.DB) (AppDatabase, error) {
 	// f, _ = db.Exec(`DROP TABLE ban IF EXISTS `)
 	// f, _ = db.Exec(`DROP TABLE like `)
 	// f, _ = db.Exec(`DROP TABLE comment IF EXISTS `)
-	// fmt.Println(f)
 
 	// 1 - define user table
 	tableName := "user"

@@ -1572,7 +1572,7 @@ func (d *SQLiteDriver) Open(dsn string) (driver.Conn, error) {
 	// If a database contains the SQLITE_USER table, then the
 	// call to Authenticate must be invoked with an
 	// appropriate username and password prior to enable read and write
-	//access to the database.
+	// access to the database.
 	//
 	// Return SQLITE_OK on success or SQLITE_ERROR if the username/password
 	// combination is incorrect or unknown.

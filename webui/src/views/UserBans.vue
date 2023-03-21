@@ -63,11 +63,12 @@ export default {
 	</div>
     <header class="summary_page_b">
         <h3>BANNED</h3>
+        <ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
         <div class="item-user2" v-for="user in filteredList()" :key="user">
     <ShortProfile  :username="user.username" :pic="user.pic"/>
    </div>
    <div class="item-error" v-if="!filteredList().length">
-      <h2>No results found!</h2>
+      <h2>No banned users!</h2>
    </div>
     </header>
 </div>

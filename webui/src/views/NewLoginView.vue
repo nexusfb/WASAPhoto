@@ -29,7 +29,8 @@ export default {
                 //this.$router.push({ path: '/stream/' })
                 this.$router.push({ path: '/users/'+this.User.username })
             } catch (e) {
-                this.errormsg = e.toString();
+                if (e.response && e.response.status == 400){
+                this.errormsg = "Error: the inserted username is invalid. Try again."}
             }
             this.loading = false;
         },

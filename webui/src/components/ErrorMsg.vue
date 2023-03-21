@@ -12,7 +12,7 @@ export default {
     computed: {
         message() {
             if (this.msg === "404") {
-                return `404 user not found.`// Check for typo in your search or try to hack our database and add it by yourself!`
+                return `404  not found.`
             }
             return this.msg
         }
@@ -23,7 +23,7 @@ export default {
 <template>
     <div class="error-container">
         <div class="error-message">
-            <p>{{ message }}</p>
+            <p> {{message}} </p>
         </div>
     </div>
 </template>

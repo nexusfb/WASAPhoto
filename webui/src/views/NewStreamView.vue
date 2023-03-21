@@ -50,12 +50,16 @@ export default {
 	 </div>
 	 <header class="summary_page_b">
 		 <h3>MY STREAM</h3>
+		 <ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
 		 <div class="stream_timeline">
 		 <FinalMedia	v-on:refresh-parent="refresh" v-for="post in this.media" :key="post.id" :pp="post.authorpic" :photoId="post.id"
 				:owner="post.author" :image="post.photo"
 				:timestamp="post.date" :caption="post.caption" :likesCount="post.nlikes"
 				:commentsCount="post.ncomments" :liked="post.liked" :logged="this.logged" :authorid="post.authorid"/>
-	 </div>
+	 	 </div>
+		  <div class="item-error" v-if="!this.media.length">
+      		<h2>Your stream is empty.</h2>
+   </div>
 	 </header>
  </div>
   </template>

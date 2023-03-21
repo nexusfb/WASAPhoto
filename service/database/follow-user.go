@@ -16,6 +16,9 @@ func (db *appdbimpl) FollowUser(userid string, followid string) error {
 		// should never happpen since it is checked in the API
 		return ErrUserAlreadyFollowed
 	}
+	if err = r.Err(); err != nil {
+		return err
+	}
 	defer func() { _ = r.Close() }()
 	// here only if user does not follow the other user yet
 

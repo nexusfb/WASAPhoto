@@ -66,6 +66,9 @@ func (db *appdbimpl) ExistenceCheck(id string, what string) bool {
 		if !comment.Next() {
 			return false
 		}
+		if err = comment.Err(); err != nil {
+			return false
+		}
 		return true
 	}
 

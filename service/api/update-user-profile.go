@@ -69,8 +69,8 @@ func (rt *_router) updateUserProfile(w http.ResponseWriter, r *http.Request, ps 
 		return
 	} else if !newUsername.IsValid() {
 		// username is invalid
-		w.WriteHeader(http.StatusBadRequest)
 		ctx.Logger.WithError(err).Error("error: username format is invalid")
+		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 	// assign new username to new profile
@@ -100,7 +100,7 @@ func (rt *_router) updateUserProfile(w http.ResponseWriter, r *http.Request, ps 
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	//check if photo is valid
+	// check if photo is valid
 	filetype := http.DetectContentType(buff)
 	if filetype != "image/jpeg" && filetype != "image/png" && filetype != "image/jpg" {
 		ctx.Logger.WithError(err).Error("error: The provided file format is not allowed. Please upload a JPEG,JPG or PNG image")

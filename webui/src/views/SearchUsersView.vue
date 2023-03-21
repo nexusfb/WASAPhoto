@@ -63,6 +63,7 @@ export default {
 	</div>
     <header class="summary_page_b">
         <h3>SEARCH USER</h3>
+        <ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
     <input type="text" v-model="input" placeholder="Search users..." />
    <div class="item-user2" v-for="user in filteredList()" :key="user">
     <ShortProfile  :username="user.username" :pic="user.pic"/>

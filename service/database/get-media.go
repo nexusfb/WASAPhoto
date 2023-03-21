@@ -21,6 +21,9 @@ func (db *appdbimpl) GetMedia(mediaid string) (MediaDB, error) {
 		// should never happen -> existence of the media is already checked in the API
 		return MediaDB{}, ErrMediaDoesNotExists
 	}
+	if err = rawMedia.Err(); err != nil {
+		return MediaDB{}, err
+	}
 
 	// 3 - create media result
 	var ret MediaDB

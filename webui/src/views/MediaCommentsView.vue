@@ -68,6 +68,7 @@ export default {
 	</div>
     <header class="summary_page_b">
         <h3>COMMENTS</h3>
+        <ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
         <div class="comment_page1">
             <CommentForm	v-on:refresh-parent="refresh"  v-for="comment in comments" :key="comment.commentid" :commentid="comment.commentid" :pp="comment.authorpic" :owner="comment.author" :timestamp="comment.date" :body="comment.content" :logged="this.logged" :authorid="comment.authorid"/>
         </div>

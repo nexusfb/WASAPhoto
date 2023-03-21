@@ -15,6 +15,9 @@ func (db *appdbimpl) BanUser(bannerID string, bannedID string) error {
 		// should never happpen since it is checked in the API
 		return ErrUserAlreadyFollowed
 	}
+	if err = r.Err(); err != nil {
+		return err
+	}
 	defer func() { _ = r.Close() }()
 	// here only if user has not banned the other user yet
 

@@ -13,7 +13,10 @@ export default {
         }
     },
     props:{
-        profilo: "",
+        profilo: {
+        type: String,
+        default: ''
+      },
     },
     methods: {
         async GetUsername() {
