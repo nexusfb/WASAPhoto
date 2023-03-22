@@ -20,6 +20,7 @@ export default {
          	preview: "",
 			newppic:null,
             new:"",
+            errOcc: false,
 
         }
     },
@@ -298,7 +299,7 @@ export default {
 		async submitProfile() {
             this.loading = true;
             this.error = null;
-            
+
             if (this.new.length<5){
                 this.errormsg = "Error: usernames have to be at least 5 characters long. Please try again."
                 return
@@ -316,19 +317,28 @@ export default {
             	formData.append('bio', this.profile.bio)
             	formData.append('username', this.new)
                 formData.append('pic', this.$refs.newppic.files[0]);
-                await this.$axios.put("/users/:userid="+this.profile.userid, formData, {
+                this.$axios.put("/users/:userid="+this.profile.userid, formData, {
                     headers: { 'Content-Type': 'multipart/form-data' }
-                });
-                this.$router.push({ path: '/users/'+this.new }).then(() => (this.refresh()));
+                })
             } catch (e) {
+                this.errOcc = true
+                this.$router.push({ path: '/entra/'+this.profile.username }).then(() => (this.refresh()))
                 if (e.response && e.response.status == 400){
                 this.errormsg = "Error: the inserted profile is invalid. Please try again."
                 }
-
+                if (e.response && e.response.status == 500){
+                    this.$router.push({ path: '/500/'+this.profile.username }).then(() => (this.refresh()))
+                this.errormsg = "Error: internal error. Please try again."}
             }
-            this.refresh = true;
+            if (!this.errOcc){
+                this.profile.username = this.new
+                this.$router.push({ path: '/users/'+this.profile.username }).then(() => (this.refresh()))
+            
+            }
+            this.refresh();
             this.loading = false;
 			this.changingProfile = false;
+            this.errOcc=false;
         },
 		changename: async function () {
             this.loading = true;
@@ -342,18 +352,23 @@ export default {
                 return
             }
             try {
-                this.$axios.patch("/users/:userid="+this.profile.userid, {
+                await this.$axios.patch("/users/:userid="+this.profile.userid, {
 					username: this.new,})
-                this.$router.push({ path: '/users/'+this.new }).then(() => (this.refresh()));
             } catch (e) {
+                this.errOcc = true
                 if (e.response && e.response.status == 400){
                 this.errormsg = "Error: the inserted username is invalid. Please try again."}
                 if (e.response && e.response.status == 500){
                 this.errormsg = "Error: internal error. Please try again."}
             }
+            if (!this.errOcc){
+                this.profile.username = this.new
+                this.$router.push({ path: '/users/'+this.profile.username }).then(() => (this.refresh()))
+            }
 			this.refresh();
             this.loading = false;
 			this.changingusername = false;
+            this.errOcc = false;
         },
 		async getFollowers() {
             this.$router.push({ path: '/users/'+this.profile.userid+'/followers/', props: true})
