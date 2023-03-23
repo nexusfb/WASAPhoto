@@ -34,9 +34,9 @@ func (rt *_router) Handler() http.Handler {
 	rt.router.GET("/images/", rt.wrap(rt.getImage))                  // Get Image
 
 	// LIKES routes
-	rt.router.PUT("/media/:mediaid/likes/", rt.wrap(rt.likePhoto))      // like a media
-	rt.router.DELETE("/media/:mediaid/likes/", rt.wrap(rt.unlikePhoto)) // unlike a media
-	rt.router.GET("/media/:mediaid/likes/", rt.wrap(rt.getMediaLikes))  // get media likes
+	rt.router.PUT("/media/:mediaid/likes/:likeid", rt.wrap(rt.likePhoto))      // like a media
+	rt.router.DELETE("/media/:mediaid/likes/:likeid", rt.wrap(rt.unlikePhoto)) // unlike a media
+	rt.router.GET("/media/:mediaid/likes/", rt.wrap(rt.getMediaLikes))         // get media likes
 
 	// COMMENTS routes
 	rt.router.POST("/media/:mediaid/comments/", rt.wrap(rt.commentPhoto))    // comment a media

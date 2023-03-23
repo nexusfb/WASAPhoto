@@ -85,7 +85,7 @@ export default {
             this.loading = true;
             this.errormsg = null;
             try {
-                this.$axios.delete('/media/' + this.photoId).then(() => (this.$emit('refresh-parent'))).catch(e => this.errormsg = e.response.data.error.toString())
+                this.$axios.delete('/media/' + this.photoId).then(() => (this.$emit('refresh-parent')))
             } catch (e) {
                 this.errormsg = e.response.data.error.toString();
             }
@@ -109,9 +109,9 @@ export default {
             this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
                 error => { return Promise.reject(error); });
             if (this.authLike) {
-                this.$axios.delete("/media/:mediaid="+ this.photoId + "/likes/").then(() => (this.$emit('refresh-parent'), this.authLike = false)).catch(e => this.errormsg = e.response.data.error.toString());
+                this.$axios.delete("/media/:mediaid="+ this.photoId + "/likes/:likeid="+this.owner).then(() => (this.$emit('refresh-parent'), this.authLike = false)).catch(e => this.errormsg = e.response.data.error.toString());
             } else {
-                this.$axios.put("/media/:mediaid="+ this.photoId + "/likes/").then(() => (this.$emit('refresh-parent'), this.authLike = true)).catch(e => this.errormsg = e.response.data.error.toString())
+                this.$axios.put("/media/:mediaid="+ this.photoId + "/likes/:likeid="+this.owner).then(() => (this.$emit('refresh-parent'), this.authLike = true)).catch(e => this.errormsg = e.response.data.error.toString())
             }
             this.loading = false;
         },
