@@ -15,6 +15,7 @@ func (db *appdbimpl) UpdateUserProfile(newProfile UserProfileDB) (UserProfileDB,
 	if err != nil {
 		return UserProfileDB{}, err
 	}
+
 	// 2 - execute query
 	_, err = db.c.Exec(`UPDATE user SET username=?, bio=?, profilepic=? WHERE userid=?`,
 		newProfile.Username, newProfile.Bio, newProfile.ProfilePic, newProfile.UserID)

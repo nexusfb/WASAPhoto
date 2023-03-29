@@ -1,4 +1,4 @@
-
+// this is the followers view where all the user followed by a profile are listed
 <script>
 import { ref } from 'vue';
 import ShortProfile from "@/components/ShortProfile.vue"
@@ -19,6 +19,7 @@ export default {
         }
     },
     methods: {
+        // get followers list
         async GetUserList() {
             this.loading = true;
             this.errormsg = null;
@@ -31,7 +32,7 @@ export default {
             }
             this.loading = false;
         },
-
+        // go to profile
         async ToProfile(name) {
             this.loading = true;
             this.errormsg = null;
@@ -59,7 +60,6 @@ export default {
 </script>
 <template>
    <div class="page_b">
-    
 	<div class="Bar_b">
 		<NavBar :profilo="this.$route.params.username"/>
 	</div>

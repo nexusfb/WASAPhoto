@@ -15,24 +15,8 @@ import (
 
 // get photo from photos folder
 func (rt *_router) getPhoto(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-	/*// 1 - open file
-	img, err := os.Open("." + r.URL.Path)
-	if err != nil {
-		// error opening file
-		ctx.Logger.Error("error: could not open photo file")
-		w.WriteHeader(http.StatusInternalServerError)
-	}
-	defer img.Close()
-
-	// 2 - prepare response
-	w.Header().Set("Content-Type", "image/jpeg")
-	_, err = io.Copy(w, img)
-	if err != nil {
-		// error copying image
-		ctx.Logger.Error("error: could not copy photo")
-		w.WriteHeader(http.StatusInternalServerError)
-	}*/
 	var media string
+	// 1 - get media name from query
 	if r.URL.Query().Has("media") {
 		media = r.URL.Query().Get("media")
 
@@ -43,12 +27,12 @@ func (rt *_router) getPhoto(w http.ResponseWriter, r *http.Request, ps httproute
 		return
 	}
 
-	// Obtain the path for the image in the server
+	// 2 - get the path for the image in the server
 	image_directory := "/tmp"
 	folder_name := "images"
 	path := filepath.Join(image_directory, folder_name, media)
 
-	// Open the image
+	// 3 - open the image
 	img, err := os.Open(path)
 	if err != nil {
 		// error opening file
@@ -57,7 +41,7 @@ func (rt *_router) getPhoto(w http.ResponseWriter, r *http.Request, ps httproute
 	}
 	defer img.Close()
 
-	// 2 - Send the image back to the front
+	// 4 - Send the image back to the front
 	w.Header().Set("Content-Type", "blob")
 	_, err = io.Copy(w, img)
 	if err != nil {

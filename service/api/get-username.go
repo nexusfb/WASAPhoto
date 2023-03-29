@@ -23,7 +23,8 @@ func (rt *_router) getUsername(w http.ResponseWriter, r *http.Request, ps httpro
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	// 7 - return the mapped media struct
+
+	// 3 - return the username
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(Username)

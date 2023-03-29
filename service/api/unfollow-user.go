@@ -91,6 +91,6 @@ func (rt *_router) unfollowUser(w http.ResponseWriter, r *http.Request, ps httpr
 		return
 	}
 
-	// 5 - return success (no content)
+	// 10 - return success (no content)
 	w.WriteHeader(http.StatusNoContent)
 }

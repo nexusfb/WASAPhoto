@@ -69,7 +69,8 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	// check if photo is valid
+
+	// 7 - check if photo is valid
 	filetype := http.DetectContentType(buff)
 	if filetype != "image/jpeg" && filetype != "image/png" && filetype != "image/jpg" {
 		ctx.Logger.WithError(err).Error("error: The provided file format is not allowed. Please upload a JPEG,JPG or PNG image")
@@ -82,7 +83,8 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	// create new mediaID
+
+	// 8 - create new mediaID
 	rawMid, err := uuid.NewV4()
 	if err != nil {
 		// newV4 returned error -> return error
@@ -92,7 +94,8 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 	Mid := rawMid.String()
 	newUserMedia.MediaID = Mid
-	// Save the photo in the images folder
+
+	// 9 - Save the photo in the images folder
 	imageDir := "/tmp"
 	folderName := "images"
 	fileName := fmt.Sprintf("%s%s", Mid, filepath.Ext(fileHeader.Filename))
@@ -109,97 +112,16 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
+	// 10 - Fill media struct
 	newUserMedia.Photo = fileName
 	newUserMedia.Caption = r.FormValue("cap")
 	newUserMedia.AuthorID = token
 
-	/*
-		// 7 - create picture url
-		// newPicURL := fmt.Sprintf("./src/assets/photos/%s%s", Mid, filepath.Ext(fileHeader.Filename))
-
-		// 9 - set id
-		newUserProfile.UserID = userID
-		// 6 - get new bio
-		newUserProfile.Bio = r.FormValue("bio")
-		if !(len(newUserProfile.Bio) <= 200 && structs.BioRx.MatchString(newUserProfile.Bio)) {
-			// bio is invalid
-			w.WriteHeader(http.StatusBadRequest)
-			ctx.Logger.WithError(err).Error("error: bio format is invalid")
-			return
-		}
-
-		// 4 - take photo from request body
-		photo, fileHeader, err := r.FormFile("pic")
-		if err != nil {
-			ctx.Logger.WithError(err).Error("error: could not parse photo")
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-		defer photo.Close()
-		buff := make([]byte, 512)
-		_, err = photo.Read(buff)
-		if err != nil {
-			ctx.Logger.WithError(err).Error("error: could not read photo")
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		//5 - check if photo is valid
-		filetype := http.DetectContentType(buff)
-		if filetype != "image/jpeg" && filetype != "image/png" && filetype != "image/jpg" {
-			ctx.Logger.WithError(err).Error("error: The provided file format is not allowed. Please upload a JPEG,JPG or PNG image")
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-		_, err = photo.Seek(0, io.SeekStart)
-		if err != nil {
-			ctx.Logger.WithError(err)
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-
-		// create new mediaID
-		rawMid, err := uuid.NewV4()
-		if err != nil {
-			// newV4 returned error -> return error
-			ctx.Logger.WithError(err).Error("error encountered while creating new mediaID")
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-		Mid := rawMid.String()
-
-		// 6 - save photo in photos folder and save with image id
-
-		f, err := os.Create(fmt.Sprintf("./webui/src/assets/photos/%s%s", Mid, filepath.Ext(fileHeader.Filename)))
-		if err != nil {
-			ctx.Logger.WithError(err)
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-		defer f.Close()
-		_, err = io.Copy(f, photo)
-		if err != nil {
-			ctx.Logger.WithError(err)
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-
-		// 7 - create picture url
-		picURL := fmt.Sprintf("./src/assets/photos/%s%s", Mid, filepath.Ext(fileHeader.Filename))
-
-		// 8 - take caption
-		caption := r.FormValue("cap")
-
-		// 9 - create media object
-		var media structs.Media
-		media.AuthorID = token
-		media.MediaID = Mid
-		media.Caption = caption
-		media.Photo = picURL
-	*/
-
+	// 11 - convert into database struct
 	mediadb := newUserMedia.ToDatabase(rt.db)
-	// 5 - call upload photo database function with userID and converted media struct to database media
+
+	// 12 - call upload photo database function
 	err = rt.db.UploadPhoto(mediadb)
 	if err != nil {
 		// upload photo database function returned error -> return error
@@ -207,7 +129,8 @@ func (rt *_router) uploadPhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	// 6 - return new media ID
+
+	// 13 - return new media ID
 	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(Mid)

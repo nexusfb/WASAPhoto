@@ -122,13 +122,8 @@ func (rt *_router) updateUserProfile(w http.ResponseWriter, r *http.Request, ps 
 		return
 	}
 	Mid := rawMid.String()
-	// 6 - save photo in photos folder and save with image id
-	/*f, err := os.Create(fmt.Sprintf("./webui/src/assets/photos/%s%s", Mid, filepath.Ext(fileHeader.Filename)))
-	if err != nil {
-		ctx.Logger.WithError(err)
-		w.WriteHeader(http.StatusBadRequest)
-		return
-	}*/
+
+	// 9 - save it in the tmp directory
 	imageDir := "/tmp"
 	folderName := "images"
 	fileName := fmt.Sprintf("%s%s", Mid, filepath.Ext(fileHeader.Filename))
@@ -146,13 +141,11 @@ func (rt *_router) updateUserProfile(w http.ResponseWriter, r *http.Request, ps 
 		return
 	}
 	newUserProfile.ProfilePic = fileName
-	// 7 - create picture url
-	// newPicURL := fmt.Sprintf("./src/assets/photos/%s%s", Mid, filepath.Ext(fileHeader.Filename))
 
-	// 9 - set id
+	// 10 - set id
 	newUserProfile.UserID = userID
 
-	// 10 - call update user profile database function
+	// 11 - call update user profile database function
 	_, err = rt.db.UpdateUserProfile(newUserProfile.ToDatabase())
 	if errors.Is(err, database.ErrUserProfileDoesNotExists) {
 		// database function returns user profile does not exist -> return error
@@ -166,7 +159,7 @@ func (rt *_router) updateUserProfile(w http.ResponseWriter, r *http.Request, ps 
 		return
 	}
 
-	// 11 - return updated user profile
+	// 12 - return updated user profile
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(newUserProfile)

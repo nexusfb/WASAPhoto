@@ -14,15 +14,19 @@ type ShortProfile struct {
 
 // Function to map a database profile to the struct profile
 func (s *ShortProfile) FromDatabase(db database.AppDatabase, userID string) error {
+	// retrive name using userid
 	name, err := db.GetUserName(userID)
 	if err != nil {
 		return err
 	}
+	// take name
 	s.Username = name
+	// retrive profile using name
 	profile, err := db.GetUserProfile(name)
 	if err != nil {
 		return err
 	}
+	// take profile picture
 	s.Pic = profile.ProfilePic
 	return nil
 }

@@ -35,25 +35,11 @@ export default {
         }
     },
     methods: {
+        // get user profile
         async get_user_profile(name) {
             this.$router.push({ path: '/users/'+name })
         },
-
-        
-        async Get_my_profile() {
-            this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
-                error => { return Promise.reject(error); });
-            if (this.header) {
-                try {
-                    let response = await this.$axios.get("/users/?username=" + this.owner)
-                    this.myPP = response.data.profilepic
-                    this.ciao = response.data.bio
-                } catch (e) {
-                    this.errormsg = e.response.data.error.toString();
-                }
-            }
-            this.loading = false;
-        },
+        // get profile pic image for sp and media image
         async getImages() {
             if (this.image) {
                 let uri = await this.GetImage(this.image)
@@ -64,6 +50,7 @@ export default {
                 this.ppUrl = uri
             }
         },
+        // function to get image from backend
         async GetImage(url) {
             this.loading = true;
             this.errormsg = null;
@@ -81,6 +68,7 @@ export default {
             this.loading = false;
             return uri
         },
+        // delete the image
         async deletePhoto() {
             this.loading = true;
             this.errormsg = null;
@@ -91,11 +79,11 @@ export default {
             }
             this.loading = false;
         },
-        async refresh() {
-        },
+        // go to likes view
         async GetLikes() {
             this.$router.push({ path: '/media/'+this.photoId+'/likes/', props: true})
         },
+        // like media
         async LikeClick() {
             if (this.isMine) {
                 this.errormsg = "Error: you cannot like your own media."
@@ -115,6 +103,7 @@ export default {
             }
             this.loading = false;
         },
+        // send comment
         async submitComment() {
             this.loading = true;
             this.errormsg = null;
@@ -140,12 +129,14 @@ export default {
             this.loading = false;
             this.refresh()
         },
-        async GetComments(isRefresh) {
+        // go to comment view
+        async GetComments() {
             this.$router.push({ path: '/media/'+this.photoId+'/comments/', props: true})
         },
     },
     computed: {
         timeAgo() {
+            // take year, month etc from upload date
             var dateString = this.timestamp;
             var date = new Date(dateString);
             var year = date.getFullYear();
@@ -154,8 +145,7 @@ export default {
             var hours = date.getHours();
             var minutes = date.getMinutes();
             var seconds = date.getSeconds();
-            /* console.log("Timestamp Year: " + year + " Month: " + month + " Day: " + day);
-            console.log("Timestamp Hours: " + hours + " Minutes: " + minutes + " Seconds: " + seconds); */
+            // take year, month etc from current date
             var currentDate = new Date();
             var c_year = currentDate.getFullYear();// current year
             var c_month = currentDate.getMonth();
@@ -163,8 +153,7 @@ export default {
             var c_hours = currentDate.getHours();
             var c_minutes = currentDate.getMinutes();
             var c_seconds = currentDate.getSeconds();
-            /* console.log("Current Year: " + c_year + " Month: " + c_month + " Day: " + c_day)
-            console.log("Current Hours:" + c_hours + " Minutes: " + c_minutes + " Seconds: " + c_seconds); */
+            // make time ago as a difference between upload time and current time
             var timeAgo = "";
             var diffYear = c_year - year;
             var diffMonth = c_month - month;
@@ -187,7 +176,6 @@ export default {
             } else {
                 timeAgo = "Just now";
             }
-            /* console.log(timeAgo); */
             return timeAgo;
         },
         isMine() {
@@ -195,7 +183,7 @@ export default {
         }
     },
     mounted() {
-        this.Get_my_profile().then(() => this.getImages()).then(() => this.refresh())
+        this.getImages().then(() => this.refresh())
     }
 }
 </script>
@@ -203,7 +191,6 @@ export default {
 <template>
     <div class="post">
         <ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
-        <!-- header -->
         <header class="header section">
             <div class="header-author">
                 <ShortProfile  :username="this.owner" :pic="this.pp"/>
@@ -213,19 +200,16 @@ export default {
             </div>
         </header>
 
-        <!-- media -->
         <div class="post-media">
             <img :src="imgUrl" alt="" class="post-image" />
-            <!-- src="https://picsum.photos/600/400?random=1" -->
         </div>
 
         <div class="two-col section">
-            <!-- action & count-->
             <div class="like-content">
                 <button v-if=!authLike class="btn-secondary like-review" @click="LikeClick">like</button>
                 <button v-if=authLike class="btn-secondary like-review" @click="LikeClick">unlike</button>
                 <button class="btn-secondary2 like-review" @click="GetLikes(false)">{{this.likesCount}} likes</button>
-                <button class="btn-secondary3 like-review" @click="GetComments(false)">{{this.commentsCount}} comments</button>
+                <button class="btn-secondary3 like-review" @click="GetComments()">{{this.commentsCount}} comments</button>
                 <span class="caption-span2">{{ timeAgo }}</span>
             </div>
         
@@ -238,7 +222,6 @@ export default {
         </div>
 
         <div class="comments-list">
-            <!-- comments form -->
             <div class="comment section">
                 <input class="text-body" type="text" v-model="this.textComment" placeholder="Add a comment...">
                 <button class="btn-secondary5 like-review" @click="submitComment">Post</button>
@@ -352,6 +335,8 @@ export default {
     height: auto;
     font-size: 15px;
     text-align: start;
+    font-family: "Copperplate";
+    text-transform: uppercase;
     
 }
 .post .like-content .caption-span2 {

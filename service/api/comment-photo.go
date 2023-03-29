@@ -51,6 +51,7 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 			return
 		}
 	}
+
 	// here only if logged user has not been banned by media owner
 
 	// 6 - get comment from request body
@@ -68,7 +69,7 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 		return
 	}
 
-	// 6 - call comment photo database function with userID and converted media struct to database media
+	// 7 - call comment photo database function with userID and converted media struct to database media
 	newCommentID, err := rt.db.CommentPhoto(token, mediaID, comment.ToDatabase(rt.db))
 	if err != nil {
 		// comment photo database function returned error -> return error
@@ -77,7 +78,7 @@ func (rt *_router) commentPhoto(w http.ResponseWriter, r *http.Request, ps httpr
 		return
 	}
 
-	// 6 - return new media ID
+	// 8 - return new media ID
 	w.WriteHeader(http.StatusCreated)
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(newCommentID)

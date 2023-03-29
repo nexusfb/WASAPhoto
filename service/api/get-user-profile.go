@@ -21,11 +21,14 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
 	// 2 - get username from query
 	name := r.URL.Query().Get("username")
+
 	// 3 - get logged user
 	token := r.Header.Get("Authorization")
 	token = strings.TrimPrefix(token, "Bearer ")
+
 	// 4 - take user id
 	id, err := rt.db.GetUserID(name)
 	if errors.Is(err, database.ErrUserProfileDoesNotExists) {
@@ -38,6 +41,7 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
 	// 5 - check if user is valid
 	if !rt.db.ExistenceCheck(id, "user") {
 		// user does not exist
@@ -45,13 +49,16 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
 	// 6 - check if logged user has been banned by requested user profile
 	if rt.db.Check("ban", "bannerid", "bannedid", id, token) {
 		ctx.Logger.Error("error: could not get user profile because you are not authorized ")
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
+
 	// here only if logged user has not been banned by user profile's owner
+
 	// 7 - call get user profile database function
 	userProfileDB, err := rt.db.GetUserProfile(name)
 	if err != nil {
@@ -60,9 +67,11 @@ func (rt *_router) getUserProfile(w http.ResponseWriter, r *http.Request, ps htt
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
 	// 8 - map returned user profile database to profile struct
 	var userProfile structs.UserProfile
 	userProfile.FromDatabase(userProfileDB, rt.db, token)
+
 	// 9 - return user profile struct
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")

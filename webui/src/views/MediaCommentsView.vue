@@ -1,3 +1,4 @@
+// this is the comments view where all the comments to specific media are displayed
 <script>
 import { ref } from 'vue';
 import CommentForm from "@/components/CommentForm.vue"
@@ -19,6 +20,7 @@ export default {
         }
     },
     methods: {
+        // using mediaid get media comments
         async GetCommentsList() {
             this.loading = true;
             this.errormsg = null;
@@ -32,30 +34,14 @@ export default {
             this.loading = false;
         },
 
-        async GetUsername() {
-            this.loading = true;
-            this.errormsg = null;
-			this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
-            error => {return Promise.reject(error);});
-            try {
-                let response = await this.$axios.get("/id")
-				this.name = response.data;
-            } catch (e) {
-                this.errormsg = e.
-                toString();
-				
-            }
-            this.loading = false;
-        },
         async refresh() {
-			await this.GetCommentsList()
+			this.GetCommentsList()
 		},
-
         
     },
 
 	mounted() {
-		this.GetCommentsList().then(this.GetUsername());
+		this.GetCommentsList();
         this.refresh();
 	}
 }
@@ -66,7 +52,7 @@ export default {
 	<div class="Bar_b">
 		<NavBar :profilo="this.name"/>
 	</div>
-    <header class="summary_page_b">
+    <header class="summary_page_c">
         <h3>COMMENTS</h3>
         <ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
         <div class="comment_page1">
@@ -104,7 +90,16 @@ export default {
      text-transform: uppercase;
  }
  .comment_page1 {
-    margin-left: 550px;
+    margin-left: 570px;
+ }
+ .summary_page_c{
+     position: relative;
+     margin-top: 50px;
+     height: 900px;
+     padding-left: 10px;
+     padding-right: 16px;
+     background-color:#246A73;
+     border-radius: 20px;
  }
  .item-error h2{
      position: relative;

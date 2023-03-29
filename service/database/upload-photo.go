@@ -18,6 +18,6 @@ func (db *appdbimpl) UploadPhoto(media MediaDB) error {
 		return fmt.Errorf("error when creating new media: %w", err)
 	}
 
-	// 4 - return mediaID
+	// 3 - return mediaID
 	return nil
 }

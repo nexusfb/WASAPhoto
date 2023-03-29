@@ -1,4 +1,4 @@
-
+// this is the likes view where all the likes to specific media are displayed
 <script>
 import { ref } from 'vue';
 import ShortProfile from "@/components/ShortProfile.vue"
@@ -18,6 +18,7 @@ export default {
         }
     },
     methods: {
+        // using media id get the likes
         async GetLikes() {
             this.loading = true;
             this.errormsg = null;
@@ -30,29 +31,9 @@ export default {
             }
             this.loading = false;
         },
-
-        async ToProfile(name) {
-            this.loading = true;
-            this.errormsg = null;
-            this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
-            error => {return Promise.reject(error);});
-            try {
-                this.$router.push({ path: '/users/'+name })
-            } catch (e) {
-                this.errormsg = e.toString();
-            }
-            this.loading = false;
-        },
-
-        filteredList() {
-        return this.users.filter((user) => user.username.toLowerCase().includes(this.input.toLowerCase()) );
-
-        
-    },
 },
 	mounted() {
 		this.GetLikes();
-        this.filteredList();
 	}
 }
 </script>
@@ -62,13 +43,13 @@ export default {
 	<div class="Bar_b">
 		<NavBar :profilo="this.$route.params.username"/>
 	</div>
-    <header class="summary_page_b">
+    <header class="summary_page_l">
         <h3>LIKES</h3>
         <ErrorMsg v-if="errormsg" :msg="errormsg"></ErrorMsg>
-        <div class="item-user2" v-for="user in filteredList()" :key="user">
+        <div class="item-user2" v-for="user in this.users" :key="user">
     <ShortProfile  :username="user.username" :pic="user.pic"/>
    </div>
-   <div class="item-error" v-if="!filteredList().length">
+   <div class="item-error" v-if="!this.users.length">
       <h2>No likes yet!</h2>
    </div>
     </header>
@@ -89,10 +70,10 @@ export default {
      max-width: 601px;
      margin-left: 120px;
  }
- .summary_page_b{
+ .summary_page_l{
      position: relative;
      margin-top: 50px;
-     height: 6000px;
+     height: 900px;
      padding-left: 10px;
      padding-right: 16px;
      background-color:#246A73;

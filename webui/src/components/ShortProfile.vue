@@ -1,6 +1,5 @@
 // Short profile component
 // It is a short version of the user profile with just profile pic and username
-
 <script>
 export default {
     name: 'ShortProfile',

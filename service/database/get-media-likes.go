@@ -26,6 +26,7 @@ func (db *appdbimpl) GetMediaLikes(mediaID string) ([]string, error) {
 	if err = rawLikes.Err(); err != nil {
 		return nil, err
 	}
+
 	// 3 - return result media array
 	return ret, nil
 }

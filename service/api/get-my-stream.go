@@ -60,7 +60,7 @@ func (rt *_router) getMyStream(w http.ResponseWriter, r *http.Request, ps httpro
 		mediaArray = append(mediaArray, media)
 	}
 
-	// 6 - return array of followings
+	// 6 - return array of media of followed users
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(mediaArray)

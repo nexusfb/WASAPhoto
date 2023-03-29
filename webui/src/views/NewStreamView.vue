@@ -1,8 +1,5 @@
-// View of logged user stream
-// This is the default view
-
+// this is the stream view where the logged user can see the media of its followings
 <script>
-// import post & nav bar
 import FinalMedia from '@/components/FinalMedia.vue'
 import NavBar from '@/components/NewHomeBar.vue'
 export default {
@@ -44,7 +41,6 @@ export default {
 
 <template>
 	<div class="stream_page">
-	 
 	 <div class="Bar_b">
 		 <NavBar :profilo="this.$route.params.username"/>
 	 </div>
@@ -81,7 +77,7 @@ export default {
  .summary_page_b{
 	 position: relative;
 	 margin-top: 50px;
-	 height: 6000px;
+	 height: 10000px;
 	 padding-left: 10px;
 	 padding-right: 16px;
 	 background-color:#246A73;

@@ -31,18 +31,21 @@ func (rt *_router) deleteUserProfile(w http.ResponseWriter, r *http.Request, ps 
 		w.WriteHeader(http.StatusUnauthorized)
 		return
 	}
+
 	// notice that in this case I don't check if the requested user exists because the only case in which he can delete
 	// the profile is if it correspond to the logged user which I take as an assumption to exist
 
 	// here only if logged user is trying to delete his profile
 
-	// 4 - delete user images from the folder
+	// 4 - get user media
 	userMedia, err := rt.db.GetUserMedia(userID)
 	if err != nil {
 		ctx.Logger.WithError(err).Error("can't get user media")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	// 5 - delete all media
 	for _, media := range userMedia {
 		err := rt.deleteImageFromFolder(media.MediaID, w, ctx)
 		if err != nil {
@@ -52,7 +55,7 @@ func (rt *_router) deleteUserProfile(w http.ResponseWriter, r *http.Request, ps 
 		}
 	}
 
-	// 5 - call delete user profile database function
+	// 6 - call delete user profile database function
 	err = rt.db.DeleteUserProfile(userID)
 	if err != nil {
 		// database function returned error while deleting -> return error
@@ -61,6 +64,6 @@ func (rt *_router) deleteUserProfile(w http.ResponseWriter, r *http.Request, ps 
 		return
 	}
 
-	// 6 - return success (no content)
+	// 7 - return success (no content)
 	w.WriteHeader(http.StatusNoContent)
 }

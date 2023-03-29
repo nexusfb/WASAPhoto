@@ -26,6 +26,7 @@ func (db *appdbimpl) GetUserMedia(userid string) ([]MediaDB, error) {
 	if err = rawMedia.Err(); err != nil {
 		return nil, err
 	}
+
 	// 3 - return result media array
 	return ret, nil
 }

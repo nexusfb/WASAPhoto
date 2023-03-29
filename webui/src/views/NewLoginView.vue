@@ -1,5 +1,5 @@
+// this is the login view where user can insert username to log back in or create a nw account
 <script>
-
 export default {
     data: function() {
         return {
@@ -13,9 +13,14 @@ export default {
         }
     },
     methods: {
+        // given input string login user
         LoginUser: async function () {
             this.loading = true;
             this.errormsg = null;
+            // emptiness check
+            if (this.User.username.length == 0) {
+                    this.errormsg = "Error: empty usernames are not valid. Please try again."}
+            else{
             try {
                 // backend method to login
                 let response = await this.$axios.post("/session/", {
@@ -30,8 +35,10 @@ export default {
                 this.$router.push({ path: '/users/'+this.User.username })
             } catch (e) {
                 if (e.response && e.response.status == 400){
-                this.errormsg = "Error: the inserted username is invalid. Try again."}
-            }
+                this.errormsg = "Error: the inserted username is invalid. Please try again."}
+                if (e.response && e.response.status == 500){
+                this.errormsg = "Error: internal error. Please try again."}
+            }}
             this.loading = false;
         },
         
@@ -110,5 +117,4 @@ export default {
     text-decoration: none;
     border-radius: 25px;
 }
-
 </style>

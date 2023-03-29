@@ -13,6 +13,6 @@ func (db *appdbimpl) UncommentPhoto(commentID string) error {
 		return fmt.Errorf("error encountered while executing a delete query: %w", err)
 	}
 
-	// 3 - return success
+	// 2 - return success
 	return nil
 }

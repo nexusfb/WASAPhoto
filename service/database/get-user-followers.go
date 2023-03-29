@@ -26,6 +26,7 @@ func (db *appdbimpl) GetUserFollowers(userid string) ([]string, error) {
 	if err = rawFollowers.Err(); err != nil {
 		return nil, err
 	}
+
 	// 3 - return result media array
 	return ret, nil
 }

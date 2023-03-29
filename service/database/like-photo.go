@@ -16,6 +16,6 @@ func (db *appdbimpl) LikePhoto(userID string, mediaID string) error {
 		return fmt.Errorf("error when creating new like: %w", err)
 	}
 
-	// 3 - return nil error
+	// 2 - return nil error
 	return nil
 }

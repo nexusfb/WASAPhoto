@@ -1,3 +1,4 @@
+// this is the search view where logged user can search for other users
 <script>
 import { ref } from 'vue';
 import ShortProfile from "@/components/ShortProfile.vue"
@@ -17,6 +18,7 @@ export default {
         }
     },
     methods: {
+        // get the list of users the logged user can search for
         async GetUserList() {
             this.loading = true;
             this.errormsg = null;
@@ -30,6 +32,7 @@ export default {
             this.loading = false;
         },
 
+        // go to a specific profile
         async ToProfile(name) {
             this.loading = true;
             this.errormsg = null;
@@ -43,6 +46,7 @@ export default {
             this.loading = false;
         },
 
+        // filter the list
         filteredList() {
         return this.users.filter((user) => user.username.toLowerCase().includes(this.input.toLowerCase()) );
 

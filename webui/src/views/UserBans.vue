@@ -1,3 +1,4 @@
+// this is the banned view where all the users banned from the logged user are listed
 <script>
 import { ref } from 'vue';
 import ShortProfile from "@/components/ShortProfile.vue"
@@ -17,6 +18,7 @@ export default {
         }
     },
     methods: {
+        // get the list of banned users
         async GetUserList() {
             this.loading = true;
             this.errormsg = null;
@@ -29,7 +31,7 @@ export default {
             }
             this.loading = false;
         },
-
+        // go to the profile
         async ToProfile(name) {
             this.loading = true;
             this.errormsg = null;

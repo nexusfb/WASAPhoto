@@ -9,7 +9,6 @@ var (
 	CaptionRx = BioRx        // Caption regex is a general string pattern
 )
 
-// Media struct
 type Media struct {
 	// unique identifier of the media
 	MediaID string `json:"id"`
@@ -36,23 +35,35 @@ type Media struct {
 
 // Function to map a database media to the media struct
 func (m *Media) FromDatabase(media database.MediaDB, db database.AppDatabase, token string) error {
+	// declare variables
 	var err error
+	// media id is the same as the database media id
 	m.MediaID = media.MediaID
+	//retrive author name using the author id
 	m.AuthorName, err = db.GetUserName(media.AuthorID)
 	if err != nil {
 		return err
 	}
+	// author id is the same as the database author id
 	m.AuthorID = media.AuthorID
+	// retrive the profile using the author name
 	profile, err := db.GetUserProfile(m.AuthorName)
 	if err != nil {
 		return err
 	}
+	// take the profile picture
 	m.AuthorPic = profile.ProfilePic
+	// date is the same as the database date
 	m.Date = media.Date
+	// caption is the same as the database caption
 	m.Caption = media.Caption
+	// photo is the same as the database photo
 	m.Photo = media.Photo
+	// retrive the number of likes counting the rows of the like table with that mediaid
 	m.NLikes = db.CountRows("like", "mediaid", m.MediaID)
+	// retrive the number of comments counting the rows of the comment table with that mediaid
 	m.NComments = db.CountRows("comment", "mediaid", m.MediaID)
+	// retrive the like of the logged user for that mediaid
 	m.Liked = db.Check("like", "mediaid", "userid", m.MediaID, token)
 	return nil
 }

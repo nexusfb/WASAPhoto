@@ -26,6 +26,7 @@ func (db *appdbimpl) GetMediaComments(mediaID string) ([]CommentDB, error) {
 	if err = rawComments.Err(); err != nil {
 		return nil, err
 	}
+
 	// 3 - return result media array
 	return ret, nil
 }

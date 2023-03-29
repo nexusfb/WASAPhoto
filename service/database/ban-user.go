@@ -46,10 +46,10 @@ func (db *appdbimpl) BanUser(bannerID string, bannedID string) error {
 		return fmt.Errorf("error when creating new ban: %w", err)
 	}
 
-	// 5 - delete all likes/comments of banned user from logged user
+	// 5 - delete all likes of banned user from logged user
 	query :=
 		`DELETE FROM like WHERE mediaid in (SELECT like.mediaid FROM like JOIN media WHERE media.authorid = ? and like.userid = ?)
-		AND userid in (SELECT like.userid FROM like JOIN media WHERE media.authorid = ? and like.userid = ?)` // delete media likes
+		AND userid in (SELECT like.userid FROM like JOIN media WHERE media.authorid = ? and like.userid = ?)`
 
 	_, err = db.c.Exec(query, bannerID, bannedID, bannerID, bannedID)
 	if err != nil {
@@ -57,16 +57,17 @@ func (db *appdbimpl) BanUser(bannerID string, bannedID string) error {
 		return fmt.Errorf("error encountered while executing a delete query: %w", err)
 	}
 
-	// 5 - delete all likes/comments of banned user from logged user
+	// 6 - delete all comments of banned user from logged user
 	query =
 		`DELETE FROM comment WHERE mediaid in (SELECT comment.mediaid FROM comment  JOIN media WHERE media.authorid = ? and comment.userid = ?)
-		AND userid in (SELECT comment.userid FROM comment JOIN media WHERE media.authorid = ? and comment.userid = ?)` // delete media likes
+		AND userid in (SELECT comment.userid FROM comment JOIN media WHERE media.authorid = ? and comment.userid = ?)`
 
 	_, err = db.c.Exec(query, bannerID, bannedID, bannerID, bannedID)
 	if err != nil {
 		// exec returned error -> return error
 		return fmt.Errorf("error encountered while executing a delete query: %w", err)
 	}
-	// 3 - return nil error
+
+	// 7 - return nil error
 	return nil
 }

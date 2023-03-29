@@ -29,7 +29,8 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 	// 2 - get logged user
 	token := r.Header.Get("Authorization")
 	token = strings.TrimPrefix(token, "Bearer ")
-	// 4 - logged user can change username only of his own profile, check if it is his profile
+
+	// 3 - logged user can change username only of his own profile, check if it is his profile
 	if token != userID {
 		ctx.Logger.Error("error: could not change username because you are not authorized ")
 		w.WriteHeader(http.StatusUnauthorized)
@@ -41,7 +42,7 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 
 	// here only ifs logged user is trying to change his username
 
-	// 5 - take json from request body
+	// 4 - take json from request body
 	var newUsernameJson structs.Username
 	if err := json.NewDecoder(r.Body).Decode(&newUsernameJson); err != nil {
 		// username is not a parseable JSON -> return error
@@ -55,7 +56,7 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 		return
 	}
 
-	// 6 - take old username using userID
+	// 5 - take old username using userID
 	oldName, err := rt.db.GetUserName(userID)
 	if err != nil {
 		ctx.Logger.WithError(err).Error("error: could not get old name")
@@ -63,7 +64,7 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 		return
 	}
 
-	// 7 - take old profile using old username
+	// 6 - take old profile using old username
 	oldProfile, err := rt.db.GetUserProfile(oldName)
 	if err != nil {
 		ctx.Logger.WithError(err).Error("error: could not get old profile")
@@ -71,7 +72,7 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 		return
 	}
 
-	// 8 - convert old profile to array of byte
+	// 7 - convert old profile to array of byte
 	oldProfileByte, err := json.Marshal(&oldProfile)
 	if err != nil {
 		ctx.Logger.WithError(err).Error("error: could not marshal old profile to JSON")
@@ -79,13 +80,13 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 		return
 	}
 
-	// 9 - create patch
+	// 8 - create patch
 	patchJson := `[{"op": "replace", "path": "/username", "value": "` + newUsernameJson.Name + `"}]`
 
-	// 10 - convert patch to array of byte
+	// 9 - convert patch to array of byte
 	patchByte := []byte(patchJson)
 
-	// 11 - decode patch
+	// 10 - decode patch
 	patch, err := jsonpatch.DecodePatch(patchByte)
 	if err != nil {
 		// decode patch returned error -> return error
@@ -94,7 +95,7 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 		return
 	}
 
-	// 12- apply patch
+	// 11- apply patch
 	newProfileByte, err := patch.Apply(oldProfileByte)
 	if err != nil {
 		// apply returned error -> return error
@@ -103,7 +104,7 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 		return
 	}
 
-	// 13 - conver new profile from array of byte to json and put it into a new profile struct
+	// 12 - conver new profile from array of byte to json and put it into a new profile struct
 	var newProfileJson structs.UserProfile
 	err = json.Unmarshal(newProfileByte, &newProfileJson)
 	if err != nil {
@@ -112,7 +113,7 @@ func (rt *_router) setMyUserName(w http.ResponseWriter, r *http.Request, ps http
 		return
 	}
 
-	// 14 - call update user profile with the new profile translated to database profile
+	// 13 - call update user profile with the new profile translated to database profile
 	_, err = rt.db.UpdateUserProfile(newProfileJson.ToDatabase())
 	if errors.Is(err, database.ErrUserProfileDoesNotExists) {
 		// user profile does not exist -> return error

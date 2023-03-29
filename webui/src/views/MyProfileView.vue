@@ -1,4 +1,4 @@
-// Page of user profile with username, caption, profile picture, nmedia, nfollowers, nfollowing, user media
+// This is the profile view where user basic informations and media are
 <script>
 import FinalMedia from "@/components/FinalMedia.vue";
 import NavBar from "@/components/NewHomeBar.vue";
@@ -25,6 +25,7 @@ export default {
         }
     },
     methods: {
+        // get user profile
         async GetProfile() {
             this.loading = true;
             this.errormsg = null;
@@ -40,20 +41,20 @@ export default {
             }
             this.loading = false;
         },
+
+        // delete logged user profile
         async deleteProfile() {
             this.loading = true;
             this.errormsg = null;
-			this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
-            error => {return Promise.reject(error);});
             try {
                 this.$axios.delete("/users/:userid="+this.logged).then(this.logout)
             } catch (e) {
                 this.errormsg = e.toString();
-				
             }
             this.loading = false;
         },
 
+        // get user media
 		async GetUserMedia() {
             this.loading = true;
             this.errormsg = null;
@@ -66,12 +67,13 @@ export default {
             }
             this.loading = false;
         },
+
+        // go back to login page
         logout: async function(){
             this.$router.push({ path: '/'})
         },
-		searchUsers: async function(){
-            this.$router.push({ path: '/search'})
-        },
+
+        // bool function to open create media widget
         createMedia: async function(){
 			if (this.creatingMedia==false){
             this.creatingMedia = true;
@@ -81,6 +83,7 @@ export default {
             this.creatingMedia = false;}
         },
 		
+        // bool function to open update profile widget
 		updateProfile: async function(){
             if (this.changingProfile==false){
             this.changingProfile = true;
@@ -89,6 +92,8 @@ export default {
 			else{
             this.changingProfile = false;}
         },
+
+        // book function to open change username widget
 		changeUsername: async function(){
             if (this.changingusername==false){
             this.changingusername = true;
@@ -97,77 +102,30 @@ export default {
 			else{
             this.changingusername = false;}
         },
-		seeMediaComments: async function(m){
-            this.$router.push({ path: "/media/"+m.id+"/comments/"})
-        },
-		seeMyStream: async function(){
-            this.$router.push({ path: "/stream"})
-        },
-	
+        
+        // refresh function
 		async refresh() {
-			this.$axios.interceptors.request.use(config => { config.headers['Authorization'] = localStorage.getItem('Authorization'); return config; },
-                error => { return Promise.reject(error); });
+			this.loading = true;
 			await this.GetProfile()
             if (this.profile.profilepic){await this.getImage(this.profile.profilepic)}
             this.GetUserMedia();
             this.new = this.profile.username
+            this.loading = false;
 		},
-		deleteMedia(m) {
-            this.loading = true;
-            this.errormsg = null;
-			this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
-            error => {return Promise.reject(error);});
-            try {
-                this.$axios.delete("/media/:mediaid="+ m.id);
-				this.$router.push({ path: '/users/'+this.profile.username })
-            } catch (e) {
-                this.errormsg = e.toString();
-            }
-            this.loading = false;
-			this.refresh();
-        },
-		likeMedia(m) {
-            this.loading = true;
-            this.errormsg = null;
-			this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
-            error => {return Promise.reject(error);});
-            try {
-                this.$axios.put("/media/:mediaid="+ m.id+"/likes/");
-				this.refresh();
-            } catch (e) {
-                this.errormsg = e.toString();
-            }
-            this.loading = false;
-			this.refresh();
-        },
-		unlikeMedia(m) {
-            this.loading = true;
-            this.errormsg = null;
-			this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
-            error => {return Promise.reject(error);});
-            try {
-                this.$axios.delete("/media/:mediaid="+ m.id+"/likes/");
-				this.refresh();
-            } catch (e) {
-                this.errormsg = e.toString();
-            }
-            this.loading = false;
-			this.refresh();
-        },
+
+        // follow user 
 		followUser() {
             this.loading = true;
             this.errormsg = null;
-			this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
-            error => {return Promise.reject(error);});
             try {
                 this.$axios.put("/users/:userid="+this.logged+"/followings/:followingid="+this.profile.userid).then(() => (this.refresh()));
-				// this.$router.push({ path: '/users/'+this.profile.username });
             } catch (e) {
                 this.errormsg = e.toString();
             }
             this.loading = false;
         },
 
+        // unfollow user
 		unfollowUser() {
             this.loading = true;
             this.errormsg = null;
@@ -175,13 +133,13 @@ export default {
             error => {return Promise.reject(error);});
             try {
                 this.$axios.delete("/users/:userid="+this.logged+"/followings/:followingid="+this.profile.userid).then(() => (this.refresh()));
-				//this.$router.push({ path: '/users/'+this.profile.username })
             } catch (e) {
                 this.errormsg = e.toString();
             }
             this.loading = false;
         },
 
+        // boolean function to change follow/unfollow button
 		async toggle(){
 			if (this.profile.followed==true){
 				this.unfollowUser();
@@ -192,6 +150,8 @@ export default {
 				this.profile.followed = true;
 			}
 		},
+
+        //boolean function to change ban/unban button
 		async toggleBan(){
 			if (this.profile.banned==true){
 				this.unbanUser();
@@ -203,6 +163,7 @@ export default {
 			}
 		},
 
+        // ban user
 		banUser() {
             this.loading = true;
             this.errormsg = null;
@@ -218,6 +179,7 @@ export default {
 			this.refresh();
         },
 
+        // un ban user
 		unbanUser() {
             this.loading = true;
             this.errormsg = null;
@@ -233,27 +195,7 @@ export default {
 			this.refresh();
         },
 
-		commentMedia(m) {
-            this.loading = true;
-            this.errormsg = null;
-			this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
-            error => {return Promise.reject(error);});
-            if (this.comment.length==0){
-                if (e.response && e.response.status == 400){
-                this.errormsg = "Error: the inserted username is invalid. Try again."}
-            }
-            else{
-            try {
-                this.$axios.post("/media/:mediaid="+ m.id+"/comments/", {
-					content: this.comment,});
-				this.refresh();
-            } catch (e) {
-                this.errormsg = e.toString();
-            }
-        }
-            this.loading = false;
-			this.refresh();
-        },
+        // create media helper functions
 		handleImageUpload(event) {
             this.previewImage(event)
             this.onFileUpload(event)
@@ -271,12 +213,11 @@ export default {
         onFileUpload (event) {
           this.photo = event.target.files[0]
         },
+
+        // create media function
         async onSubmit() {
-          // upload file
           this.loading = true;
-            this.errormsg = null;
-            this.$axios.interceptors.request.use(config => {config.headers['Authorization'] = localStorage.getItem('Authorization');return config;},
-            error => {return Promise.reject(error);});
+          this.errormsg = null;
           const formData = new FormData()
           formData.append('pic', this.photo)
           formData.append('cap', this.photoCaption)
@@ -302,29 +243,30 @@ export default {
 
             if (this.new.length<5){
                 this.errormsg = "Error: usernames have to be at least 5 characters long. Please try again."
-                return
+                this.new = this.profile.username
             }
-            if (this.new.length>20){
+            else if (this.new.length>20){
                 this.errormsg = "Error: usernames can have a maximum lenght of 20 characters. Please try again."
-                return
+                this.new = this.profile.username
             }
-            if (!this.$refs.newppic.files[0]){
+            else if (!this.$refs.newppic.files[0]){
                 this.errormsg = "Error: you must provide a profile picture. Please try again."
-                return
+                
             }
+            else{
             try {
                 let formData = new FormData();
             	formData.append('bio', this.profile.bio)
             	formData.append('username', this.new)
                 formData.append('pic', this.$refs.newppic.files[0]);
-                this.$axios.put("/users/:userid="+this.profile.userid, formData, {
+                await this.$axios.put("/users/:userid="+this.profile.userid, formData, {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 })
             } catch (e) {
                 this.errOcc = true
-                this.$router.push({ path: '/entra/'+this.profile.username }).then(() => (this.refresh()))
                 if (e.response && e.response.status == 400){
                 this.errormsg = "Error: the inserted profile is invalid. Please try again."
+                this.new = this.profile.username
                 }
                 if (e.response && e.response.status == 500){
                     this.$router.push({ path: '/500/'+this.profile.username }).then(() => (this.refresh()))
@@ -332,43 +274,43 @@ export default {
             }
             if (!this.errOcc){
                 this.profile.username = this.new
-                this.$router.push({ path: '/users/'+this.profile.username }).then(() => (this.refresh()))
+                this.$router.push({ path: '/users/'+this.profile.username }).then(this.changingProfile = false).then(() => (this.refresh()))
             
             }
-            this.refresh();
+            
+            this.errOcc=false;}
             this.loading = false;
-			this.changingProfile = false;
-            this.errOcc=false;
         },
+
+        // change username
 		changename: async function () {
             this.loading = true;
             this.errormsg = null;
             if (this.new.length<5){
                 this.errormsg = "Error: usernames have to be at least 5 characters long. Please try again."
-                return
+                this.new = this.profile.username
             }
-            if (this.new.length>20){
+            else if (this.new.length>20){
                 this.errormsg = "Error: usernames can have a maximum lenght of 20 characters. Please try again."
-                return
+                this.new = this.profile.username
             }
-            try {
+            else{try {
                 await this.$axios.patch("/users/:userid="+this.profile.userid, {
 					username: this.new,})
             } catch (e) {
                 this.errOcc = true
                 if (e.response && e.response.status == 400){
                 this.errormsg = "Error: the inserted username is invalid. Please try again."}
-                if (e.response && e.response.status == 500){
-                this.errormsg = "Error: internal error. Please try again."}
+                else if (e.response && e.response.status == 500){
+                this.errormsg = "Error: this username is already taken. Please try again."}
+                this.new = this.profile.username
             }
             if (!this.errOcc){
                 this.profile.username = this.new
-                this.$router.push({ path: '/users/'+this.profile.username }).then(() => (this.refresh()))
+                this.$router.push({ path: '/users/'+this.profile.username }).then(this.changingusername = false).then(() => (this.refresh()))
             }
-			this.refresh();
+            this.errOcc = false;}
             this.loading = false;
-			this.changingusername = false;
-            this.errOcc = false;
         },
 		async getFollowers() {
             this.$router.push({ path: '/users/'+this.profile.userid+'/followers/', props: true})

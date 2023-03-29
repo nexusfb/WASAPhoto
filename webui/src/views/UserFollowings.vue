@@ -1,4 +1,4 @@
-
+// This is the following view where all user followings are listed
 <script>
 import { ref } from 'vue';
 import ShortProfile from "@/components/ShortProfile.vue"
@@ -18,6 +18,7 @@ export default {
         }
     },
     methods: {
+        // get followings
         async GetUserList() {
             this.loading = true;
             this.errormsg = null;
@@ -30,7 +31,7 @@ export default {
             }
             this.loading = false;
         },
-
+        // get user profile
         async ToProfile(name) {
             this.loading = true;
             this.errormsg = null;

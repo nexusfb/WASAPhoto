@@ -16,27 +16,45 @@ var (
 
 // User profile struct
 type UserProfile struct {
-	UserID     string `json:"userid"`     // ID of the owner of the profile
-	Username   string `json:"username"`   // username of the owner of the profile
-	Bio        string `json:"bio"`        // short text content
-	ProfilePic string `json:"profilepic"` // url of the profile picture
-	NMedia     uint32 `json:"nmedia"`     // number of media published by the owner of the profile
-	NFollowers uint32 `json:"nfollowers"` // number of followers of the owner of the profile
-	NFollowing uint32 `json:"nfollowing"` // number of followings of the owner of the profile
-	Followed   bool   `json:"followed"`
-	Banned     bool   `json:"banned"`
+	// ID of the owner of the profile
+	UserID string `json:"userid"`
+	// username of the owner of the profile
+	Username string `json:"username"`
+	// short text content
+	Bio string `json:"bio"`
+	// url of the profile picture
+	ProfilePic string `json:"profilepic"`
+	// number of media published by the owner of the profile
+	NMedia uint32 `json:"nmedia"`
+	// number of followers of the owner of the profile
+	NFollowers uint32 `json:"nfollowers"`
+	// number of followings of the owner of the profile
+	NFollowing uint32 `json:"nfollowing"`
+	// true if the authenticated user follows this userid
+	Followed bool `json:"followed"`
+	// true if the authenticated user banned this userid
+	Banned bool `json:"banned"`
 }
 
 // Function to map a database user profile to the api struct user profile
 func (p *UserProfile) FromDatabase(profile database.UserProfileDB, db database.AppDatabase, token string) {
+	// userid is the same as database userid
 	p.UserID = profile.UserID
+	// username is the same as database username
 	p.Username = profile.Username
+	// bio is the same as database bio
 	p.Bio = profile.Bio
+	// profile pic is the same as database profile pic
 	p.ProfilePic = profile.ProfilePic
+	// the number of media of a user is computed counting the rows of the media table with this authorid
 	p.NMedia = db.CountRows("media", "authorid", p.UserID)
+	// the number of followers of a user is computed counting the rows of the follow table with this authorid
 	p.NFollowers = db.CountRows("follow", "followedid", p.UserID)
+	// the number of followings of a user is computed counting the rows of the follow table with this authorid
 	p.NFollowing = db.CountRows("follow", "followerid", p.UserID)
+	// retrive the follow of the authenticated user
 	p.Followed = db.Check("follow", "followerid", "followedid", token, profile.UserID)
+	// retrive the ban of the authenticated user
 	p.Banned = db.Check("ban", "bannerid", "bannedid", token, profile.UserID)
 }
 

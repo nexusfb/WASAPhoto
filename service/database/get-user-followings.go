@@ -26,6 +26,7 @@ func (db *appdbimpl) GetUserFollowings(userid string) ([]string, error) {
 	if err = rawFollowings.Err(); err != nil {
 		return nil, fmt.Errorf("error encountered while iterating on rows: %w", err)
 	}
+
 	// 3 - return result followings array
 	return ret, nil
 }

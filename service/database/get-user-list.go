@@ -27,6 +27,7 @@ func (db *appdbimpl) GetUserList(username string) ([]string, error) {
 	if err = users.Err(); err != nil {
 		return nil, fmt.Errorf("error encountered while iterating on rows: %w", err)
 	}
+
 	// 3 - return result users array
 	return ret, nil
 }

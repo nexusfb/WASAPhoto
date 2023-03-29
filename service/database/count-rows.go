@@ -10,6 +10,7 @@ func (db *appdbimpl) CountRows(table string, column string, event string) uint32
 		// queryrow returned error which means no user exists -> return 0
 		return 0
 	}
+
 	// 2 - return query resylt
 	return count
 }

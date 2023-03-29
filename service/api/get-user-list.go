@@ -15,14 +15,6 @@ func (rt *_router) getUserList(w http.ResponseWriter, r *http.Request, ps httpro
 	// 1 - take username from path
 	username := ps.ByName("username")
 	username = strings.TrimPrefix(username, ":username=")
-	/*
-		if len(username) == 0 {
-			// username is empty -> return error
-			ctx.Logger.Error("error: username is empty")
-			w.WriteHeader(http.StatusBadRequest)
-			return
-		}
-	*/
 
 	// 2 - get logged user
 	token := r.Header.Get("Authorization")
@@ -40,21 +32,13 @@ func (rt *_router) getUserList(w http.ResponseWriter, r *http.Request, ps httpro
 	// 4 - filter user list with ban conditions
 	var finalUserList []structs.ShortProfile
 	for _, u := range users {
-		/* 1 - get userid
-		user, err := rt.db.GetUserProfile(u)
-		if err != nil {
-			ctx.Logger.WithError(err).Error("error: can't get user profile")
-			w.WriteHeader(http.StatusInternalServerError)
-			return
-		}
-		userid := user.UserID
-		*/
-		// 2 - check if user banned logged user
+
+		// 1 - check if user banned logged user
 		if rt.db.Check("ban", "bannerid", "bannedid", u, token) {
 			continue
 		}
 
-		// 3 - check if logged user banned user
+		// 2 - check if logged user banned user
 		if rt.db.Check("ban", "bannerid", "bannedid", token, u) {
 			continue
 		}
@@ -70,10 +54,11 @@ func (rt *_router) getUserList(w http.ResponseWriter, r *http.Request, ps httpro
 			return
 		}
 
-		// 4 - add user to final list
+		// 3 - add user to final list
 		finalUserList = append(finalUserList, sp)
 	}
-	// 7 - return array of names
+
+	// 5 - return array of names
 	w.WriteHeader(http.StatusOK)
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(finalUserList)

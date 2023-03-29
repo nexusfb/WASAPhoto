@@ -22,6 +22,7 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
+
 	// 2 - check if media exists
 	if !rt.db.ExistenceCheck(mediaID, "media") {
 		// media does not exist -> don't do anything
@@ -39,13 +40,16 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 
 	// here if the logged user is the owner of the media
+
+	// 4 - delete image from tmp directory
 	err := rt.deleteImageFromFolder(mediaID, w, ctx)
 	if err != nil {
 		ctx.Logger.WithError(err).Error("error in deleting images from folder")
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	// 4 - call delete photo database function
+
+	// 5 - call delete photo database function
 	err = rt.db.DeletePhoto(mediaID)
 	if errors.Is(err, database.ErrMediaDoesNotExists) {
 		// database function returned no media exists -> don't do anything
@@ -59,6 +63,6 @@ func (rt *_router) deletePhoto(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	// 5 - return success (no content)
+	// 6 - return success (no content)
 	w.WriteHeader(http.StatusNoContent)
 }

@@ -15,8 +15,8 @@ import (
 
 // get photo from photos folder
 func (rt *_router) getImage(w http.ResponseWriter, r *http.Request, ps httprouter.Params, ctx reqcontext.RequestContext) {
-
 	var image_file_name string
+	// 1 - take image name from query
 	if r.URL.Query().Has("image_name") {
 		image_file_name = r.URL.Query().Get("image_name")
 
@@ -27,12 +27,12 @@ func (rt *_router) getImage(w http.ResponseWriter, r *http.Request, ps httproute
 		return
 	}
 
-	// Obtain the path for the image in the server
+	// 2 - build the path for the image in the server
 	image_directory := "/tmp"
 	folder_name := "images"
 	path := filepath.Join(image_directory, folder_name, image_file_name)
 
-	// Open the image
+	// 3 - open the image
 	img, err := os.Open(path)
 	if err != nil {
 		// error opening file
@@ -41,7 +41,7 @@ func (rt *_router) getImage(w http.ResponseWriter, r *http.Request, ps httproute
 	}
 	defer img.Close()
 
-	// 2 - Send the image back to the front
+	// 3 - Send the image back to the front
 	w.Header().Set("Content-Type", "blob")
 	_, err = io.Copy(w, img)
 	if err != nil {
