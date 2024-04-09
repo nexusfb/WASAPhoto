@@ -1,8 +1,2 @@
 # WASA Photo
-Keep in touch with your friends by sharing photos of special moments, thanks to WASAPhoto! Directly from your PC, you can upload your photos, and they will be visible to everyone who is following you.
-
-This is a University project, specifically for the Web and Software Architecture course of La Sapienza.
-
-## License
-
-See [LICENSE](LICENSE).
+WasaPhoto is a user-friendly social media platform for photo sharing, developed during the academic year 2022-2023 as part of the 'Web and Software Architectures' course at La Sapienza University of Rome.
